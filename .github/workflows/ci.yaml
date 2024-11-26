@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build containers
+        run: docker compose build
+
+      - name: Start services
+        run: docker compose up -d
+
+      - name: Wait for service to be ready
+        run: sleep 10
+
+      - name: Fetch openapi
+        run: |
+          RESULT=$(curl -s -X GET http://localhost:8000/openapi.json || "Curl Failed")
+          echo $RESULT | jq .
+
+      - name: Validate API response
+        run: curl -I -X GET http://localhost:8000
+
+      - name: Stop services
+        run: docker compose down
+
