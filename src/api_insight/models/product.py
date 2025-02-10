@@ -1,14 +1,17 @@
-from typing import Optional
-from sqlmodel import Field, SQLModel
+"""
+Product models for the API.
+"""
 from datetime import datetime
 from typing import Optional
 
+from sqlmodel import SQLModel, Field
 
 class ProductBase(SQLModel):
     """
     Represents a base product.
 
     Attributes:
+        product_id (int): The ID of the product.
         name (str): The name of the product.
         description (str): The description of the product.
         price (float): The price of the product.
@@ -16,12 +19,12 @@ class ProductBase(SQLModel):
         category (str): The category of the product.
         in_stock (bool): Indicates if the product is in stock.
     """
-
-    name: str = Field(min_length=1)
-    description: str = Field(min_length=1)
+    product_id: int = Field(ge=0,unique=True)
+    name: str = Field(min_length=1, schema_extra={'pattern': r'^[A-Za-z]+$'})
+    description: str = Field(min_length=1, schema_extra={'pattern': r'^[A-Za-z]+$'})
     price: float = Field(ge=0)
-    image_url: str = Field(min_length=1)
-    category: str = Field(min_length=1)
+    image_url: str = Field(min_length=1, schema_extra={'pattern': r'^[A-Za-z]+$'})
+    category: str = Field(min_length=1, schema_extra={'pattern': r'^[A-Za-z]+$'})
     in_stock: bool = Field(default=False)
 
 
@@ -60,12 +63,12 @@ class ProductUpdate(SQLModel):
         in_stock (bool): The updated stock availability of the product.
     """
 
-    name: str = None
-    description: str = None
-    price: float = None
-    image_url: str = None
-    category: str = None
-    in_stock: bool = None
+    name: str = Field(min_length=1, schema_extra={'pattern': r'^[A-Za-z]+$'})
+    description: str = Field(min_length=1, schema_extra={'pattern': r'^[A-Za-z]+$'})
+    price: float = Field(ge=0)
+    image_url: str = Field(min_length=1, schema_extra={'pattern': r'^[A-Za-z]+$'})
+    category: str = Field(min_length=1, schema_extra={'pattern': r'^[A-Za-z]+$'})
+    in_stock: bool = Field(default=False)
 
 class ProductResponse(ProductBase):
     """
