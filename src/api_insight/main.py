@@ -127,7 +127,7 @@ async def root():
     return {
         "message": "Product Catalog API",
         "version": settings.api_version,
-        "environment": settings.environment,
+        "environment": settings.ENVIRONMENT,
         "docs": "/docs",
         "redoc": "/redoc"
     }
@@ -146,7 +146,7 @@ async def health_check():
     """
     return {
         "status": "healthy",
-        "environment": settings.environment,
+        "environment": settings.ENVIRONMENT,
         "version": settings.api_version
     }
 

@@ -1,20 +1,23 @@
-from datetime import datetime
-from typing import List
+"""
+Order API
+"""
+from typing import List, Annotated
+from fastapi import APIRouter, Depends, Query
 
-from fastapi import APIRouter
-from sqlmodel import select
-
-from api_insight.deps import SessionDep, CurrentUserDep
+from api_insight.deps import SessionDep, get_current_user
 from api_insight.exceptions import ResourceNotFoundException
 from api_insight.models.order import (
     Order, OrderCreate, OrderRead,
-    OrderItem, OrderStatus
+    OrderItem, OrderCancel
 )
-from api_insight.models.product import Product
+from api_insight.models.params import QueryParams
+from api_insight import crud
+from sqlalchemy.exc import SQLAlchemyError
 
 router = APIRouter(
     prefix="/orders",
-    tags=["orders"]
+    tags=["orders"],
+    dependencies=[Depends(get_current_user)]
 )
 
 @router.post("", response_model=OrderRead, status_code=201,
@@ -24,35 +27,38 @@ async def create_order(
     order: OrderCreate,
     session: SessionDep
 ):
-    # Create new order
+    """
+    Create a new order
+    """
     db_order = Order(customer_email=order.customer_email)
     session.add(db_order)
     session.flush()  # Flush to get the order ID
-    
+
     total_amount = 0.0
-    
+
     # Process each order item
     for item in order.items:
         # Get product to verify existence and price
-        product = session.get(Product, item.product_id)
+        product = crud.products.get_product(session, item.product_id)
         if not product:
-            raise ResourceNotFoundException(status_code=404, detail=f"Product with id {item.product_id} not found")
-        
+            raise ResourceNotFoundException(status_code=404,
+                                            detail=f"Product with id {item.product_id} not found")
+
         # Create order item
         order_item = OrderItem(
-            order_id=db_order.id,
-            product_id=product.id,
+            order_id=db_order.order_id,
+            product_id=product.product_id,
             quantity=item.quantity,
             unit_price=product.price
         )
         session.add(order_item)
-        
+
         # Update total amount
         total_amount += product.price * item.quantity
-    
+
     # Update order total
     db_order.total_amount = total_amount
-    
+
     session.commit()
     session.refresh(db_order)
     return db_order
@@ -62,12 +68,12 @@ async def create_order(
            description="Retrieve all orders with optional filtering")
 async def get_orders(
     session: SessionDep,
-    current_user: CurrentUserDep,
-    skip: int = 0,
-    limit: int = 100
+    query_params: Annotated[QueryParams, Query()],
 ):
-    query = select(Order)
-    orders = session.exec(query.offset(skip).limit(limit)).all()
+    """
+    Get all orders
+    """
+    orders = crud.orders.get_orders(session, query_params.limit, query_params.offset)
     return orders
 
 @router.get("/{order_id}", response_model=OrderRead,
@@ -77,26 +83,27 @@ async def get_order(
     order_id: int,
     session: SessionDep
 ):
-    order = session.get(Order, order_id)
+    """
+    Get a specific order by its ID
+    """
+    order = crud.orders.get_order(session, order_id)
     if not order:
         raise ResourceNotFoundException(status_code=404, detail="Order not found")
     return order
 
 @router.delete("/{order_id}",
               summary="Cancel order",
-              description="Cancel an existing order")
+              description="Cancel an existing order",
+              response_model=OrderCancel)
 async def cancel_order(
     order_id: int,
     session: SessionDep
 ):
-    order = session.get(Order, order_id)
-    if not order:
-        raise ResourceNotFoundException(status_code=404, detail="Order not found")
-    
-    order.status = OrderStatus.CANCELLED
-    order.updated_at = datetime.utcnow()
-    
-    session.add(order)
-    session.commit()
-    return {"message": "Order cancelled successfully"}
-    
+    """
+    Cancel an existing order
+    """
+    try:
+        crud.orders.cancel_order(session, order_id)
+    except SQLAlchemyError as e:
+        raise ResourceNotFoundException(status_code=404, detail=str(e)) from e
+    return OrderCancel(message="Order cancelled successfully")

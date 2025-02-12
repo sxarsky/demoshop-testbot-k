@@ -28,4 +28,39 @@ To test and explore the Store API endpoints:
 
 5. Click the "Try it out" button to enter parameters and execute requests against the running API server
 
+6. Register a user using /api/v1/register Endpoint
+
+7. Login using /api/v1/login Endpoint
+
+8. Use the token to make requests to other endpoints
+
+Testing Matrix (Manual and local testing):  
+|Endpoints|Test|Framework|Language|Status|
+|-----------|------|-----------|----------|------|
+| api/v1/products | contract | pytest | python | ✅ |
+||| robot | python | ✅ |
+||| playwright | typescript | ✅ |
+||| playwright | javascript | ✅ |
+|api/v1/products|smoke| pytest | python | ✅ |
+||| robot | python | ✅ |
+||| playwright | typescript | ✅ |
+||| playwright | javascript | ✅ |
+| api/v1/products | fuzz | robot | python | ✅ |
+||| pytest | python | ✅ |
+||| playwright | typescript | Not supported |
+||| playwright | javascript | Not supported |
+| api/v1/orders | contract | pytest | python | ✅ |
+||| robot | python | ✅ |
+||| playwright | typescript | ✅ |
+||| playwright | javascript | ✅ |
+| api/v1/orders | smoke | pytest | python | ✅ |
+||| robot | python | ✅ |
+||| playwright | typescript | ✅ |
+||| playwright | javascript | ✅ |
+| api/v1/orders | fuzz | robot | python | ✅ |
+||| pytest | python | ✅ |
+||| playwright | typescript | Not supported |
+||| playwright | javascript | Not supported |
+
+
 This allows you to test the functionality of the Store API and ensures it is working as expected before integrating it into other applications.

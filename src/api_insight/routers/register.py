@@ -5,7 +5,7 @@ from typing import Annotated
 from fastapi import APIRouter, Form, HTTPException, status
 from api_insight.models.user import UserRegister, UserCreate, UserPublic
 from api_insight.deps import SessionDep
-from api_insight.crud import get_user_by_email, create_user
+from api_insight import crud
 router = APIRouter(
     prefix="/register",
     tags=["register"]
@@ -31,7 +31,7 @@ async def register(
         HTTPException: If username exists or password is too short
     """
     # Check if username already exists
-    user = get_user_by_email(session, email=user_in.email)
+    user = crud.users.get_user_by_email(session, email=user_in.email)
     if user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -39,6 +39,6 @@ async def register(
         )
 
     user_create = UserCreate.model_validate(user_in)
-    user = create_user(session, user_create)
+    user = crud.users.create_user(session, user_create)
 
     return user

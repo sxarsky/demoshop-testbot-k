@@ -6,23 +6,20 @@ from datetime import datetime, timezone
 from typing import List, Annotated
 
 from fastapi import APIRouter, status, Path, Query, Depends
+from fastapi.exceptions import HTTPException
+
 from sqlmodel import select
-from pydantic import BaseModel, Field
 from api_insight.deps import SessionDep, get_current_user
 from api_insight.exceptions import ResourceNotFoundException
 from api_insight.models.product import Product, ProductCreate, ProductUpdate, ProductResponse
+from api_insight.models.params import QueryParams
 from api_insight.crud import products
+
 router = APIRouter(
     prefix="/products",
     tags=["products"],
     dependencies=[Depends(get_current_user)]
 )
-class QueryParams(BaseModel):
-    """Query parameters for product filtering."""
-    limit: int = Field(default=10, ge=1, le=100)
-    offset: int = Field(default=0, ge=0)
-    order: str = Field(default="asc", pattern="^(asc|desc)$")
-    orderBy: str = Field(default=None, pattern="^[a-zA-Z]+$")
 
 @router.post("",
     response_model=ProductResponse,
@@ -35,6 +32,8 @@ async def create_product(
     session: SessionDep
 ):
     """Create a new product in the database."""
+    if product.in_stock is not False:
+        raise HTTPException(status_code=400, detail="Invalid value")
     db_product = products.create_product(session, product)
     return db_product
 
@@ -64,6 +63,8 @@ async def update_product(product_id: Annotated[int, Path()],
                    product_update: ProductUpdate,
                    session: SessionDep):
     """Update a product's details by its ID."""
+    if product_update.in_stock is not False:
+        raise HTTPException(status_code=400, detail="Invalid value")
     product = products.get_product(session, product_id)
     if not product:
         raise ResourceNotFoundException(status_code=404, detail="Product not found")

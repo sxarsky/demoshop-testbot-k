@@ -11,7 +11,7 @@ from api_insight.core.config import get_settings
 from api_insight.deps import SessionDep
 from api_insight.models.user import Token
 from api_insight.core.security import create_access_token
-from api_insight.crud.users import authenticate
+from api_insight import crud
 
 router = APIRouter(
     prefix="/login",
@@ -26,7 +26,7 @@ async def login(
     """
     Handle user login.
     """
-    user = authenticate(session, email=form_data.username, password=form_data.password)
+    user = crud.users.authenticate(session, email=form_data.username, password=form_data.password)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
