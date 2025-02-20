@@ -71,7 +71,6 @@ async def update_product(product_id: Annotated[int, Path()],
     product_data = product_update.model_dump(exclude_unset=True)
     for key, value in product_data.items():
         setattr(product, key, value)
-    print(product)
     product.updated_at = datetime.now(timezone.utc)
     session.add(product)
     session.commit()

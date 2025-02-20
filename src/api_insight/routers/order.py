@@ -3,7 +3,7 @@ Order API
 """
 from typing import List, Annotated
 from fastapi import APIRouter, Depends, Query
-
+from sqlalchemy.exc import SQLAlchemyError
 from api_insight.deps import SessionDep, get_current_user
 from api_insight.exceptions import ResourceNotFoundException
 from api_insight.models.order import (
@@ -12,7 +12,6 @@ from api_insight.models.order import (
 )
 from api_insight.models.params import QueryParams
 from api_insight import crud
-from sqlalchemy.exc import SQLAlchemyError
 
 router = APIRouter(
     prefix="/orders",

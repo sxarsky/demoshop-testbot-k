@@ -15,6 +15,7 @@ from api_insight.routers.product import router as products_router
 from api_insight.routers.order import router as orders_router
 from api_insight.routers.login import router as login_router
 from api_insight.routers.register import router as register_router
+from api_insight.routers.review import router as reviews_router
 from api_insight.exceptions import custom_request_validation_exception_handler
 from api_insight.exceptions import resource_not_found_exception_handler
 from api_insight.exceptions import ResourceNotFoundException
@@ -64,6 +65,11 @@ app.add_exception_handler(ResourceNotFoundException, resource_not_found_exceptio
 api_prefix = f"/api/{settings.api_version}"
 
 # Include routers
+products_router.include_router(
+    reviews_router,
+    prefix="/{product_id}",
+)
+
 app.include_router(
     products_router,
     prefix=api_prefix,

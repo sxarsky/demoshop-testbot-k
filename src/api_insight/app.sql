@@ -35,6 +35,17 @@ CREATE TABLE IF NOT EXISTS orderitem (
     FOREIGN KEY (product_id) REFERENCES product(id)
 );
 
+CREATE TABLE IF NOT EXISTS review (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    review_id INTEGER DEFAULT 0,
+    product_id INTEGER,
+    rating INTEGER NOT NULL DEFAULT 0,
+    comment TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (product_id) REFERENCES product(productid)
+);
+
 -- Create and populate products table
 INSERT INTO product (
     name,
@@ -66,3 +77,12 @@ INSERT INTO orderitem (
     unit_price
 ) VALUES 
     (0, 1, 1, 1, 999.99); 
+
+-- Create and populate reviews table
+INSERT INTO review (
+    review_id,
+    product_id,
+    rating,
+    comment
+) VALUES 
+    (0, 0, 5, 'Great');

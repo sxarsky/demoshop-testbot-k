@@ -37,28 +37,40 @@ To test and explore the Store API endpoints:
 Testing Matrix (Manual and local testing):  
 |Endpoints|Test|Framework|Language|Status|
 |-----------|------|-----------|----------|------|
-| api/v1/products | contract | pytest | python | ✅ |
-||| robot | python | ✅ |
-||| playwright | typescript | ✅ |
-||| playwright | javascript | ✅ |
-|api/v1/products|smoke| pytest | python | ✅ |
-||| robot | python | ✅ |
-||| playwright | typescript | ✅ |
-||| playwright | javascript | ✅ |
-| api/v1/products | fuzz | robot | python | ✅ |
-||| pytest | python | ✅ |
+| api/v1/products | contract | pytest | python | :white_check_mark: |
+||| robot | python | :white_check_mark: |
+||| playwright | typescript | :white_check_mark: |
+||| playwright | javascript | :x: |
+|api/v1/products|smoke| pytest | python | :white_check_mark: |
+||| robot | python | :white_check_mark: |
+||| playwright | typescript | :white_check_mark: |
+||| playwright | javascript | :x: |
+| api/v1/products | fuzz | robot | python | :white_check_mark: |
+||| pytest | python | :white_check_mark: |
 ||| playwright | typescript | Not supported |
 ||| playwright | javascript | Not supported |
-| api/v1/orders | contract | pytest | python | ✅ |
-||| robot | python | ✅ |
-||| playwright | typescript | ✅ |
-||| playwright | javascript | ✅ |
-| api/v1/orders | smoke | pytest | python | ✅ |
-||| robot | python | ✅ |
-||| playwright | typescript | ✅ |
-||| playwright | javascript | ✅ |
-| api/v1/orders | fuzz | robot | python | ✅ |
-||| pytest | python | ✅ |
+| api/v1/orders | contract | pytest | python | :white_check_mark: |
+||| robot | python | :white_check_mark: |
+||| playwright | typescript | :white_check_mark: |
+||| playwright | javascript | :x: |
+| api/v1/orders | smoke | pytest | python | :white_check_mark: |
+||| robot | python | :white_check_mark: |
+||| playwright | typescript | :white_check_mark: |
+||| playwright | javascript | :x: |
+| api/v1/orders | fuzz | robot | python | :white_check_mark: |
+||| pytest | python | :white_check_mark: |
+||| playwright | typescript | Not supported |
+||| playwright | javascript | Not supported |
+| api/v1/products/{product_id}/reviews | contract | pytest | python | :white_check_mark: |
+||| robot | python | :white_check_mark: |
+||| playwright | typescript | :white_check_mark: |
+||| playwright | javascript | :x: |
+| api/v1/products/{product_id}/reviews | smoke | pytest | python | :white_check_mark: |
+||| robot | python | :white_check_mark: |
+||| playwright | typescript | :white_check_mark: |
+||| playwright | javascript | :x: |
+| api/v1/products/{product_id}/reviews | fuzz | robot | python | :white_check_mark: |
+||| pytest | python | :white_check_mark: |
 ||| playwright | typescript | Not supported |
 ||| playwright | javascript | Not supported |
 
