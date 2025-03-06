@@ -8,7 +8,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 from fastapi.exceptions import RequestValidationError
-
+from mangum import Mangum
 from api_insight.core.db import init_db
 from api_insight.core.config import get_settings
 from api_insight.routers.product import router as products_router
@@ -34,18 +34,20 @@ async def lifespan(app: FastAPI):
         app: FastAPI application instance
     """
     # Startup: create tables
-    init_db()
+    with open('/tmp/app.db','w', encoding='utf-8'):
+        init_db()
     yield
     # Shutdown: add any cleanup here if needed
     pass
 
 # Initialize FastAPI app
 app = FastAPI(
-    title="Product Catalog API",
+    title="Demo Shop API",
+    description="The Skyramp Demo Shop mimics a very simple e-commerce setup where users can create, update, and manage a catalog of products and handle orders. It will be used throughout the Skyramp Documentation to demonstrate Skyramp's functionality and provide a playground to test out the tool.",
     version="1.0.0",
     lifespan=lifespan,
-    docs_url="/docs",
-    redoc_url="/redoc",
+    docs_url="/api",
+    redoc_url=None,
     openapi_url="/openapi.json"
 )
 
@@ -80,15 +82,15 @@ app.include_router(
     prefix=api_prefix,
 )
 
-app.include_router(
-    login_router,
-    prefix=api_prefix,
-)
+# app.include_router(
+#     login_router,
+#     prefix=api_prefix,
+# )
 
-app.include_router(
-    register_router,
-    prefix=api_prefix,
-)
+# app.include_router(
+#     register_router,
+#     prefix=api_prefix,
+# )
 
 # Custom OpenAPI schema configuration
 def custom_openapi():
@@ -102,16 +104,16 @@ def custom_openapi():
         return app.openapi_schema
 
     openapi_schema = get_openapi(
-        title="Product Catalog API",
+        title="Demo Shop API",
         version="1.0.0",
-        description="OpenAPI for managing product catalogs and orders.",
+        description="The Skyramp Demo Shop mimics a very simple e-commerce setup where users can create, update, and manage a catalog of products and handle orders. It will be used throughout the Skyramp Documentation to demonstrate Skyramp's functionality and provide a playground to test out the tool.",
         routes=app.routes,
     )
 
     # Custom schema additions
-    openapi_schema["info"]["x-logo"] = {
-        "url": "https://example.com/logo.png"
-    }
+    # openapi_schema["info"]["x-logo"] = {
+    #     "url": "https://example.com/logo.png"
+    # }
 
     app.openapi_schema = openapi_schema
     return app.openapi_schema
@@ -131,11 +133,9 @@ async def root():
         dict: API metadata including version and environment
     """
     return {
-        "message": "Product Catalog API",
+        "message": "Demo Shop API",
         "version": settings.api_version,
-        "environment": settings.ENVIRONMENT,
-        "docs": "/docs",
-        "redoc": "/redoc"
+        "api-docs": "/api"
     }
 
 # Health check endpoint
@@ -152,9 +152,10 @@ async def health_check():
     """
     return {
         "status": "healthy",
-        "environment": settings.ENVIRONMENT,
         "version": settings.api_version
     }
+
+handler = Mangum(app)
 
 # @app.exception_handler(ResourceNotFoundException)
 # async def custom_exception_handler(request: Request, exc: ResourceNotFoundException):

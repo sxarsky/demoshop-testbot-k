@@ -5,8 +5,9 @@ import logging
 import time
 from typing import Callable, Any
 from sqlmodel import SQLModel, create_engine, Session
-from api_insight.core.config import get_settings
 from sqlalchemy.exc import OperationalError, IntegrityError
+from api_insight.core.config import get_settings
+from api_insight.init_data import create_products, create_order_items, create_orders, create_reviews
 
 settings = get_settings()
 
@@ -78,6 +79,10 @@ def init_db():
         SQLModel.metadata.create_all(engine)
 
     execute_with_retry(_init)
+    create_products(engine)
+    create_order_items(engine)
+    create_orders(engine)
+    create_reviews(engine)
 
 # Example usage in a database operation
 def execute_db_operation(session: Session, operation: Callable, *args, **kwargs):

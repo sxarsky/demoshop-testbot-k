@@ -26,6 +26,19 @@ class ProductBase(SQLModel):
     category: str = Field(min_length=1, schema_extra={'pattern': r'^[A-Za-z]+[A-Za-z:/.0-9\- ]*$'})
     in_stock: bool = Field(default=False)
 
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "name": "bigbear",
+                "description": "Bear Soft Toy",
+                "price": 9.99,
+                "image_url": "https://images.app.goo.gl/cgcHpeehRdu5osot8",
+                "category": "Toys",
+                "in_stock": True
+            }
+        }
+    }
+
 
 class Product(ProductBase, table=True):
     """
@@ -70,6 +83,19 @@ class ProductUpdate(SQLModel):
     category: str = Field(min_length=1, schema_extra={'pattern': r'^[A-Za-z]+[A-Za-z:/.0-9\- ]*$'})
     in_stock: bool = Field(default=False)
 
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "name": "bigbear",
+                "description": "Bear Soft Toy",
+                "price": 19.99,
+                "image_url": "https://images.app.goo.gl/cgcHpeehRdu5osot8",
+                "category": "Toys",
+                "in_stock": True
+            }
+        }
+    }
+
 class ProductResponse(ProductBase):
     """
     Represents a product response instance.
@@ -83,3 +109,17 @@ class ProductResponse(ProductBase):
 
     product_id: int
     created_at: datetime
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "product_id": 0,
+                "created_at": "2025-02-25T10:54:22-05:00",
+                "name": "bigbear",
+                "description": "Bear Soft Toy",
+                "price": 9.99,
+                "image_url": "https://images.app.goo.gl/cgcHpeehRdu5osot8",
+                "category": "Toys",
+                "in_stock": True
+            }
+        }
+    }

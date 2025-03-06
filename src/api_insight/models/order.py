@@ -62,7 +62,7 @@ class OrderItemRead(OrderItemBase):
 
 class OrderBase(SQLModel):
     """Parent Model for orders with common fields."""
-    customer_email: str = Field(max_length=255, schema_extra={'pattern': r'^[A-Za-z]+[0-9.]*$'})
+    customer_email: str = Field(max_length=255, schema_extra={'pattern': r"(^[a-zA-Z]+[@a-zA-Z0-9-]*[\.a-zA-Z0-9-.]*$)"})
     status: OrderStatus = Field(default=OrderStatus.PENDING)
     total_amount: float = Field(default=0.0)
 
@@ -79,15 +79,49 @@ class Order(OrderBase, table=True):
 
 class OrderCreate(SQLModel):
     """Model for creating new orders in DB."""
-    customer_email: str = Field(max_length=255, schema_extra={'pattern': r'^[A-Za-z]+[0-9.]*$'})
+    customer_email: str = Field(max_length=255, schema_extra={'pattern': r"(^[a-zA-Z]+[@a-zA-Z0-9-]*[\.a-zA-Z0-9-.]*$)"})
     items: List[OrderItemCreate]
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "customer_email": "abc@mail.com",
+                "items": [
+                    {
+                        "quantity": 2,
+                        "product_id": 1,
+                        "unit_price": 9.99
+                    }
+                ]
+            }
+        }
+    }
 
 class OrderRead(OrderBase):
     """Model for fetching order details from DB."""
     order_id: int
-    items: List[OrderItem]
+    items: List[OrderItemRead]
     created_at: datetime
     updated_at: datetime
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "order_id": 1,
+                "customer_email": "abc@mail.com",
+                "status": "pending",
+                "total_amount": 19.98,
+                "items": [
+                    {
+                        "order_item_id": 1,
+                        "quantity": 2,
+                        "product_id": 1,
+                        "unit_price": 9.99
+                    }
+                ],
+                "created_at": "2022-01-01T00:00:00",
+                "updated_at": "2022-01-01T00:00:00"
+            }
+        }
+    }
 
 class OrderCancel(BaseModel):
     """Model for cancelling an order."""

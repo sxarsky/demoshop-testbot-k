@@ -21,10 +21,6 @@ ENV PYTHONPATH=/api_insight
 # Copy the source code into the container.
 COPY src/api_insight/ /api_insight
 
-# Install sqlite3
-RUN apt-get update && apt-get install -y sqlite3 && rm -rf /var/lib/apt/lists/* && \
-    sqlite3 /api_insight/app.db < /api_insight/app.sql
-
 RUN --mount=type=cache,target=/root/.cache/pip \
     --mount=type=bind,source=requirements.txt,target=requirements.txt \
     python -m pip install -r requirements.txt

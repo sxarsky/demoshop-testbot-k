@@ -6,10 +6,21 @@ on:
       - main
   pull_request:
 
+permissions:
+  id-token: write
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  ECR_REGISTRY: "664418979402.dkr.ecr.us-west-2.amazonaws.com/letsramp/api-insight"
+  AWS_REGION: "us-west-2"
+
 jobs:
   build_and_test:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -38,24 +49,29 @@ jobs:
         run: docker compose down
       
       - name: Login to Docker Hub
-        if: ${{ github.ref_name == 'main' }}
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_TOKEN }}
-      
-      - name: Tag and push container
-        if: ${{ github.ref_name == 'main' }}
-        shell: bash
-        run: |
-          set -ex
-          SHORT_SHA=$(git rev-parse --short HEAD)
-          DOCKERHUB_ORG=skyramp
-          REPO_NAME=api-insight
-          IMAGE_TAG=${SHORT_SHA}
-          IMAGE_URI=${DOCKERHUB_ORG}/${REPO_NAME}
 
-          docker tag api-insight:v1.0 ${IMAGE_URI}:${IMAGE_TAG}
-          docker tag api-insight:v1.0 ${IMAGE_URI}:latest
-          docker push ${IMAGE_URI}:${IMAGE_TAG}
-          docker push ${IMAGE_URI}:latest
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::664418979402:role/github-ecr-api-insight-repo
+          aws-region: us-west-2
+
+      - name: Login to Amazon ECR Private
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Calculate Short SHA
+        run: echo "SHORT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+
+      - name: Build and push lambda image
+        uses: docker/build-push-action@v6
+        with:
+          file: Dockerfile-lambda
+          push: true
+          provenance: false
+          tags: ${{ env.ECR_REGISTRY}}:${{ env.SHORT_SHA }}
+      
