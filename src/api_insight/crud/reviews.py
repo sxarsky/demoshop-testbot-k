@@ -1,9 +1,14 @@
 """Crud for reviews."""
 from sqlmodel import Session, select
+from sqlalchemy import asc, desc
 from api_insight.models.review import ReviewCreate, Review
-def get_reviews(product_id: int, session: Session):
+def get_reviews(product_id: int, session: Session, limit: int, offset: int, order: str, order_by: str):
     """Get all reviews."""
-    statement = select(Review).where(Review.product_id == product_id)
+    statement = select(Review).where(Review.product_id == product_id).limit(limit).offset(offset)
+    if order == 'asc':
+        statement = statement.order_by(asc(order_by))
+    elif order == 'desc':
+        statement = statement.order_by(desc(order_by))
     reviews = session.exec(statement).all()
     return reviews
 

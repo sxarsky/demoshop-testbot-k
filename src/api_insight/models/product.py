@@ -19,11 +19,11 @@ class ProductBase(SQLModel):
         category (str): The category of the product.
         in_stock (bool): Indicates if the product is in stock.
     """
-    name: str = Field(min_length=1, schema_extra={'pattern': r'^[A-Za-z]+[A-Za-z:/.0-9\- ]*$'})
-    description: str = Field(min_length=1, schema_extra={'pattern': r'^[A-Za-z]+[A-Za-z:/.0-9\- ]*$'})
+    name: str = Field(min_length=1, schema_extra={'pattern': r'^[A-Za-z]+.*\s*$'})
+    description: str = Field(min_length=1, schema_extra={'pattern': r'^[A-Za-z]+.*\s*$'})
     price: float = Field(ge=0)
-    image_url: str = Field(min_length=1, schema_extra={'pattern': r'^[A-Za-z]+[A-Za-z:/.0-9\- ]*$'})
-    category: str = Field(min_length=1, schema_extra={'pattern': r'^[A-Za-z]+[A-Za-z:/.0-9\- ]*$'})
+    image_url: str = Field(min_length=1, schema_extra={'pattern': r'^[A-Za-z]+.*\s*$'})
+    category: str = Field(min_length=1, schema_extra={'pattern': r'^[A-Za-z]+.*\s*$'})
     in_stock: bool = Field(default=False)
 
     model_config = {
@@ -76,11 +76,11 @@ class ProductUpdate(SQLModel):
         in_stock (bool): The updated stock availability of the product.
     """
 
-    name: str = Field(min_length=1, schema_extra={'pattern': r'^[A-Za-z]+[A-Za-z:/.0-9\- ]*$'})
-    description: str = Field(min_length=1, schema_extra={'pattern': r'^[A-Za-z]+[A-Za-z:/.0-9\- ]*$'})
+    name: str = Field(min_length=1, schema_extra={'pattern': r'^[A-Za-z]+.*\s*$'})
+    description: str = Field(min_length=1, schema_extra={'pattern': r'^[A-Za-z]+.*\s*$'})
     price: float = Field(ge=0)
-    image_url: str = Field(min_length=1, schema_extra={'pattern': r'^[A-Za-z]+[A-Za-z:/.0-9\- ]*$'})
-    category: str = Field(min_length=1, schema_extra={'pattern': r'^[A-Za-z]+[A-Za-z:/.0-9\- ]*$'})
+    image_url: str = Field(min_length=1, schema_extra={'pattern': r'^[A-Za-z]+.*\s*$'})
+    category: str = Field(min_length=1, schema_extra={'pattern': r'^[A-Za-z]+.*\s*$'})
     in_stock: bool = Field(default=False)
 
     model_config = {

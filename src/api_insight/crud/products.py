@@ -2,7 +2,7 @@
 CRUD operations for products.
 """
 from sqlmodel import Session, select
-from sqlalchemy import desc
+from sqlalchemy import asc, desc
 from api_insight.models.product import Product, ProductCreate
 
 def get_product(session: Session, product_id: int) -> Product | None:
@@ -20,9 +20,13 @@ def create_product(session: Session, product_create: ProductCreate) -> Product:
     session.refresh(db_obj)
     return db_obj
 
-def get_products(session: Session, limit: int, offset: int) -> list[Product]:
+def get_products(session: Session, limit: int, offset: int, order: str, order_by: str) -> list[Product]:
     """Get all products."""
     statement = select(Product).limit(limit).offset(offset)
+    if order == 'asc':
+        statement = statement.order_by(asc(order_by))
+    elif order == 'desc':
+        statement = statement.order_by(desc(order_by)) 
     products = session.exec(statement).all()
     return products
 

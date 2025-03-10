@@ -73,7 +73,7 @@ async def get_orders(
     """
     Get all orders
     """
-    orders = crud.orders.get_orders(session, query_params.limit, query_params.offset)
+    orders = crud.orders.get_orders(session, query_params.limit, query_params.offset, query_params.order, query_params.orderBy)
     for order in orders:
         order.items = crud.orders.get_order_items(session, order.order_id)
     return orders

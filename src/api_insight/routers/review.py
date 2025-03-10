@@ -1,13 +1,14 @@
 """Router for Review API Endpoints"""
 from datetime import datetime, timezone
-from typing import List
-from fastapi import APIRouter, Depends, status
+from typing import List, Annotated
+from fastapi import APIRouter, status, Query
 from fastapi.exceptions import HTTPException
 from sqlmodel import select
 from api_insight.deps import get_current_user, SessionDep
 from api_insight.models.review import (
     ReviewCreate, ReviewResponse, ReviewUpdate, Review
 )
+from api_insight.models import QueryParams
 from api_insight.crud import reviews
 
 router = APIRouter(
@@ -17,11 +18,11 @@ router = APIRouter(
 @router.get("", response_model=List[ReviewResponse],
             summary="Get all reviews for selected product",
             description="Get all reviews for selected product")
-async def get_reviews(product_id: int, session: SessionDep):
+async def get_reviews(product_id: int, session: SessionDep, query_params: Annotated[QueryParams, Query()],):
     """
     Get all reviews
     """
-    reviews_list = reviews.get_reviews(product_id, session)
+    reviews_list = reviews.get_reviews(product_id, session, query_params.limit, query_params.offset, query_params.order, query_params.orderBy)
     return reviews_list
 
 @router.get("/{review_id}", response_model=ReviewResponse,

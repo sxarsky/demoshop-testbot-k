@@ -114,19 +114,19 @@ def create_order_items(engine):
 def create_orders(engine):
     """Create initial order data in the database."""
 
-    order_0 = Order(order_id=0, customer_email='abc@mail.com', status='PENDING', total=2499.99)
-    order_1 = Order(order_id=1, customer_email='def@mail.com', status='CONFIRMED', total=999.98)
-    order_2 = Order(order_id=2, customer_email='ghi@mail.com', status='SHIPPED', total=499.99)
-    order_3 = Order(order_id=3, customer_email='jkl@mail.com', status='DELIVERED', total=279.97)
-    order_4 = Order(order_id=4, customer_email='mno@mail.com', status='PENDING', total=189.98)
-    order_5 = Order(order_id=5, customer_email='pqr@mail.com', status='PENDING', total=839.98)
-    order_6 = Order(order_id=6, customer_email='stu@mail.com', status='DELIVERED', total=2499.98)
-    order_7 = Order(order_id=7, customer_email='vwx@mail.com', status='SHIPPED', total=649.98)
-    order_8 = Order(order_id=8, customer_email='yza@mail.com', status='CONFIRMED', total=2799.98)
-    order_9 = Order(order_id=9, customer_email='bcd@mail.com', status='PENDING', total=1599.98)
-    order_10 = Order(order_id=10, customer_email='efg@mail.com', status='DELIVERED', total=329.98)
-    order_11 = Order(order_id=11, customer_email='hij@mail.com', status='SHIPPED', total=89.98)
-    order_12 = Order(order_id=12, customer_email='klm@mail.com', status='CONFIRMED', total=849.98)
+    order_0 = Order(order_id=0, customer_email='abc@mail.com', status='PENDING', total_amount=2499.99)
+    order_1 = Order(order_id=1, customer_email='def@mail.com', status='CONFIRMED', total_amount=999.98)
+    order_2 = Order(order_id=2, customer_email='ghi@mail.com', status='SHIPPED', total_amount=499.99)
+    order_3 = Order(order_id=3, customer_email='jkl@mail.com', status='DELIVERED', total_amount=279.97)
+    order_4 = Order(order_id=4, customer_email='mno@mail.com', status='PENDING', total_amount=189.98)
+    order_5 = Order(order_id=5, customer_email='pqr@mail.com', status='PENDING', total_amount=839.98)
+    order_6 = Order(order_id=6, customer_email='stu@mail.com', status='DELIVERED', total_amount=2499.98)
+    order_7 = Order(order_id=7, customer_email='vwx@mail.com', status='SHIPPED', total_amount=649.98)
+    order_8 = Order(order_id=8, customer_email='yza@mail.com', status='CONFIRMED', total_amount=2799.98)
+    order_9 = Order(order_id=9, customer_email='bcd@mail.com', status='PENDING', total_amount=1599.98)
+    order_10 = Order(order_id=10, customer_email='efg@mail.com', status='DELIVERED', total_amount=329.98)
+    order_11 = Order(order_id=11, customer_email='hij@mail.com', status='SHIPPED', total_amount=89.98)
+    order_12 = Order(order_id=12, customer_email='klm@mail.com', status='CONFIRMED', total_amount=849.98)
 
     with Session(engine) as session:
         session.add(order_0)

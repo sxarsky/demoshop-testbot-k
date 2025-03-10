@@ -2,13 +2,17 @@
 CRUD operations for orders.
 """
 from sqlmodel import Session, select
-from sqlalchemy import desc
+from sqlalchemy import asc, desc
 from sqlalchemy.exc import SQLAlchemyError
 from api_insight.models.order import Order, OrderStatus, OrderItem
 
-def get_orders(session: Session, limit: int, offset: int) -> list[Order]:
+def get_orders(session: Session, limit: int, offset: int, order: str, order_by: str) -> list[Order]:
     """Get all orders."""
     statement = select(Order).limit(limit).offset(offset)
+    if order == 'asc':
+        statement = statement.order_by(asc(order_by))
+    elif order == 'desc':
+        statement = statement.order_by(desc(order_by))
     orders = session.exec(statement).all()
     return orders
 
