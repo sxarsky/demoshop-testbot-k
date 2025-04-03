@@ -19,7 +19,7 @@ class OrderStatus(str, Enum):
 class OrderItemBase(SQLModel):
     """Model for order items with common fields."""
     quantity: int = Field(ge=0)
-    product_id: int = Field(foreign_key="product.product_id")
+    product_id: int = Field(foreign_key="product.product_id", ge=0)
     unit_price: float = Field(ge=0)
 
     # TODO: Add validation for quantity and unit_price once skyramp generate supports minimum and maximum values

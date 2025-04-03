@@ -15,7 +15,16 @@ def get_product(session: Session, product_id: int) -> Product | None:
 
 def create_product(session: Session, product_create: ProductCreate) -> Product:
     """Create a new product."""
+    products = get_products(session, 100, 0, 'asc', None)
     db_obj = Product.model_validate(product_create)
+    for product in products:
+        if db_obj.name == product.name \
+            and db_obj.description == product.description \
+            and db_obj.price == product_create.price \
+            and db_obj.image_url == product.image_url \
+            and db_obj.category == product.category \
+            and db_obj.in_stock == product.in_stock:
+            return product
     db_obj.product_id = set_product_id(session)
     session.add(db_obj)
     session.commit()
@@ -28,7 +37,7 @@ def get_products(session: Session, limit: int, offset: int, order: str, order_by
     if order == 'asc':
         statement = statement.order_by(asc(order_by))
     elif order == 'desc':
-        statement = statement.order_by(desc(order_by)) 
+        statement = statement.order_by(desc(order_by))
     products = session.exec(statement).all()
     return products
 

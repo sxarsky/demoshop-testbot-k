@@ -29,6 +29,17 @@ async def create_order(
     Create a new order
     """
     db_order = Order(customer_email=order.customer_email)
+    existing_orders = crud.orders.get_orders(session, 100, 0, 'asc', None)
+    for existing_order in existing_orders:
+        if db_order.customer_email == existing_order.customer_email \
+        and db_order.status == existing_order.status:
+            existine_order_items = crud.orders.get_order_items(session, existing_order.order_id)
+            for incoming_order_item in order.items:
+                for existing_order_item in existine_order_items:
+                    if incoming_order_item.product_id == existing_order_item.product_id \
+                    and incoming_order_item.quantity == existing_order_item.quantity \
+                    and incoming_order_item.unit_price == existing_order_item.unit_price:
+                        return existing_order
     db_order.order_id = crud.orders.set_order_id(session)
     session.add(db_order)
     session.flush()  # Flush to get the order ID

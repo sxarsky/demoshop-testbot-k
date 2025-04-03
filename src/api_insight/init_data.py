@@ -59,7 +59,7 @@ def create_products(engine):
 def create_order_items(engine):
     """Create initial order item data in the database."""
 
-    orderitem_0 = OrderItem(order_item_id=0, order_id=0, product_id=0, quantity=1, unit_price=2499.99)
+    orderitem_0 = OrderItem(order_item_id=0, order_id=0, product_id=0, quantity=2, unit_price=2499.99)
     orderitem_1 = OrderItem(order_item_id=1, order_id=1, product_id=1, quantity=1, unit_price=799.99)
     orderitem_2 = OrderItem(order_item_id=2, order_id=1, product_id=2, quantity=1, unit_price=199.99)
     orderitem_3 = OrderItem(order_item_id=3, order_id=2, product_id=3, quantity=1, unit_price=499.99)
@@ -114,7 +114,7 @@ def create_order_items(engine):
 def create_orders(engine):
     """Create initial order data in the database."""
 
-    order_0 = Order(order_id=0, customer_email='abc@mail.com', status='PENDING', total_amount=2499.99)
+    order_0 = Order(order_id=0, customer_email='abc@mail.com', status='PENDING', total_amount=4999.98)
     order_1 = Order(order_id=1, customer_email='def@mail.com', status='CONFIRMED', total_amount=999.98)
     order_2 = Order(order_id=2, customer_email='ghi@mail.com', status='SHIPPED', total_amount=499.99)
     order_3 = Order(order_id=3, customer_email='jkl@mail.com', status='DELIVERED', total_amount=279.97)
