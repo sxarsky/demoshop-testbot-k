@@ -1,51 +1,103 @@
 """
 CRUD operations for products.
 """
-from sqlmodel import Session, select
-from sqlalchemy import asc, desc
-from api_insight.models.product import Product, ProductCreate
+from json import loads
+from datetime import datetime, timezone
+from fastapi.encoders import jsonable_encoder
+import redis
+from redis import ResponseError
+from redis.commands.json.path import Path
+from redis.commands.search.field import TextField, NumericField
+from redis.commands.search.index_definition import IndexDefinition, IndexType
+from redis.commands.search.query import Query
+from api_insight.models.product import Product, ProductCreate, ProductUpdate
+from api_insight.core.config import get_settings
 
-def get_product(session: Session, product_id: int) -> Product | None:
+DEFAULT_KEY = "demoshop_default"
+
+def get_product(cache, session_id: str, product_id: int) -> Product | None:
     """Get a product by ID."""
-    statement = select(Product).where(Product.product_id == product_id)
-    product = session.exec(statement).first()
-    if not product:
-        return session.exec(select(Product).where(Product.product_id == 0)).first()
+    key = session_id if session_id and session_id != "" else DEFAULT_KEY
+    product = cache.json().get(f'{key}:products:{product_id}')
     return product
 
-def create_product(session: Session, product_create: ProductCreate) -> Product:
+def create_product(cache: redis.Redis, session_id: str, product_create: ProductCreate) -> Product:
     """Create a new product."""
-    products = get_products(session, 100, 0, 'asc', None)
-    db_obj = Product.model_validate(product_create)
-    for product in products:
-        if db_obj.name == product.name \
-            and db_obj.description == product.description \
-            and db_obj.price == product_create.price \
-            and db_obj.image_url == product.image_url \
-            and db_obj.category == product.category \
-            and db_obj.in_stock == product.in_stock:
-            return product
-    db_obj.product_id = set_product_id(session)
-    session.add(db_obj)
-    session.commit()
-    session.refresh(db_obj)
-    return db_obj
+    key = session_id if session_id and session_id != "" else DEFAULT_KEY
+    product_id = set_product_id(cache, session_id)
+    product = Product(**product_create.model_dump(), product_id=product_id)
+    product_valid = Product.model_validate(product)
+    product_encoded = jsonable_encoder(product_valid.model_dump())
+    cache.json().set(f'{key}:products:{product_id}', Path.root_path(), product_encoded)
+    return cache.json().get(f'{key}:products:{product_id}')
 
-def get_products(session: Session, limit: int, offset: int, order: str, order_by: str) -> list[Product]:
+def get_or_create_products_index(cache: redis.Redis, key):
+    """Get or create product index"""
+    index = cache.ft(f"idx:{key}:products")
+    try:
+        index.info()
+        return index
+    except ResponseError:
+        print("index doesn't exist, creating")
+
+    definition=IndexDefinition(prefix=[f"{key}:products:"], index_type=IndexType.JSON)
+    index.create_index((
+        TextField("$.name", as_name='name'),
+        TextField("$.description", as_name='description'),
+        NumericField("$.price", sortable=True, as_name='price'),
+        TextField("$.image_url", as_name='image_url'),
+        TextField("$.category", as_name='category'),
+        ),
+        definition=definition,
+        temporary=get_settings().key_ttl_seconds
+    )
+    return index
+
+def get_products(cache: redis.Redis, session_id: str, limit: int, offset: int, order: str, order_by: str) -> list[Product]:
     """Get all products."""
-    statement = select(Product).limit(limit).offset(offset)
-    if order == 'asc':
-        statement = statement.order_by(asc(order_by))
-    elif order == 'desc':
-        statement = statement.order_by(desc(order_by))
-    products = session.exec(statement).all()
+    key = session_id if session_id and session_id != "" else DEFAULT_KEY
+    index = get_or_create_products_index(cache, key)
+    query = Query("*").paging(offset, limit)
+    if order_by and order_by != "":
+        asc = True
+        if order == 'asc':
+            asc = True
+        elif order == 'desc':
+            asc = False
+        query.sort_by(order_by, asc)
+    res = index.search(query)
+    products = [loads(doc.json) for doc in res.docs]
     return products
 
-def set_product_id(session: Session) -> int:
+def set_product_id(cache: redis.Redis, session_id: str) -> int:
     """Get a product by ID."""
-    product_with_id_0 = get_product(session, 0)
+    product_with_id_0 = get_product(cache, session_id, 0)
     if not product_with_id_0:
         return 0
-    statement = select(Product).order_by(desc(Product.product_id))
-    max_product_id = session.exec(statement).first().product_id
+    keys = cache.keys(f'{session_id}:products:*')
+    max_product_id = max(int(k.split(":")[-1]) for k in keys)
     return max_product_id + 1
+
+def delete_product(cache: redis.Redis, session_id: str, product_id: str):
+    """Delete product"""
+    key = session_id if session_id and session_id != "" else ""
+    if key == "":
+        return
+    cache.json().delete(f'{key}:products:{product_id}')
+    return
+
+def update_product(cache: redis.Redis, session_id: str, product_id: str, product_update: ProductUpdate):
+    """Update product"""
+    key = session_id if session_id and session_id != "" else DEFAULT_KEY
+    product = get_product(cache, session_id, product_id)
+    if not product:
+        return None
+    product = Product.model_validate(product)
+    product_data = product_update.model_dump(exclude_unset=True)
+    for key, value in product_data.items():
+        setattr(product, key, value)
+    product.updated_at = datetime.now(timezone.utc)
+    print(product)
+    product_encoded = jsonable_encoder(product.model_dump())
+    cache.json().set(f'{key}:products:{product_id}', Path.root_path(), product_encoded)
+    return cache.json().get(f'{key}:products:{product_id}')

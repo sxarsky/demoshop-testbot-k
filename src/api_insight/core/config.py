@@ -2,18 +2,22 @@
 Configuration settings for the API.
 Handles environment variables and application settings.
 """
-import secrets
 from functools import lru_cache
 from typing import Literal
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     """Application configuration settings loaded from environment variables."""
-    database_url: str
     api_version: str
-    ENVIRONMENT: Literal["local", "dev", "stg", "prd"] = "local"
-    SECRET_KEY: str = secrets.token_urlsafe(32)
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 360
+    SKYRAMP_ENVIRONMENT: Literal["local", "dev", "stg", "prd"] = "local"
+    redis_host: str
+    redis_port: int
+    redis_user: str
+    redis_pass: str
+    redis_client_crt: str
+    redis_client_key: str
+    redis_ca_pem: str
+    key_ttl_seconds: int
     class Config:
         """Pydantic configuration for environment variables."""
         env_file = ".env"

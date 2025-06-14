@@ -1,12 +1,12 @@
 """Review model"""
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
-from sqlmodel import SQLModel, Field
+from pydantic import BaseModel, Field
 
-class ReviewBase(SQLModel):
+class ReviewBase(BaseModel):
     """Review base model"""
     rating: int = Field(ge=0)
-    comment: str = Field(schema_extra={'pattern': r'^[A-Za-z]+.*\s*$'})
+    comment: str = Field(pattern=r'^[A-Za-z]+.*\s*$')
     model_config = {
         "json_schema_extra": {
             "example": {
@@ -16,27 +16,12 @@ class ReviewBase(SQLModel):
         }
     }
 
-class Review(ReviewBase, table=True):
+class Review(ReviewBase):
     """Database model for review"""
-    id: Optional[int] = Field(default=None, primary_key=True)
-    product_id: int = Field(foreign_key="product.product_id")
+    product_id: int = Field(default=0)
     review_id: int = Field(default=0)
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
-
-class ReviewUpdate(SQLModel):
-    """Review update model"""
-    rating: int = Field(ge=0)
-    comment: str = Field(schema_extra={'pattern': r'^[A-Za-z]+.*\s*$'})
-
-    model_config = {
-        "json_schema_extra": {
-            "example": {
-                "rating": 4,
-                "comment": "Great product!"
-            }
-        }
-    }
+    updated_at: Optional[datetime] = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    created_at: Optional[datetime] = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
 class ReviewCreate(ReviewBase):
     """Review create model"""

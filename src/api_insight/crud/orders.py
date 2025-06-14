@@ -1,71 +1,168 @@
 """
 CRUD operations for orders.
 """
-from sqlmodel import Session, select
-from sqlalchemy import asc, desc
-from sqlalchemy.exc import SQLAlchemyError
-from api_insight.models.order import Order, OrderStatus, OrderItem
+from json import loads
+from fastapi.encoders import jsonable_encoder
+from redis import Redis, ResponseError
+from redis.commands.json.path import Path
+from redis.commands.search.field import NumericField, TextField
+from redis.commands.search.index_definition import IndexDefinition, IndexType
+from redis.commands.search.query import Query, NumericFilter
+from api_insight.models.order import Order, OrderStatus, OrderItem, OrderCreate
+from api_insight.crud import products
+from api_insight.core.config import get_settings
 
-def get_orders(session: Session, limit: int, offset: int, order: str, order_by: str) -> list[Order]:
+DEFAULT_KEY = "demoshop_default"
+def get_orders(cache: Redis, session_id: str, limit: int, offset: int, order: str, order_by: str) -> list[Order]:
     """Get all orders."""
-    statement = select(Order).limit(limit).offset(offset)
-    if order == 'asc':
-        statement = statement.order_by(asc(order_by))
-    elif order == 'desc':
-        statement = statement.order_by(desc(order_by))
-    orders = session.exec(statement).all()
-    return orders
+    key = session_id if session_id and session_id != "" else DEFAULT_KEY
+    index = get_or_create_orders_index(cache, key)
+    query = Query("*").paging(offset, limit)
+    if order_by and order_by != "":
+        asc = True
+        if order == 'asc':
+            asc = True
+        elif order == 'desc':
+            asc = False
+        query.sort_by(order_by, asc)
+    res = index.search(query)
+    orders = [loads(doc.json) for doc in res.docs]
+    orders_valid = []
+    for o in orders:
+        order_items = get_order_items(cache, session_id, o["order_id"])
+        o["items"] = order_items
+        order_valid = Order.model_validate(o)
+        orders_valid.append(order_valid)
+    return orders_valid
 
-def get_order(session: Session, order_id: int) -> Order:
+def get_order(cache: Redis, session_id: str, order_id: int) -> Order:
     """Get an order by ID."""
-    statement = select(Order).where(Order.order_id == order_id)
-    order = session.exec(statement).first()
+    key = session_id if session_id and session_id != "" else DEFAULT_KEY
+    order = cache.json().get(f'{key}:orders:{order_id}')
     if not order:
-        return session.exec(select(Order).where(Order.order_id == 0)).first()
-    return order
+        return cache.json().get(f'{key}:orders:0')
+    order_items = get_order_items(cache, session_id, order["order_id"])
+    order["items"] = order_items
+    return Order.model_validate(order)
 
-def get_order_items(session: Session, order_id: int) -> list[OrderItem]:
+def get_or_create_orders_index(cache: Redis, key):
+    """Get or create orders index"""
+    index = cache.ft(f"idx:{key}:orders")
+    try:
+        index.info()
+        return index
+    except ResponseError:
+        print("index doesn't exist, creating")
+
+    definition=IndexDefinition(prefix=[f"{key}:orders:"], index_type=IndexType.JSON)
+    index.create_index((
+        NumericField("$.order_id", as_name='order_id'),
+        TextField("$.customer_email", as_name='customer_email'),
+        TextField("$.status", as_name='status'),
+        NumericField("$.total_amount", as_name='total_amount'),
+        ),
+        definition=definition,
+        temporary=get_settings().key_ttl_seconds
+    )
+    return index
+
+def get_or_create_order_items_index(cache: Redis, key):
+    """Get or create orderitems index"""
+    index = cache.ft(f"idx:{key}:orderitems")
+    try:
+        index.info()
+        return index
+    except ResponseError:
+        print("index doesn't exist, creating")
+
+    definition=IndexDefinition(prefix=[f"{key}:orderitems:"], index_type=IndexType.JSON)
+    index.create_index((
+        NumericField("$.order_id", as_name='order_id'),
+        ),
+        definition=definition,
+        temporary=get_settings().key_ttl_seconds
+    )
+    return index
+
+def get_order_items(cache: Redis, session_id: str, order_id: int) -> list[OrderItem]:
     """Get all order items for an order."""
-    statement = select(OrderItem).where(OrderItem.order_id == order_id)
-    order_items = session.exec(statement).all()
+    key = session_id if session_id and session_id != "" else DEFAULT_KEY
+    index = get_or_create_order_items_index(cache, key)
+    query = Query("*").add_filter(NumericFilter("order_id", order_id, order_id))
+    res = index.search(query)
+    order_items = [loads(doc.json) for doc in res.docs]
     return order_items
 
-def get_order_item(session: Session, order_item_id: int) -> Order:
+def get_order_item(cache: Redis, session_id: str, order_item_id: int) -> OrderItem:
     """Get an order by ID."""
-    statement = select(OrderItem).where(OrderItem.order_item_id == order_item_id)
-    order = session.exec(statement).first()
-    return order
+    key = session_id if session_id and session_id != "" else DEFAULT_KEY
+    orderitem = cache.json().get(f'{key}:orderitems:{order_item_id}')
+    if not orderitem:
+        return cache.json().get(f'{key}:orderitems:0')
+    return OrderItem.model_validate(orderitem)
 
-def create_order(session: Session, order: Order) -> Order:
+def create_order(cache: Redis, session_id: str, order: OrderCreate) -> Order:
     """Create a new order."""
-    session.add(order)
-    session.commit()
-    session.refresh(order)
-    return order
+    key = session_id if session_id and session_id != "" else DEFAULT_KEY
+    order_id = set_order_id(cache, key)
+    total_amount = 0.0
 
-def cancel_order(session: Session, order_id: int) -> None:
+    # Process each order item
+    for item in order.items:
+        # Get product to verify existence and price
+        product = products.get_product(cache, key, item.product_id)
+        if not product:
+            raise ValueError(f"Product with id {item.product_id} not found")
+
+        # Create order item
+        order_item_id = set_order_item_id(cache, key)
+        order_item = OrderItem(
+            order_item_id=order_item_id,
+            order_id=order_id,
+            product_id=product["product_id"],
+            quantity=item.quantity,
+            unit_price=product["price"]
+        )
+        order_item_encoded = jsonable_encoder(order_item.model_dump())
+        cache.json().set(f'{key}:orderitems:{order_item_id}', Path.root_path(), order_item_encoded)
+        # Update total amount
+        total_amount += product["price"] * item.quantity
+
+    order_items = get_order_items(cache, session_id, order_id)
+    db_order = Order(customer_email=order.customer_email,
+                     total_amount=total_amount,
+                     order_id=order_id,
+                     items=order_items)
+    # Update order total
+    order_encoded = jsonable_encoder(db_order.model_dump())
+    cache.json().set(f'{key}:orders:{order_id}', Path.root_path(), order_encoded)
+    return db_order
+
+def cancel_order(cache: Redis, session_id: str, order_id: int) -> None:
     """Cancel an order."""
-    order = get_order(session, order_id)
+    key = session_id if session_id else DEFAULT_KEY
+    order = get_order(cache, key, order_id)
     if not order:
-        raise SQLAlchemyError("Order not found")
-    if order:
+        return
+    if key != DEFAULT_KEY:
         order.status = OrderStatus.CANCELLED
-        session.commit()
+        order_encoded = jsonable_encoder(order.model_dump())
+        cache.json().set(f'{key}:orders:{order_id}', Path.root_path(), order_encoded)
 
-def set_order_id(session: Session) -> int:
-    """Get a product by ID."""
-    order_with_id_0 = get_order(session, 0)
+def set_order_id(cache: Redis, session_id: str) -> int:
+    """Set ID for an order"""
+    order_with_id_0 = get_order(cache, session_id, 0)
     if not order_with_id_0:
         return 0
-    statement = select(Order).order_by(desc(Order.order_id))
-    max_order_id = session.exec(statement).first().order_id
-    return max_order_id + 1
+    keys = cache.keys(f'{session_id}:orders:*')
+    max_id = max(int(k.split(":")[-1]) for k in keys)
+    return max_id + 1
 
-def set_order_item_id(session: Session) -> int:
-    """Get a product by ID."""
-    order_item_with_id_0 = get_order_item(session, 0)
+def set_order_item_id(cache: Redis, session_id: str) -> int:
+    """Set id for orderitem."""
+    order_item_with_id_0 = get_order_item(cache, session_id, 0)
     if not order_item_with_id_0:
         return 0
-    statement = select(OrderItem).order_by(desc(OrderItem.order_item_id))
-    max_order_item_id = session.exec(statement).first().order_item_id
-    return max_order_item_id + 1
+    keys = cache.keys(f'{session_id}:orderitems:*')
+    max_id = max(int(k.split(":")[-1]) for k in keys)
+    return max_id + 1

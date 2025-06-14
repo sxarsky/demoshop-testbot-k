@@ -3,13 +3,12 @@ Router for product-related endpoints.
 Handles CRUD operations for product management.
 """
 import json
-from datetime import datetime, timezone
 from typing import Callable, List, Annotated
 
 from fastapi import APIRouter, status, Path, Query, Request, Response
 from fastapi.routing import APIRoute
 
-from api_insight.deps import SessionDep
+from api_insight.deps import CacheDep, GetIpDep
 from api_insight.exceptions import ResourceNotFoundException
 from api_insight.models.product import ProductCreate, ProductUpdate, ProductResponse
 from api_insight.models.params import QueryParams
@@ -76,19 +75,22 @@ router = APIRouter(
 )
 async def create_product(
     product: ProductCreate,
-    session: SessionDep
+    cache: CacheDep,
+    ip: GetIpDep
 ):
     """Create a new product in the database."""
-    db_product = products.create_product(session, product)
+    db_product = products.create_product(cache, ip, product)
     return db_product
 
 @router.get("", response_model=List[ProductResponse], summary="Get a list of products")
 async def get_products(
     query_params: Annotated[QueryParams, Query()],
-    session: SessionDep
+    cache: CacheDep,
+    ip: GetIpDep
 ):
     """Get all products from the database."""
-    products_list = products.get_products(session,
+    products_list = products.get_products(cache,
+                                          ip,
                                           query_params.limit,
                                           query_params.offset,
                                           query_params.order,
@@ -101,9 +103,13 @@ async def get_products(
             summary="Get a product by ID",
             status_code=status.HTTP_200_OK
 )
-async def get_product(product_id: Annotated[int, Path()], session: SessionDep):
+async def get_product(
+    product_id: Annotated[int, Path()],
+    cache: CacheDep,
+    ip: GetIpDep
+):
     """Get a single product by its ID."""
-    product = products.get_product(session, product_id)
+    product = products.get_product(cache, ip, product_id)
     if not product:
         raise ResourceNotFoundException(status_code=404, detail="Product not found")
     return product
@@ -111,27 +117,17 @@ async def get_product(product_id: Annotated[int, Path()], session: SessionDep):
 @router.put("/{product_id}", response_model=ProductResponse, summary="Update a product by ID")
 async def update_product(product_id: Annotated[int, Path()],
                    product_update: ProductUpdate,
-                   session: SessionDep):
+                   cache: CacheDep,
+                   ip: GetIpDep):
     """Update a product's details by its ID."""
-    product = products.get_product(session, product_id)
+    product = products.update_product(cache, ip, product_id, product_update)
     if not product:
         raise ResourceNotFoundException(status_code=404, detail="Product not found")
-    product_data = product_update.model_dump(exclude_unset=True)
-    for key, value in product_data.items():
-        setattr(product, key, value)
-    product.updated_at = datetime.now(timezone.utc)
-    session.add(product)
-    session.commit()
     return product
 
 @router.delete("/{product_id}",
                status_code=status.HTTP_204_NO_CONTENT,
                summary="Delete a product by ID")
-async def delete_product(product_id: Annotated[int, Path()], session: SessionDep):
+async def delete_product(product_id: Annotated[int, Path()], cache: CacheDep, ip: GetIpDep):
     """Delete a product by its ID."""
-    product = products.get_product(session, product_id)
-    if not product:
-        raise ResourceNotFoundException(status_code=404, detail="Product not found")
-    session.delete(product)
-    session.commit()
-    return
+    return products.delete_product(cache, ip, product_id)

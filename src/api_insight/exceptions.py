@@ -1,15 +1,12 @@
-# app/exceptions.py
-
-from fastapi import Request, FastAPI
+"""Exceptions"""
+from fastapi import Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
-from typing import Dict, Any
 
 class  ResourceNotFoundException(Exception):
     def __init__(self, status_code: int, detail: str ):
         self.status_code = status_code
         self.detail = detail
-
 
 async def custom_request_validation_exception_handler(
     request: Request, exc: RequestValidationError
@@ -29,7 +26,6 @@ async def custom_request_validation_exception_handler(
 
         # Example: Return 400 for 'value_error.number.not_ge'
         if error_type == "value_error.number.not_ge":
-            status_code = 400
             error_detail = {
                 "field": field,
                 "message": f"{field} must be greater than or equal to {error['ctx']['limit_value']}" if field else message,
@@ -52,7 +48,6 @@ async def custom_request_validation_exception_handler(
 async def resource_not_found_exception_handler(
     request: Request, exc: ResourceNotFoundException
 ) -> JSONResponse:
-     return JSONResponse(
-         status_code=exc.status_code,
-         content={"detail": exc.detail},
-     )
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"detail": exc.detail})

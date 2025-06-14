@@ -3,10 +3,8 @@ Order models for the API.
 """
 from datetime import datetime
 from enum import Enum
-from typing import List, Optional
-from pydantic import BaseModel, Field as Pydantic_Field
-from sqlmodel import SQLModel, Field, Relationship
-from api_insight.models.product import Product
+from typing import List
+from pydantic import BaseModel, Field
 
 class OrderStatus(str, Enum):
     """Order status enumeration."""
@@ -16,10 +14,10 @@ class OrderStatus(str, Enum):
     DELIVERED = "delivered"
     CANCELLED = "cancelled"
 
-class OrderItemBase(SQLModel):
+class OrderItemBase(BaseModel):
     """Model for order items with common fields."""
     quantity: int = Field(ge=0)
-    product_id: int = Field(foreign_key="product.product_id", ge=0)
+    product_id: int = Field(ge=0)
     unit_price: float = Field(ge=0)
 
     # TODO: Add validation for quantity and unit_price once skyramp generate supports minimum and maximum values
@@ -40,16 +38,11 @@ class OrderItemBase(SQLModel):
     #         raise ValueError('Unit price must be at least 1.0')
     #     return v
 
-class OrderItem(OrderItemBase, table=True):
+class OrderItem(OrderItemBase):
     """Model for order items."""
     # TODO: order_item_id should be a UUID. Hardcoding it as 0 to pass the tests
     order_item_id: int = Field(default=0)
-    id: Optional[int] = Field(default=None, primary_key=True)
-    order_id: int = Field(foreign_key="order.order_id")
-
-    # Relationships
-    product: Optional["Product"] = Relationship()
-    order: Optional["Order"] = Relationship(back_populates="items")
+    order_id: int = Field()
 
 class OrderItemCreate(OrderItemBase):
     """Model for creating new order items in DB."""
@@ -60,26 +53,23 @@ class OrderItemRead(OrderItemBase):
     order_item_id: int
     order_id: int
 
-class OrderBase(SQLModel):
+class OrderBase(BaseModel):
     """Parent Model for orders with common fields."""
-    customer_email: str = Field(max_length=255, schema_extra={'pattern': r"(^[a-zA-Z]+[@a-zA-Z0-9-]*[\.a-zA-Z0-9-.]*$)"})
+    customer_email: str = Field(max_length=255, pattern=r"(^[a-zA-Z]+[@a-zA-Z0-9-]*[\.a-zA-Z0-9-.]*$)")
     status: OrderStatus = Field(default=OrderStatus.PENDING)
     total_amount: float = Field(default=0.0)
 
-class Order(OrderBase, table=True):
+class Order(OrderBase):
     """Model for orders."""
     # TODO: order_id should be a UUID. Hardcoding it as 0 to pass the tests
     order_id: int = Field(default=0)
-    id: Optional[int] = Field(default=None, primary_key=True)
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
+    items: List[OrderItem]
 
-    # Relationships
-    items: List[OrderItem] = Relationship(back_populates="order")
-
-class OrderCreate(SQLModel):
+class OrderCreate(BaseModel):
     """Model for creating new orders in DB."""
-    customer_email: str = Field(max_length=255, schema_extra={'pattern': r"(^[a-zA-Z]+[@a-zA-Z0-9-]*[\.a-zA-Z0-9-.]*$)"})
+    customer_email: str = Field(max_length=255, pattern=r"(^[a-zA-Z]+[@a-zA-Z0-9-]*[\.a-zA-Z0-9-.]*$)")
     items: List[OrderItemCreate]
     model_config = {
         "json_schema_extra": {
@@ -125,4 +115,4 @@ class OrderRead(OrderBase):
 
 class OrderCancel(BaseModel):
     """Model for cancelling an order."""
-    message: str = Pydantic_Field(default="Order cancelled successfully")
+    message: str = Field(default="Order cancelled successfully")

@@ -1,12 +1,12 @@
 """
 Product models for the API.
 """
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
-from sqlmodel import SQLModel, Field
+from pydantic import BaseModel, Field
 
-class ProductBase(SQLModel):
+class ProductBase(BaseModel):
     """
     Represents a base product.
 
@@ -19,11 +19,11 @@ class ProductBase(SQLModel):
         category (str): The category of the product.
         in_stock (bool): Indicates if the product is in stock.
     """
-    name: str = Field(min_length=1, schema_extra={'pattern': r'^[A-Za-z]+.*\s*$'})
-    description: str = Field(min_length=1, schema_extra={'pattern': r'^[A-Za-z]+.*\s*$'})
+    name: str = Field(min_length=1, pattern=r'^[A-Za-z]+.*\s*$')
+    description: str = Field(min_length=1, pattern=r'^[A-Za-z]+.*\s*$')
     price: float = Field(ge=0)
-    image_url: str = Field(min_length=1, schema_extra={'pattern': r'^[A-Za-z]+.*\s*$'})
-    category: str = Field(min_length=1, schema_extra={'pattern': r'^[A-Za-z]+.*\s*$'})
+    image_url: str = Field(min_length=1, pattern=r'^[A-Za-z]+.*\s*$')
+    category: str = Field(min_length=1, pattern=r'^[A-Za-z]+.*\s*$')
     in_stock: bool = Field(default=False)
 
     model_config = {
@@ -40,7 +40,7 @@ class ProductBase(SQLModel):
     }
 
 
-class Product(ProductBase, table=True):
+class Product(ProductBase):
     """
     Represents a product in the database.
 
@@ -49,9 +49,8 @@ class Product(ProductBase, table=True):
     """
     # TODO: product_id should be a UUID. Hardcoding it as 0 to pass the tests
     product_id: int = Field(default=0)
-    id: Optional[int] = Field(default=None, primary_key=True)
-    created_at: Optional[datetime] = Field(default_factory=datetime.utcnow, nullable=True)
-    updated_at: Optional[datetime] = Field(default_factory=datetime.utcnow, nullable=True)
+    updated_at: Optional[datetime] = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: Optional[datetime] = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class ProductCreate(ProductBase):
     """
@@ -63,7 +62,7 @@ class ProductCreate(ProductBase):
     pass
 
 
-class ProductUpdate(SQLModel):
+class ProductUpdate(BaseModel):
     """
     Represents an update for a product.
 
@@ -76,11 +75,11 @@ class ProductUpdate(SQLModel):
         in_stock (bool): The updated stock availability of the product.
     """
 
-    name: str = Field(min_length=1, schema_extra={'pattern': r'^[A-Za-z]+.*\s*$'})
-    description: str = Field(min_length=1, schema_extra={'pattern': r'^[A-Za-z]+.*\s*$'})
-    price: float = Field(ge=0)
-    image_url: str = Field(min_length=1, schema_extra={'pattern': r'^[A-Za-z]+.*\s*$'})
-    category: str = Field(min_length=1, schema_extra={'pattern': r'^[A-Za-z]+.*\s*$'})
+    name: str = Field(default=None, min_length=1, pattern=r'^[A-Za-z]+.*\s*$')
+    description: str = Field(default=None, min_length=1, pattern=r'^[A-Za-z]+.*\s*$')
+    price: float = Field(default=None, ge=0)
+    image_url: str = Field(default=None, min_length=1, pattern=r'^[A-Za-z]+.*\s*$')
+    category: str = Field(default=None, min_length=1, pattern=r'^[A-Za-z]+.*\s*$')
     in_stock: bool = Field(default=False)
 
     model_config = {
@@ -109,6 +108,7 @@ class ProductResponse(ProductBase):
 
     product_id: int
     created_at: datetime
+    updated_at: datetime
     model_config = {
         "json_schema_extra": {
             "example": {
