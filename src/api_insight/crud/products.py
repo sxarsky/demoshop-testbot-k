@@ -4,14 +4,11 @@ CRUD operations for products.
 from json import loads
 from datetime import datetime, timezone
 from fastapi.encoders import jsonable_encoder
-import redis
-from redis import ResponseError
+from redis import Redis
 from redis.commands.json.path import Path
-from redis.commands.search.field import TextField, NumericField
-from redis.commands.search.index_definition import IndexDefinition, IndexType
 from redis.commands.search.query import Query
 from api_insight.models.product import Product, ProductCreate, ProductUpdate
-from api_insight.core.config import get_settings
+# from api_insight.core.cache import get_or_create_products_index
 
 DEFAULT_KEY = "demoshop_default"
 
@@ -21,7 +18,7 @@ def get_product(cache, session_id: str, product_id: int) -> Product | None:
     product = cache.json().get(f'{key}:products:{product_id}')
     return product
 
-def create_product(cache: redis.Redis, session_id: str, product_create: ProductCreate) -> Product:
+def create_product(cache: Redis, session_id: str, product_create: ProductCreate) -> Product:
     """Create a new product."""
     key = session_id if session_id and session_id != "" else DEFAULT_KEY
     product_id = set_product_id(cache, session_id)
@@ -31,32 +28,10 @@ def create_product(cache: redis.Redis, session_id: str, product_create: ProductC
     cache.json().set(f'{key}:products:{product_id}', Path.root_path(), product_encoded)
     return cache.json().get(f'{key}:products:{product_id}')
 
-def get_or_create_products_index(cache: redis.Redis, key):
-    """Get or create product index"""
-    index = cache.ft(f"idx:{key}:products")
-    try:
-        index.info()
-        return index
-    except ResponseError:
-        print("index doesn't exist, creating")
-
-    definition=IndexDefinition(prefix=[f"{key}:products:"], index_type=IndexType.JSON)
-    index.create_index((
-        TextField("$.name", as_name='name'),
-        TextField("$.description", as_name='description'),
-        NumericField("$.price", sortable=True, as_name='price'),
-        TextField("$.image_url", as_name='image_url'),
-        TextField("$.category", as_name='category'),
-        ),
-        definition=definition,
-        temporary=get_settings().key_ttl_seconds
-    )
-    return index
-
-def get_products(cache: redis.Redis, session_id: str, limit: int, offset: int, order: str, order_by: str) -> list[Product]:
+def get_products(cache: Redis, session_id: str, limit: int, offset: int, order: str, order_by: str) -> list[Product]:
     """Get all products."""
     key = session_id if session_id and session_id != "" else DEFAULT_KEY
-    index = get_or_create_products_index(cache, key)
+    index = cache.ft(f"idx:{key}:products")
     query = Query("*").paging(offset, limit)
     if order_by and order_by != "":
         asc = True
@@ -69,7 +44,7 @@ def get_products(cache: redis.Redis, session_id: str, limit: int, offset: int, o
     products = [loads(doc.json) for doc in res.docs]
     return products
 
-def set_product_id(cache: redis.Redis, session_id: str) -> int:
+def set_product_id(cache: Redis, session_id: str) -> int:
     """Get a product by ID."""
     product_with_id_0 = get_product(cache, session_id, 0)
     if not product_with_id_0:
@@ -78,7 +53,7 @@ def set_product_id(cache: redis.Redis, session_id: str) -> int:
     max_product_id = max(int(k.split(":")[-1]) for k in keys)
     return max_product_id + 1
 
-def delete_product(cache: redis.Redis, session_id: str, product_id: str):
+def delete_product(cache: Redis, session_id: str, product_id: str):
     """Delete product"""
     key = session_id if session_id and session_id != "" else ""
     if key == "":
@@ -86,7 +61,7 @@ def delete_product(cache: redis.Redis, session_id: str, product_id: str):
     cache.json().delete(f'{key}:products:{product_id}')
     return
 
-def update_product(cache: redis.Redis, session_id: str, product_id: str, product_update: ProductUpdate):
+def update_product(cache: Redis, session_id: str, product_id: str, product_update: ProductUpdate):
     """Update product"""
     key = session_id if session_id and session_id != "" else DEFAULT_KEY
     product = get_product(cache, session_id, product_id)

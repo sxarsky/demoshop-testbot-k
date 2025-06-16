@@ -1,18 +1,15 @@
 """Crud for reviews."""
 from json import loads
-import redis
 from fastapi.encoders import jsonable_encoder
-from redis import ResponseError
+from redis import Redis
 from redis.commands.json.path import Path
-from redis.commands.search.field import NumericField
-from redis.commands.search.index_definition import IndexDefinition, IndexType
 from redis.commands.search.query import Query, NumericFilter
 from api_insight.models.review import ReviewCreate, Review
-from api_insight.core.config import get_settings
+from api_insight.core.cache import get_or_create_reviews_index
 
 DEFAULT_KEY = "demoshop_default"
 
-def get_reviews(product_id: int, cache: redis.Redis, session_id: str, limit: int, offset: int, order: str, order_by: str):
+def get_reviews(product_id: int, cache: Redis, session_id: str, limit: int, offset: int, order: str, order_by: str):
     """Get all reviews."""
     key = session_id if session_id and session_id != "" else DEFAULT_KEY
     product = cache.json().get(f'{key}:products:{product_id}')
@@ -31,24 +28,7 @@ def get_reviews(product_id: int, cache: redis.Redis, session_id: str, limit: int
     reviews = [loads(doc.json) for doc in res.docs]
     return reviews
 
-def get_or_create_reviews_index(cache: redis.Redis, key):
-    """Get or create reviews index"""
-    index = cache.ft(f"idx:{key}:reviews")
-    try:
-        index.info()
-        return index
-    except ResponseError:
-        print("index doesn't exist, creating")
-
-    definition=IndexDefinition(prefix=[f"{key}:reviews:"], index_type=IndexType.JSON)
-    index.create_index((
-        NumericField("$.product_id", as_name='product_id')),
-        definition=definition,
-        temporary=get_settings().key_ttl_seconds
-    )
-    return index
-
-def create_review(review: ReviewCreate, cache: redis.Redis, session_id: str, product_id: int):
+def create_review(review: ReviewCreate, cache: Redis, session_id: str, product_id: int):
     """Create a new review."""
     key = session_id if session_id and session_id != "" else DEFAULT_KEY
     product = cache.json().get(f'{key}:products:{product_id}')
@@ -69,7 +49,7 @@ def get_review(cache, session_id: str, product_id: int) -> Review | None:
     review = cache.json().get(f'{key}:reviews:{product_id}')
     return review
 
-def set_review_id(cache: redis.Redis, session_id: str) -> int:
+def set_review_id(cache: Redis, session_id: str) -> int:
     """set review ID."""
     review_with_id_0 = get_review(cache, session_id, 0)
     if not review_with_id_0:

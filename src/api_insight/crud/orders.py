@@ -3,14 +3,12 @@ CRUD operations for orders.
 """
 from json import loads
 from fastapi.encoders import jsonable_encoder
-from redis import Redis, ResponseError
+from redis import Redis
 from redis.commands.json.path import Path
-from redis.commands.search.field import NumericField, TextField
-from redis.commands.search.index_definition import IndexDefinition, IndexType
 from redis.commands.search.query import Query, NumericFilter
 from api_insight.models.order import Order, OrderStatus, OrderItem, OrderCreate
 from api_insight.crud import products
-from api_insight.core.config import get_settings
+from api_insight.core.cache import get_or_create_orders_index, get_or_create_order_items_index
 
 DEFAULT_KEY = "demoshop_default"
 def get_orders(cache: Redis, session_id: str, limit: int, offset: int, order: str, order_by: str) -> list[Order]:
@@ -44,45 +42,6 @@ def get_order(cache: Redis, session_id: str, order_id: int) -> Order:
     order_items = get_order_items(cache, session_id, order["order_id"])
     order["items"] = order_items
     return Order.model_validate(order)
-
-def get_or_create_orders_index(cache: Redis, key):
-    """Get or create orders index"""
-    index = cache.ft(f"idx:{key}:orders")
-    try:
-        index.info()
-        return index
-    except ResponseError:
-        print("index doesn't exist, creating")
-
-    definition=IndexDefinition(prefix=[f"{key}:orders:"], index_type=IndexType.JSON)
-    index.create_index((
-        NumericField("$.order_id", as_name='order_id'),
-        TextField("$.customer_email", as_name='customer_email'),
-        TextField("$.status", as_name='status'),
-        NumericField("$.total_amount", as_name='total_amount'),
-        ),
-        definition=definition,
-        temporary=get_settings().key_ttl_seconds
-    )
-    return index
-
-def get_or_create_order_items_index(cache: Redis, key):
-    """Get or create orderitems index"""
-    index = cache.ft(f"idx:{key}:orderitems")
-    try:
-        index.info()
-        return index
-    except ResponseError:
-        print("index doesn't exist, creating")
-
-    definition=IndexDefinition(prefix=[f"{key}:orderitems:"], index_type=IndexType.JSON)
-    index.create_index((
-        NumericField("$.order_id", as_name='order_id'),
-        ),
-        definition=definition,
-        temporary=get_settings().key_ttl_seconds
-    )
-    return index
 
 def get_order_items(cache: Redis, session_id: str, order_id: int) -> list[OrderItem]:
     """Get all order items for an order."""

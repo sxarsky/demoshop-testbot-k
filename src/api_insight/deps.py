@@ -4,7 +4,7 @@ Dependencies
 from typing import Annotated
 from fastapi import Depends, Request
 from redis import Redis
-from api_insight.core.cache import pool, init_data
+from api_insight.core.cache import pool, init_data, init_indexes
 
 def get_cache():
     """Re-use connection pool"""
@@ -26,6 +26,7 @@ def get_ip(request: Request):
         ip = client_host
     if ip and ip != "":
         init_data(get_cache(), ip)
+        init_indexes(get_cache(), ip)
 
     return ip
 

@@ -3,8 +3,11 @@ Redis support for Caching
 """
 import logging
 import ssl
-import redis
+from redis import Redis, ResponseError, SSLConnection, ConnectionPool
+from redis.commands.search.field import TextField, NumericField
+from redis.commands.search.index_definition import IndexDefinition, IndexType
 from api_insight.core.config import get_settings
+
 logger = logging.getLogger(__name__)
 settings = get_settings()
 
@@ -12,7 +15,7 @@ def create_pool():
     """Create redis connection pool"""
     kwargs = {}
     if settings.SKYRAMP_ENVIRONMENT != "local":
-        kwargs['connection_class']=redis.SSLConnection
+        kwargs['connection_class']=SSLConnection
         kwargs['ssl_cert_reqs']="required"
         kwargs['username']=settings.redis_user
         kwargs['password']=settings.redis_pass
@@ -21,7 +24,7 @@ def create_pool():
         kwargs['ssl_ca_certs']=settings.redis_ca_pem
         kwargs['ssl_min_version']=ssl.TLSVersion.TLSv1_3
 
-    return redis.ConnectionPool(
+    return ConnectionPool(
         host=settings.redis_host,
         port=settings.redis_port,
         decode_responses=True,
@@ -29,7 +32,7 @@ def create_pool():
         **kwargs
     )
 
-def init_data(cache: redis.Redis, session_id: str):
+def init_data(cache: Redis, session_id: str):
     """init data"""
     collections = ["products", "reviews", "orders", "orderitems"]
     default_data = "demoshop_default"
@@ -55,5 +58,90 @@ def init_data(cache: redis.Redis, session_id: str):
                     pipe.json().set(new_key, '$', v)
                     pipe.expire(new_key, settings.key_ttl_seconds)
             pipe.execute()
+
+def get_or_create_products_index(cache: Redis, key):
+    """Get or create product index"""
+    index = cache.ft(f"idx:{key}:products")
+    try:
+        index.info()
+        return index
+    except ResponseError:
+        print("index doesn't exist, creating")
+
+    definition=IndexDefinition(prefix=[f"{key}:products:"], index_type=IndexType.JSON)
+    index.create_index((
+        TextField("$.name", as_name='name'),
+        TextField("$.description", as_name='description'),
+        NumericField("$.price", sortable=True, as_name='price'),
+        TextField("$.image_url", as_name='image_url'),
+        TextField("$.category", as_name='category'),
+        ),
+        definition=definition,
+        temporary=get_settings().key_ttl_seconds
+    )
+    return index
+
+def get_or_create_orders_index(cache: Redis, key):
+    """Get or create orders index"""
+    index = cache.ft(f"idx:{key}:orders")
+    try:
+        index.info()
+        return index
+    except ResponseError:
+        print("index doesn't exist, creating")
+
+    definition=IndexDefinition(prefix=[f"{key}:orders:"], index_type=IndexType.JSON)
+    index.create_index((
+        NumericField("$.order_id", as_name='order_id'),
+        TextField("$.customer_email", as_name='customer_email'),
+        TextField("$.status", as_name='status'),
+        NumericField("$.total_amount", as_name='total_amount'),
+        ),
+        definition=definition,
+        temporary=get_settings().key_ttl_seconds
+    )
+    return index
+
+def get_or_create_order_items_index(cache: Redis, key):
+    """Get or create orderitems index"""
+    index = cache.ft(f"idx:{key}:orderitems")
+    try:
+        index.info()
+        return index
+    except ResponseError:
+        print("index doesn't exist, creating")
+
+    definition=IndexDefinition(prefix=[f"{key}:orderitems:"], index_type=IndexType.JSON)
+    index.create_index((
+        NumericField("$.order_id", as_name='order_id'),
+        ),
+        definition=definition,
+        temporary=get_settings().key_ttl_seconds
+    )
+    return index
+
+def get_or_create_reviews_index(cache: Redis, key):
+    """Get or create reviews index"""
+    index = cache.ft(f"idx:{key}:reviews")
+    try:
+        index.info()
+        return index
+    except ResponseError:
+        print("index doesn't exist, creating")
+
+    definition=IndexDefinition(prefix=[f"{key}:reviews:"], index_type=IndexType.JSON)
+    index.create_index((
+        NumericField("$.product_id", as_name='product_id')),
+        definition=definition,
+        temporary=get_settings().key_ttl_seconds
+    )
+    return index
+
+def init_indexes(cache: Redis, session_id: str):
+    """init indexes"""
+    get_or_create_products_index(cache, session_id)
+    get_or_create_orders_index(cache, session_id)
+    get_or_create_order_items_index(cache, session_id)
+    get_or_create_reviews_index(cache, session_id)
 
 pool = create_pool()
