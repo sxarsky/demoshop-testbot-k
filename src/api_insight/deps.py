@@ -15,10 +15,11 @@ CacheDep = Annotated[Redis, Depends(get_cache)]
 
 def get_ip(request: Request):
     """Get IP"""
-    cf_connecting_ip = request.headers.get("CF-Connecting-IP")
-    if cf_connecting_ip and cf_connecting_ip != "":
-        logger.debug("using cf_connecting_ip:%s", cf_connecting_ip)
-        return cf_connecting_ip
+    logger.debug("request headers: %s", request.headers)
+    session_ip_id = request.headers.get("session-ip-id")
+    if session_ip_id and session_ip_id != "":
+        logger.debug("using session_ip_id: %s", session_ip_id)
+        return session_ip_id 
     real_ip = request.headers.get("X-Real-IP")
     if real_ip and real_ip != "":
         logger.debug("using real_ip: %s", real_ip)

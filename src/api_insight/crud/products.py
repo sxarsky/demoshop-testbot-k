@@ -72,7 +72,6 @@ def update_product(cache: Redis, session_id: str, product_id: str, product_updat
     for key, value in product_data.items():
         setattr(product, key, value)
     product.updated_at = datetime.now(timezone.utc)
-    print(product)
     product_encoded = jsonable_encoder(product.model_dump())
     cache.json().set(f'{key}:products:{product_id}', Path.root_path(), product_encoded)
     return cache.json().get(f'{key}:products:{product_id}')

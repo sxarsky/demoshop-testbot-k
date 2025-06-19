@@ -70,11 +70,11 @@ def get_or_create_products_index(cache: Redis, key):
 
     definition=IndexDefinition(prefix=[f"{key}:products:"], index_type=IndexType.JSON)
     index.create_index((
-        TextField("$.name", as_name='name'),
-        TextField("$.description", as_name='description'),
+        TextField("$.name", sortable=True, as_name='name'),
+        TextField("$.description", sortable=True, as_name='description'),
         NumericField("$.price", sortable=True, as_name='price'),
-        TextField("$.image_url", as_name='image_url'),
-        TextField("$.category", as_name='category'),
+        TextField("$.image_url", sortable=True, as_name='image_url'),
+        TextField("$.category", sortable=True, as_name='category'),
         ),
         definition=definition,
         temporary=settings.KEY_TTL_SECONDS
@@ -88,14 +88,14 @@ def get_or_create_orders_index(cache: Redis, key):
         index.info()
         return index
     except ResponseError:
-        print("index doesn't exist, creating")
+        logger.debug("index doesn't exist, creating")
 
     definition=IndexDefinition(prefix=[f"{key}:orders:"], index_type=IndexType.JSON)
     index.create_index((
-        NumericField("$.order_id", as_name='order_id'),
-        TextField("$.customer_email", as_name='customer_email'),
-        TextField("$.status", as_name='status'),
-        NumericField("$.total_amount", as_name='total_amount'),
+        NumericField("$.order_id", sortable=True, as_name='order_id'),
+        TextField("$.customer_email", sortable=True, as_name='customer_email'),
+        TextField("$.status", sortable=True, as_name='status'),
+        NumericField("$.total_amount", sortable=True, as_name='total_amount'),
         ),
         definition=definition,
         temporary=settings.KEY_TTL_SECONDS
@@ -109,7 +109,7 @@ def get_or_create_order_items_index(cache: Redis, key):
         index.info()
         return index
     except ResponseError:
-        print("index doesn't exist, creating")
+        logger.debug("index doesn't exist, creating")
 
     definition=IndexDefinition(prefix=[f"{key}:orderitems:"], index_type=IndexType.JSON)
     index.create_index((
@@ -127,11 +127,14 @@ def get_or_create_reviews_index(cache: Redis, key):
         index.info()
         return index
     except ResponseError:
-        print("index doesn't exist, creating")
+        logger.debug("index doesn't exist, creating")
 
     definition=IndexDefinition(prefix=[f"{key}:reviews:"], index_type=IndexType.JSON)
     index.create_index((
-        NumericField("$.product_id", as_name='product_id')),
+        NumericField("$.product_id", sortable=True, as_name='product_id'),
+        NumericField("$.rating", sortable=True, as_name='rating'),
+        TextField("$.comment", sortable=True, as_name='comment'),
+        ),
         definition=definition,
         temporary=settings.KEY_TTL_SECONDS
     )
