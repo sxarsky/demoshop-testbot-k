@@ -7,6 +7,7 @@ from api_insight.models.review import (
 )
 from api_insight.models import QueryParams
 from api_insight.crud import reviews
+from api_insight.exceptions import ResourceNotFoundException
 
 router = APIRouter(
     prefix="/reviews",
@@ -24,13 +25,16 @@ async def get_reviews(
     """
     Get all reviews
     """
-    reviews_list = reviews.get_reviews(product_id,
+    try:
+        reviews_list = reviews.get_reviews(product_id,
                                        cache,
                                        ip,
                                        query_params.limit,
                                        query_params.offset,
                                        query_params.order,
                                        query_params.orderBy)
+    except ValueError as exc:
+        raise ResourceNotFoundException(status_code=404, detail="Product not foound") from exc
     return reviews_list
 
 @router.post("", response_model=ReviewResponse, status_code=status.HTTP_201_CREATED,
@@ -40,5 +44,8 @@ async def create_review(review: ReviewCreate, cache: CacheDep, ip: GetIpDep, pro
     """
     Create a review
     """
-    db_review = reviews.create_review(review, cache, ip, product_id)
+    try:
+        db_review = reviews.create_review(review, cache, ip, product_id)
+    except ValueError as exc:
+        raise ResourceNotFoundException(status_code=404, detail="Product not foound") from exc
     return db_review

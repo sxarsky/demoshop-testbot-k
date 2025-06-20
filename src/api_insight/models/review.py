@@ -18,8 +18,8 @@ class ReviewBase(BaseModel):
 
 class Review(ReviewBase):
     """Database model for review"""
-    product_id: int = Field(default=0)
-    review_id: int = Field(default=0)
+    product_id: int = Field()
+    review_id: int = Field()
     updated_at: Optional[datetime] = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     created_at: Optional[datetime] = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 

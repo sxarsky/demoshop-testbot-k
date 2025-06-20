@@ -14,7 +14,7 @@ def get_reviews(product_id: int, cache: Redis, session_id: str, limit: int, offs
     key = session_id if session_id and session_id != "" else DEFAULT_KEY
     product = cache.json().get(f'{key}:products:{product_id}')
     if not product:
-        product_id = 0
+        raise ValueError("product not found")
     index = get_or_create_reviews_index(cache, key)
     query = Query("*").add_filter(NumericFilter("product_id", product_id, product_id)).paging(offset, limit)
     if order_by and order_by != "":
@@ -33,7 +33,7 @@ def create_review(review: ReviewCreate, cache: Redis, session_id: str, product_i
     key = session_id if session_id and session_id != "" else DEFAULT_KEY
     product = cache.json().get(f'{key}:products:{product_id}')
     if not product:
-        product_id = 0
+        raise ValueError("product not found")
     review_id = set_review_id(cache, session_id)
     db_review = Review(rating=review.rating,
                        comment=review.comment,
@@ -51,9 +51,6 @@ def get_review(cache, session_id: str, product_id: int) -> Review | None:
 
 def set_review_id(cache: Redis, session_id: str) -> int:
     """set review ID."""
-    review_with_id_0 = get_review(cache, session_id, 0)
-    if not review_with_id_0:
-        return 0
     keys = cache.keys(f'{session_id}:reviews:*')
     max_review_id = max(int(k.split(":")[-1]) for k in keys)
     return max_review_id + 1

@@ -24,28 +24,30 @@ if environment != "local":
     kwargs['ssl_ca_certs']=redis_ca_pem
     kwargs['ssl_min_version']=ssl.TLSVersion.TLSv1_3
 
-r = redis.Redis(
-    host=redis_host,
-    port=redis_port,
-    decode_responses=True,
-    # optional:
-    **kwargs
-)
+pool = redis.ConnectionPool(
+        host=redis_host,
+        port=redis_port,
+        decode_responses=True,
+        # optional:
+        **kwargs)
+
+r = redis.Redis(connection_pool=pool)
 
 with open('app_data.json', 'r', encoding='utf-8') as file:
     data = json.load(file)
-    for product in data['products']:
-        default_key = f'demoshop_default:products:{product["product_id"]}'
-        r.json().set(default_key, Path.root_path(), product)
+    with r.pipeline() as pipe:
+        for product in data['products']:
+            default_key = f'demoshop_default:products:{product["product_id"]}'
+            pipe.json().set(default_key, Path.root_path(), product)
+        for review in data['reviews']:
+            default_key = f'demoshop_default:reviews:{review["review_id"]}'
+            pipe.json().set(default_key, Path.root_path(), review)
 
-    for review in data['reviews']:
-        default_key = f'demoshop_default:reviews:{review["review_id"]}'
-        r.json().set(default_key, Path.root_path(), review)
+        for order in data['orders']:
+            default_key = f'demoshop_default:orders:{order["order_id"]}'
+            pipe.json().set(default_key, Path.root_path(), order)
 
-    for order in data['orders']:
-        default_key = f'demoshop_default:orders:{order["order_id"]}'
-        r.json().set(default_key, Path.root_path(), order)
-
-    for orderitem in data['orderitems']:
-        default_key = f'demoshop_default:orderitems:{orderitem["order_item_id"]}'
-        r.json().set(default_key, Path.root_path(), orderitem)
+        for orderitem in data['orderitems']:
+            default_key = f'demoshop_default:orderitems:{orderitem["order_item_id"]}'
+            pipe.json().set(default_key, Path.root_path(), orderitem)
+        pipe.execute()

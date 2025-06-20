@@ -81,5 +81,8 @@ async def cancel_order(
     """
     Cancel an existing order
     """
-    orders.cancel_order(cache, ip, order_id)
+    try:
+        orders.cancel_order(cache, ip, order_id)
+    except ValueError as exc:
+        raise ResourceNotFoundException(status_code=404, detail="Order not found") from exc
     return OrderCancel(message="Order cancelled successfully")

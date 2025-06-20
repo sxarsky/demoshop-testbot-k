@@ -102,7 +102,7 @@ def cancel_order(cache: Redis, session_id: str, order_id: int) -> None:
     key = session_id if session_id else DEFAULT_KEY
     order = get_order(cache, key, order_id)
     if not order:
-        return
+        raise ValueError("order not found")
     if key != DEFAULT_KEY:
         order.status = OrderStatus.CANCELLED
         order_encoded = jsonable_encoder(order.model_dump())
@@ -110,18 +110,12 @@ def cancel_order(cache: Redis, session_id: str, order_id: int) -> None:
 
 def set_order_id(cache: Redis, session_id: str) -> int:
     """Set ID for an order"""
-    order_with_id_0 = get_order(cache, session_id, 0)
-    if not order_with_id_0:
-        return 0
     keys = cache.keys(f'{session_id}:orders:*')
     max_id = max(int(k.split(":")[-1]) for k in keys)
     return max_id + 1
 
 def set_order_item_id(cache: Redis, session_id: str) -> int:
     """Set id for orderitem."""
-    order_item_with_id_0 = get_order_item(cache, session_id, 0)
-    if not order_item_with_id_0:
-        return 0
     keys = cache.keys(f'{session_id}:orderitems:*')
     max_id = max(int(k.split(":")[-1]) for k in keys)
     return max_id + 1

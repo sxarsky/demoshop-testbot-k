@@ -17,7 +17,7 @@ class OrderStatus(str, Enum):
 class OrderItemBase(BaseModel):
     """Model for order items with common fields."""
     quantity: int = Field(ge=0)
-    product_id: int = Field(ge=0)
+    product_id: int = Field(ge=1)
     unit_price: float = Field(ge=0)
 
     # TODO: Add validation for quantity and unit_price once skyramp generate supports minimum and maximum values
@@ -41,7 +41,7 @@ class OrderItemBase(BaseModel):
 class OrderItem(OrderItemBase):
     """Model for order items."""
     # TODO: order_item_id should be a UUID. Hardcoding it as 0 to pass the tests
-    order_item_id: int = Field(default=0)
+    order_item_id: int = Field()
     order_id: int = Field()
 
 class OrderItemCreate(OrderItemBase):
@@ -62,7 +62,7 @@ class OrderBase(BaseModel):
 class Order(OrderBase):
     """Model for orders."""
     # TODO: order_id should be a UUID. Hardcoding it as 0 to pass the tests
-    order_id: int = Field(default=0)
+    order_id: int = Field()
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
     items: List[OrderItem]

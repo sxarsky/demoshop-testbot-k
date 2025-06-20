@@ -1,17 +1,6 @@
 {
     "products": [
         {
-            "name": "Macbook Pro",
-            "description": "High-performance laptop",
-            "price": 2499.99,
-            "image_url": "https://images.app.goo.gl/jGPHo3ZEzEbHG8o2A",
-            "category": "Laptop",
-            "in_stock": 1,
-            "product_id": 0,
-            "created_at": "2025-06-10 21:27:14.603823",
-            "updated_at": "2025-06-10 21:27:14.603830"
-        },
-        {
             "name": "Apple iPhone 16",
             "description": "The everyday smartphone",
             "price": 799.99,
@@ -267,14 +256,6 @@
     ],
     "orders": [
         {
-            "customer_email": "abc@mail.com",
-            "status": "pending",
-            "total_amount": 4999.98,
-            "order_id": 0,
-            "created_at": "2025-06-10 21:27:14.608385",
-            "updated_at": "2025-06-10 21:27:14.608390"
-        },
-        {
             "customer_email": "def@mail.com",
             "status": "confirmed",
             "total_amount": 999.98,
@@ -372,13 +353,6 @@
         }
     ],
     "orderitems": [
-        {
-            "quantity": 2,
-            "product_id": 0,
-            "unit_price": 2499.99,
-            "order_item_id": 0,
-            "order_id": 0
-        },
         {
             "quantity": 1,
             "product_id": 1,
@@ -543,17 +517,9 @@
     ],
     "reviews": [
         {
-            "rating": 5,
-            "comment": "Morbi non quam nec dui luctus rutrum. Nulla tellus. In sagittis dui vel nisl.",
-            "product_id": 0,
-            "review_id": 0,
-            "created_at": "2025-06-10 21:27:14.609798",
-            "updated_at": "2025-06-10 21:27:14.609802"
-        },
-        {
             "rating": 4,
             "comment": "Maecenas tincidunt lacus at velit.",
-            "product_id": 0,
+            "product_id": 1,
             "review_id": 1,
             "created_at": "2025-06-10 21:27:14.609841",
             "updated_at": "2025-06-10 21:27:14.609845"

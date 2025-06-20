@@ -11,7 +11,6 @@ class ProductBase(BaseModel):
     Represents a base product.
 
     Attributes:
-        product_id (int): The ID of the product.
         name (str): The name of the product.
         description (str): The description of the product.
         price (float): The price of the product.
@@ -45,10 +44,9 @@ class Product(ProductBase):
     Represents a product in the database.
 
     Attributes:
-        id (int): The ID of the product. Primary key in database.
+        product_id (int): The ID of the product.
     """
-    # TODO: product_id should be a UUID. Hardcoding it as 0 to pass the tests
-    product_id: int = Field(default=0)
+    product_id: int = Field()
     updated_at: Optional[datetime] = Field(default_factory=lambda: datetime.now(timezone.utc))
     created_at: Optional[datetime] = Field(default_factory=lambda: datetime.now(timezone.utc))
 
@@ -112,7 +110,7 @@ class ProductResponse(ProductBase):
     model_config = {
         "json_schema_extra": {
             "example": {
-                "product_id": 0,
+                "product_id": 1,
                 "created_at": "2025-02-25T10:54:22-05:00",
                 "name": "bigbear",
                 "description": "Bear Soft Toy",

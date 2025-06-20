@@ -46,9 +46,6 @@ def get_products(cache: Redis, session_id: str, limit: int, offset: int, order: 
 
 def set_product_id(cache: Redis, session_id: str) -> int:
     """Get a product by ID."""
-    product_with_id_0 = get_product(cache, session_id, 0)
-    if not product_with_id_0:
-        return 0
     keys = cache.keys(f'{session_id}:products:*')
     max_product_id = max(int(k.split(":")[-1]) for k in keys)
     return max_product_id + 1
@@ -58,13 +55,16 @@ def delete_product(cache: Redis, session_id: str, product_id: str):
     key = session_id if session_id and session_id != "" else ""
     if key == "":
         return
+    product = get_product(cache, key, product_id)
+    if not product:
+        raise ValueError("product not found")
     cache.json().delete(f'{key}:products:{product_id}')
     return
 
 def update_product(cache: Redis, session_id: str, product_id: str, product_update: ProductUpdate):
     """Update product"""
     key = session_id if session_id and session_id != "" else DEFAULT_KEY
-    product = get_product(cache, session_id, product_id)
+    product = get_product(cache, key, product_id)
     if not product:
         return None
     product = Product.model_validate(product)

@@ -131,4 +131,7 @@ async def update_product(product_id: Annotated[int, Path()],
                summary="Delete a product by ID")
 async def delete_product(product_id: Annotated[int, Path()], cache: CacheDep, ip: GetIpDep):
     """Delete a product by its ID."""
-    return products.delete_product(cache, ip, product_id)
+    try:
+        products.delete_product(cache, ip, product_id)
+    except ValueError as exc:
+        raise ResourceNotFoundException(status_code=404, detail="Product not found") from exc
