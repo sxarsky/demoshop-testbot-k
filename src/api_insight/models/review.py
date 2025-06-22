@@ -5,16 +5,8 @@ from pydantic import BaseModel, Field
 
 class ReviewBase(BaseModel):
     """Review base model"""
-    rating: int = Field(ge=0)
-    comment: str = Field(pattern=r'^[A-Za-z]+.*\s*$')
-    model_config = {
-        "json_schema_extra": {
-            "example": {
-                "rating": 5,
-                "comment": "Great product!"
-            }
-        }
-    }
+    rating: int = Field(ge=0, json_schema_extra={'example': 5})
+    comment: str = Field(pattern=r'^[A-Za-z]+.*\s*$', json_schema_extra={'example': "Great Product!"})
 
 class Review(ReviewBase):
     """Database model for review"""
@@ -29,11 +21,4 @@ class ReviewCreate(ReviewBase):
 
 class ReviewResponse(ReviewBase):
     """Review response model"""
-    model_config = {
-        "json_schema_extra": {
-            "example": {
-                "rating": 5,
-                "comment": "Great product!"
-            }
-        }
-    }
+    pass

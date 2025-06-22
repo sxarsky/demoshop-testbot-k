@@ -1,6 +1,6 @@
 """Router for Review API Endpoints"""
 from typing import List, Annotated
-from fastapi import APIRouter, Query, status
+from fastapi import APIRouter, Query, status, Path
 from api_insight.deps import CacheDep, GetIpDep, EnsureSessionDep
 from api_insight.models.review import (
     ReviewResponse, ReviewCreate
@@ -16,9 +16,9 @@ router = APIRouter(
 
 @router.get("", response_model=List[ReviewResponse],
             summary="Get all reviews for selected product",
-            description="Get all reviews for selected product")
+            description="Get all reviews for selected product",)
 async def get_reviews(
-    product_id: int,
+    product_id: Annotated[int, Path(json_schema_extra={'example': 0})],
     cache: CacheDep,
     ip: GetIpDep, query_params: Annotated[QueryParams, Query()]
     ):
@@ -40,7 +40,8 @@ async def get_reviews(
 @router.post("", response_model=ReviewResponse, status_code=status.HTTP_201_CREATED,
                 summary="Create a review",
                 description="Create a review for a product")
-async def create_review(review: ReviewCreate, cache: CacheDep, ip: GetIpDep, product_id: int):
+async def create_review(review: ReviewCreate, cache: CacheDep, ip: GetIpDep,
+                        product_id: Annotated[int, Path(json_schema_extra={'example': 0})]):
     """
     Create a review
     """

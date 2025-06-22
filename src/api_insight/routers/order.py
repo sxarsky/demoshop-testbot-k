@@ -2,7 +2,7 @@
 Order API
 """
 from typing import List, Annotated
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, Path
 from api_insight.deps import CacheDep, GetIpDep, EnsureSessionDep
 from api_insight.exceptions import ResourceNotFoundException
 from api_insight.models.order import (
@@ -29,9 +29,12 @@ async def create_order(
     """
     Create a new order
     """
-    db_order = orders.create_order(cache, ip, order)
-    db_order.items = orders.get_order_items(cache, ip, db_order.order_id)
-    return db_order
+    try:
+        db_order = orders.create_order(cache, ip, order)
+        db_order.items = orders.get_order_items(cache, ip, db_order.order_id)
+        return db_order
+    except ValueError as exc:
+        raise ResourceNotFoundException(status_code=404, detail="Invalid product id") from exc
 
 @router.get("", response_model=List[Order],
            summary="Get all orders",
@@ -56,7 +59,7 @@ async def get_orders(
            summary="Get order by ID",
            description="Retrieve a specific order by its ID")
 async def get_order(
-    order_id: int,
+    order_id: Annotated[int, Path(json_schema_extra={'example': 0})],
     cache: CacheDep,
     ip: GetIpDep
 ):
@@ -74,7 +77,7 @@ async def get_order(
               description="Cancel an existing order",
               response_model=OrderCancel)
 async def cancel_order(
-    order_id: int,
+    order_id: Annotated[int, Path(json_schema_extra={'example': 0})],
     cache: CacheDep,
     ip: GetIpDep
 ):

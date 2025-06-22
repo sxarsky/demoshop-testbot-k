@@ -18,26 +18,12 @@ class ProductBase(BaseModel):
         category (str): The category of the product.
         in_stock (bool): Indicates if the product is in stock.
     """
-    name: str = Field(min_length=1, pattern=r'^[A-Za-z]+.*\s*$')
-    description: str = Field(min_length=1, pattern=r'^[A-Za-z]+.*\s*$')
-    price: float = Field(ge=0)
-    image_url: str = Field(min_length=1, pattern=r'^[A-Za-z]+.*\s*$')
-    category: str = Field(min_length=1, pattern=r'^[A-Za-z]+.*\s*$')
-    in_stock: bool = Field(default=False)
-
-    model_config = {
-        "json_schema_extra": {
-            "example": {
-                "name": "bigbear",
-                "description": "Bear Soft Toy",
-                "price": 9.99,
-                "image_url": "https://images.app.goo.gl/cgcHpeehRdu5osot8",
-                "category": "Toys",
-                "in_stock": True
-            }
-        }
-    }
-
+    name: str = Field(min_length=1, pattern=r'^[A-Za-z]+.*\s*$', json_schema_extra={'example': 'bigbear'})
+    description: str = Field(min_length=1, pattern=r'^[A-Za-z]+.*\s*$', json_schema_extra={'example': 'Bear Soft Toy'})
+    price: float = Field(ge=0, json_schema_extra={'example': 9.99})
+    image_url: str = Field(min_length=1, pattern=r'^[A-Za-z]+.*\s*$', json_schema_extra={'example': 'https://images.app.goo.gl/cgcHpeehRdu5osot8'})
+    category: str = Field(min_length=1, pattern=r'^[A-Za-z]+.*\s*$', json_schema_extra={'example': 'Toys'})
+    in_stock: bool = Field(default=False, json_schema_extra={'example': True})
 
 class Product(ProductBase):
     """
@@ -46,7 +32,7 @@ class Product(ProductBase):
     Attributes:
         product_id (int): The ID of the product.
     """
-    product_id: int = Field()
+    product_id: int = Field(json_schema_extra={'example': 1})
     updated_at: Optional[datetime] = Field(default_factory=lambda: datetime.now(timezone.utc))
     created_at: Optional[datetime] = Field(default_factory=lambda: datetime.now(timezone.utc))
 
@@ -73,25 +59,12 @@ class ProductUpdate(BaseModel):
         in_stock (bool): The updated stock availability of the product.
     """
 
-    name: str = Field(default=None, min_length=1, pattern=r'^[A-Za-z]+.*\s*$')
-    description: str = Field(default=None, min_length=1, pattern=r'^[A-Za-z]+.*\s*$')
-    price: float = Field(default=None, ge=0)
-    image_url: str = Field(default=None, min_length=1, pattern=r'^[A-Za-z]+.*\s*$')
-    category: str = Field(default=None, min_length=1, pattern=r'^[A-Za-z]+.*\s*$')
-    in_stock: bool = Field(default=False)
-
-    model_config = {
-        "json_schema_extra": {
-            "example": {
-                "name": "bigbear",
-                "description": "Bear Soft Toy",
-                "price": 19.99,
-                "image_url": "https://images.app.goo.gl/cgcHpeehRdu5osot8",
-                "category": "Toys",
-                "in_stock": True
-            }
-        }
-    }
+    name: str = Field(default=None, min_length=1, pattern=r'^[A-Za-z]+.*\s*$', json_schema_extra={'example': 'bigbear'})
+    description: str = Field(default=None, min_length=1, pattern=r'^[A-Za-z]+.*\s*$', json_schema_extra={'example': 'Bear Soft Toy'})
+    price: float = Field(default=None, ge=0, json_schema_extra={'example': 9.99})
+    image_url: str = Field(default=None, min_length=1, pattern=r'^[A-Za-z]+.*\s*$', json_schema_extra={'example': 'https://images.app.goo.gl/cgcHpeehRdu5osot8'})
+    category: str = Field(default=None, min_length=1, pattern=r'^[A-Za-z]+.*\s*$', json_schema_extra={'example': 'Toys'})
+    in_stock: bool = Field(default=False, json_schema_extra={'example': True})
 
 class ProductResponse(ProductBase):
     """
@@ -104,20 +77,6 @@ class ProductResponse(ProductBase):
         id (int): The ID of the product.
     """
 
-    product_id: int
-    created_at: datetime
-    updated_at: datetime
-    model_config = {
-        "json_schema_extra": {
-            "example": {
-                "product_id": 1,
-                "created_at": "2025-02-25T10:54:22-05:00",
-                "name": "bigbear",
-                "description": "Bear Soft Toy",
-                "price": 9.99,
-                "image_url": "https://images.app.goo.gl/cgcHpeehRdu5osot8",
-                "category": "Toys",
-                "in_stock": True
-            }
-        }
-    }
+    product_id: int = Field(json_schema_extra={'example': 1})
+    created_at: datetime = Field(json_schema_extra={'example': '2025-02-25T10:54:22-05:00'})
+    updated_at: datetime = Field(json_schema_extra={'example': '2025-02-25T10:54:22-05:00'})
