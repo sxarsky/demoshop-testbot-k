@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import ProductCatalog from './components/ProductCatalog'
-import ProductDetail from './components/ProductDetail'
+import ProductCatalog from './components/products/ProductCatalog'
+import ProductDetail from './components/products/ProductDetail'
+import OrderCatalog from './components/orders/OrderCatalog'
 import { useState } from 'react'
 import './App.css'
 
@@ -10,6 +11,7 @@ function App() {
       <Routes>
         <Route path="/products" element={<ProductCatalog />} />
         <Route path="/products/:id" element={<ProductDetail />} />
+        <Route path="/orders" element={<OrderCatalog />} />
         <Route path="/" element={<Navigate to="/products" replace />} />
       </Routes>
     </BrowserRouter>
