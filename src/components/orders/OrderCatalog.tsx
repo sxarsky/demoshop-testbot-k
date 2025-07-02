@@ -54,13 +54,16 @@ export default function OrderCatalog() {
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           {/* Logo + Brand */}
           <div className="flex items-center gap-2">
-            <img
-              src="/logo.avif"
-              alt="Skyramp Logo"
-              width={150}
-              height={100}
-              className="object-contain"
-            />
+            <a href="https://skyramp.dev" target="_blank" rel="noopener noreferrer">
+              <img
+                src="/logo.avif"
+                alt="Skyramp Logo"
+                width={150}
+                height={100}
+                className="object-contain"
+                style={{ cursor: 'pointer' }}
+              />
+            </a>
           </div>
 
           {/* Nav Links */}

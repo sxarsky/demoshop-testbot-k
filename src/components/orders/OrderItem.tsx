@@ -20,7 +20,13 @@ export default function OrderItem({ order }: { order: Order }) {
         </div>
 
         {/* View Details */}
-        <Button variant="link" className="text-blue-600 ml-auto" onClick={() => {}}>
+        <Button
+          variant="link"
+          className="text-blue-600 ml-auto"
+          onClick={() => {
+            window.location.href = `/orders/${order.order_id}`;
+          }}
+        >
           View Details
         </Button>
       </CardContent>

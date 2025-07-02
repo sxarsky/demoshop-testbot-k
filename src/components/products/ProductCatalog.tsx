@@ -57,13 +57,16 @@ export default function ProductCatalog() {
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           {/* Logo + Brand */}
           <div className="flex items-center gap-2">
-            <img
-              src="/logo.avif" // <- update this path to match your real logo
-              alt="Skyramp Logo"
-              width={150}
-              height={100}
-              className="object-contain"
-            />
+            <a href="https://skyramp.dev" target="_blank" rel="noopener noreferrer">
+              <img
+                src="/logo.avif"
+                alt="Skyramp Logo"
+                width={150}
+                height={100}
+                className="object-contain"
+                style={{ cursor: 'pointer' }}
+              />
+            </a>
           </div>
 
           {/* Nav Links */}
@@ -98,7 +101,9 @@ export default function ProductCatalog() {
           Add Product
         </Button>
       </div>
-      <ProductList />
+      <div style={{ marginTop: '2rem' }}>
+        <ProductList />
+      </div>
 
       {/* Overlay for Add Product Form */}
       {showAddForm && (

@@ -15,7 +15,7 @@ export default function OrderList() {
 
   useEffect(() => {
     setLoading(true);
-    fetch("https://demoshop.skyramp.dev/api/v1/orders")
+    fetch("https://demoshop.skyramp.dev/api/v1/orders?limit=50")
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch orders");
         return res.json();
