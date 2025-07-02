@@ -12,6 +12,7 @@ from api_insight.core.config import get_settings
 from api_insight.routers.product import router as products_router
 from api_insight.routers.order import router as orders_router
 from api_insight.routers.review import router as reviews_router
+from api_insight.routers.reset import router as reset_router
 from api_insight.exceptions import custom_request_validation_exception_handler
 from api_insight.exceptions import resource_not_found_exception_handler
 from api_insight.exceptions import ResourceNotFoundException
@@ -53,6 +54,11 @@ app.include_router(
 
 app.include_router(
     orders_router,
+    prefix=api_prefix,
+)
+
+app.include_router(
+    reset_router,
     prefix=api_prefix,
 )
 

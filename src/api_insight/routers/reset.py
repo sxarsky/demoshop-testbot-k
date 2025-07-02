@@ -1,0 +1,21 @@
+"""Reset API to reset or clean the db for given session id or IP"""
+from fastapi import APIRouter, status
+from api_insight.deps import CacheDep, EnsureSessionDep, GetIpDep
+from api_insight.exceptions import ResourceNotFoundException
+
+router = APIRouter(
+    prefix="/reset",
+    tags=["reset"],
+    dependencies=[EnsureSessionDep]
+)
+
+@router.post("", status_code=status.HTTP_200_OK,
+                summary="Reset data",
+                description="Reset data for session")
+async def reset(ip: GetIpDep, cache: CacheDep):
+    """Reset API to reset or clean DB state for given session id or IP"""
+    try:
+        for key in cache.scan_iter(match=f'{ip}:*:*'):
+            cache.json().delete(key)
+    except Exception as exc:
+        raise ResourceNotFoundException(status_code=400, detail="Session ID not found") from exc
