@@ -26,7 +26,7 @@ export default function ProductItem({ product }: { product: Product }) {
     <Card className="shadow-none border-0">
       <CardContent
         className="flex items-center py-2 px-4 min-h-0 border-0 !gap-4 !p-0"
-        style={{ gap: '1rem', padding: 0 }}
+        style={{ gap: '1rem', padding: 0, width: '100%' }}
       >
         {/* Product Image */}
         <img
@@ -39,7 +39,7 @@ export default function ProductItem({ product }: { product: Product }) {
         />
 
         {/* Product Info */}
-        <div className="flex flex-col flex-grow items-start gap-2" style={{ gap: '0.5rem', minWidth: '12rem', marginRight: '8rem' }}>
+        <div className="flex flex-col flex-grow items-start gap-2" style={{ gap: '0.5rem', minWidth: '12rem', marginRight: '8rem', marginLeft: 0 }}>
           <h2 className="text-lg leading-none m-0 p-0" style={{ margin: 0, padding: 0, lineHeight: 1, fontWeight: 400 }}>{product.name}</h2>
           <p className="text-xs text-muted-foreground leading-none m-0 p-0" style={{ margin: 0, padding: 0, lineHeight: 1 }}>${product.price.toFixed(2)}</p>
         </div>
@@ -48,7 +48,7 @@ export default function ProductItem({ product }: { product: Product }) {
         <Button
           variant="link"
           className="ml-auto"
-          style={{ color: '#60a5fa', transition: 'background 0.2s', background: '#f3f4f6' }}
+          style={{ color: '#60a5fa', transition: 'background 0.2s', background: '#f3f4f6', minWidth: '7rem', textAlign: 'center', marginLeft: 'auto' }}
           onMouseOver={e => { e.currentTarget.style.background = '#e5e7eb'; }}
           onMouseOut={e => { e.currentTarget.style.background = '#f3f4f6'; }}
           onClick={() => navigate(`/products/${product.product_id}`)}

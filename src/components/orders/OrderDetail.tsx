@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import ProductItem from "../products/ProductItem";
+import { NavBar } from '../ui/navbar';
 
 export default function OrderDetail() {
   const { order_id } = useParams<{ order_id: string }>();
@@ -64,10 +65,24 @@ export default function OrderDetail() {
   if (!order) return <div className="text-center py-8">Order not found.</div>;
 
   return (
-    <div className="min-h-screen bg-white px-6 py-10 flex justify-start items-start" style={{ width: '100%', maxWidth: '48rem', margin: '0 auto' }}>
-      <div className="w-full">
+    <div className="min-h-screen bg-white px-6 py-10" style={{ width: '100%', maxWidth: '64rem', margin: '0 auto' }}>
+      {/* Top Navigation */}
+      <NavBar active="orders" />
+      {/* Page Heading directly below nav */}
+      <h1
+        className="text-4xl font-bold text-gray-900 tracking-tight"
+        style={{
+          textAlign: 'center',
+          width: '100%',
+          margin: 0,
+          paddingTop: '0.5rem',
+          marginBottom: '1.5rem', // space below heading
+        }}
+      >
+        Order Details
+      </h1>
+      <div className="w-full" style={{ width: '100%', maxWidth: '48rem', margin: '0 auto', padding: '0 1.5rem 1.5rem 1.5rem' }}>
         <div className="mb-8">
-          <h1 style={{ fontWeight: 700, fontSize: '1.5rem', lineHeight: '2rem' }} className="mb-2 text-left">Order #{order.order_id}</h1>
           <div style={{ marginBottom: '1rem' }} className="mb-1 text-left">
             <span style={{ color: '#9ca3af' }}>Customer Email:</span>
             <div style={{ fontSize: '1.125rem', fontWeight: 500 }} className="text-gray-900 mt-1">{order.customer_email}</div>
@@ -88,19 +103,57 @@ export default function OrderDetail() {
             <ProductItem key={product.product_id || idx} product={product} />
           ))}
         </div>
-        {order.status !== 'cancelled' && (
-          <div className="flex justify-start" style={{ marginTop: '3rem' }}>
+        {/* Add extra space below order items */}
+        <div style={{ height: '2.5rem' }} />
+        <div className="flex flex-col items-center" style={{ marginTop: '1.5rem', gap: '1rem' }}>
+          {order.status !== 'cancelled' && (
             <Button
               variant="destructive"
               className="w-fit"
               onClick={handleCancelOrder}
               disabled={cancelling}
-              style={{ color: '#fff' }}
+              style={{
+                color: '#fff',
+                background: '#dc2626', // Default red
+                border: '1.5px solid transparent', // Reserve space for border
+                transition: 'background 0.2s, border-color 0.2s',
+              }}
+              onMouseOver={e => {
+                e.currentTarget.style.background = '#f87171'; // Lighter red
+                e.currentTarget.style.borderColor = '#991b1b'; // Dark red border
+              }}
+              onMouseOut={e => {
+                e.currentTarget.style.background = '#dc2626'; // Default red
+                e.currentTarget.style.borderColor = 'transparent';
+              }}
             >
               {cancelling ? 'Cancelling...' : 'Cancel Order'}
             </Button>
-          </div>
-        )}
+          )}
+          <Button
+            variant="link"
+            className="w-48"
+            onClick={() => navigate('/orders')}
+            style={{
+              color: '#111', // Black text
+              background: '#e5e7eb', // Slightly darker than #f3f4f6
+              border: '1.5px solid transparent', // Reserve space for border
+              transition: 'background 0.2s, border-color 0.2s, color 0.2s',
+            }}
+            onMouseOver={e => {
+              e.currentTarget.style.background = '#d1d5db'; // Darker grey on hover
+              e.currentTarget.style.borderColor = '#111'; // Black border
+              e.currentTarget.style.color = '#111'; // Keep text black on hover
+            }}
+            onMouseOut={e => {
+              e.currentTarget.style.background = '#e5e7eb'; // Slightly darker default
+              e.currentTarget.style.borderColor = 'transparent';
+              e.currentTarget.style.color = '#111'; // Keep text black
+            }}
+          >
+            Back
+          </Button>
+        </div>
       </div>
     </div>
   );

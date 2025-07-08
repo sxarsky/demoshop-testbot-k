@@ -51,7 +51,7 @@ export default function OrderCatalog() {
 
       {/* Top Navigation */}
       <header className="w-full">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+        <div className="max-w-4xl mx-auto px-0 py-4 flex items-center justify-between" style={{ width: '100%' }}>
           {/* Logo + Brand */}
           <div className="flex items-center gap-2">
             <a href="https://skyramp.dev" target="_blank" rel="noopener noreferrer">
@@ -67,11 +67,15 @@ export default function OrderCatalog() {
           </div>
 
           {/* Nav Links */}
-          <nav className="flex items-center text-sm font-medium gap-x-16">
-            <a href="/products" className="hover:underline" style={{ color: '#60a5fa' }}>
+          <nav className="flex items-center text-sm font-medium" style={{ gap: '1rem' }}>
+            <a 
+              href="/products" 
+              style={{ color: '#60a5fa' }}
+              onMouseOver={e => { e.currentTarget.style.textDecoration = 'underline'; e.currentTarget.style.textUnderlineOffset = '4px'; }}
+              onMouseOut={e => { e.currentTarget.style.textDecoration = 'none'; }}
+            >
               Products
             </a>
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             <a href="/orders" className="underline underline-offset-4" style={{ color: '#60a5fa' }}>
               Orders
             </a>
@@ -79,12 +83,23 @@ export default function OrderCatalog() {
         </div>
       </header>
 
-      <div className="flex flex-col items-center pb-4 mb-8 gap-4">
-        <h1 className="text-4xl font-bold text-gray-900 text-center" style={{}}>
-          Orders Catalog
-        </h1>
-      </div>
-      <div style={{ width: '100%', maxWidth: '48rem', margin: '0 auto' }}>
+      {/* Page Heading directly below nav */}
+      <h1
+        className="text-4xl font-bold text-gray-900 text-center"
+        style={{
+          textAlign: 'center',
+          width: '100%',
+          margin: 0,
+          paddingTop: '0.5rem',
+          marginBottom: '1.5rem', // space below heading
+        }}
+      >
+        Order Catalog
+      </h1>
+      {/* Add extra space below heading before orders list */}
+      <div style={{ height: '1.5rem' }} />
+
+      <div style={{ width: '100%', maxWidth: '48rem', margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <OrderList />
       </div>
     </div>

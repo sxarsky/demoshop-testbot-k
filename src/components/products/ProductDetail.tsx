@@ -1,26 +1,47 @@
 import { useParams, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
+import { NavBar } from '../ui/navbar';
 
 function Header() {
+  const [ordersHover, setOrdersHover] = useState(false); // Track hover state for Orders link
   return (
     <header className="w-full">
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
         {/* Logo + Brand */}
         <div className="flex items-center gap-2">
-          <img
-            src="/logo.avif"
-            alt="Skyramp Logo"
-            width={150}
-            height={100}
-            className="object-contain"
-          />
+          <a href="https://skyramp.dev" target="_blank" rel="noopener noreferrer">
+            <img
+              src="/logo.avif"
+              alt="Skyramp Logo"
+              width={150}
+              height={100}
+              className="object-contain"
+              style={{ cursor: 'pointer' }}
+            />
+          </a>
         </div>
         {/* Nav Links */}
-        <nav className="flex items-center text-sm font-medium gap-x-16">
-          <a href="/products" className="underline underline-offset-4" style={{ color: '#60a5fa' }}>Products</a>
-          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-          <a href="/orders" className="hover:underline" style={{ color: '#60a5fa' }}>Orders</a>
+        <nav className="flex items-center text-sm font-medium" style={{ gap: '1rem' }}>
+          <a
+            href="/products"
+            className="underline underline-offset-4"
+            style={{ color: '#60a5fa' }}
+          >
+            Products   
+          </a>
+          <a
+            href="/orders"
+            style={{
+              color: '#60a5fa',
+              textDecoration: ordersHover ? 'underline' : 'none',
+              textUnderlineOffset: ordersHover ? '4px' : undefined,
+            }}
+            onMouseEnter={() => setOrdersHover(true)}
+            onMouseLeave={() => setOrdersHover(false)}
+          >
+            Orders
+          </a>
         </nav>
       </div>
     </header>
@@ -106,37 +127,32 @@ export default function ProductDetail() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-gray-100 px-6 py-10">
-      <Header />
-      <div className="flex flex-col items-center pb-4 mb-8 gap-4">
-        <h1 className="text-4xl font-bold text-gray-900 text-center tracking-tight">Product Details</h1>
-      </div>
-      {loading && <div className="flex justify-center items-center h-40"><span className="text-lg text-gray-500">Loading...</span></div>}
-      {error && <div className="text-red-500 text-center font-semibold">{error}</div>}
+    <div className="min-h-screen bg-white px-6 py-10" style={{ width: '100%', maxWidth: '80rem', margin: '0 auto' }}>
+      <NavBar active="products" />
+      {/* Page Heading directly below nav */}
+      <h1
+        className="text-4xl font-bold text-gray-900 tracking-tight"
+        style={{
+          textAlign: 'center',
+          width: '100%',
+          margin: 0,
+          paddingTop: '0.5rem',
+          marginBottom: '1.5rem', // space below heading
+        }}
+      >
+        Product Details
+      </h1>
+      {loading && <div className="flex justify-center items-center h-40" style={{ justifyContent: 'flex-start' }}><span className="text-lg text-gray-500" style={{ textAlign: 'left' }}>Loading...</span></div>}
+      {error && <div className="text-red-500 text-center font-semibold" style={{ textAlign: 'left' }}>{error}</div>}
       {!loading && !error && !product && (
-        <div className="text-gray-500 text-center">Product not found.</div>
+        <div className="text-gray-500 text-center" style={{ textAlign: 'left' }}>Product not found.</div>
       )}
       {product && Object.keys(product).length > 0 && (
-        <div className="max-w-lg mx-auto w-full bg-white rounded-2xl shadow-lg p-8 mb-8 flex flex-col gap-6">
-          {product.image_url && (
-            <div className="flex justify-center mb-2">
-              <img
-                src={product.image_url || "/placeholder.webp"}
-                alt={product.name}
-                className="w-64 h-56 object-contain rounded-xl bg-gray-50 shadow-sm"
-                onError={e => {
-                  const target = e.target as HTMLImageElement;
-                  if (target.src.indexOf('placeholder.webp') === -1) {
-                    target.src = "/placeholder.webp";
-                  }
-                }}
-              />
-            </div>
-          )}
-          <div className="flex flex-col" style={{ gap: '1rem' }}>
+        <div className="max-w-lg mx-auto w-full bg-white rounded-2xl shadow-lg p-8 mb-8 flex flex-col gap-6" style={{ alignItems: 'flex-start', marginLeft: 0, marginRight: '16rem' }}>
+          <div className="flex flex-col" style={{ gap: '1rem', alignItems: 'flex-start' }}>
             {/* Name */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1" style={{ fontWeight: 'bold' }}>Name</label>
+              <label className="block text-sm mb-1" style={{ color: '#9ca3af', fontWeight: 'normal', textAlign: 'left' }}>Name</label>
               {editMode ? (
                 <input
                   className="w-full border rounded px-3 py-2 text-gray-900"
@@ -146,12 +162,12 @@ export default function ProductDetail() {
                   disabled={saving}
                 />
               ) : (
-                <div className="text-lg text-gray-900 font-normal">{product.name}</div>
+                <div style={{ fontSize: '1.125rem', fontWeight: 500 }} className="text-gray-900 mt-1">{product.name}</div>
               )}
             </div>
             {/* In Stock */}
-            <div className="flex flex-col items-center">
-              <label className="block text-sm font-medium text-gray-700 mb-1" style={{ fontWeight: 'bold' }}>In Stock</label>
+            <div className="flex flex-col items-center" style={{ alignItems: 'flex-start' }}>
+              <label className="block text-sm mb-1" style={{ color: '#9ca3af', fontWeight: 'normal', textAlign: 'left' }}>In Stock</label>
               {editMode ? (
                 <select
                   className="w-40 border rounded px-3 py-2"
@@ -181,7 +197,7 @@ export default function ProductDetail() {
             </div>
             {/* Description */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1" style={{ fontWeight: 'bold' }}>Description</label>
+              <label className="block text-sm mb-1" style={{ color: '#9ca3af', fontWeight: 'normal', textAlign: 'left' }}>Description</label>
               {editMode ? (
                 <textarea
                   className="w-full border rounded px-3 py-2 text-gray-900"
@@ -191,12 +207,12 @@ export default function ProductDetail() {
                   disabled={saving}
                 />
               ) : (
-                <div className="text-gray-800 font-normal">{product.description}</div>
+                <div style={{ fontSize: '1.125rem', fontWeight: 500 }} className="text-gray-900 mt-1">{product.description}</div>
               )}
             </div>
             {/* Category */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1" style={{ fontWeight: 'bold' }}>Category</label>
+              <label className="block text-sm mb-1" style={{ color: '#9ca3af', fontWeight: 'normal', textAlign: 'left' }}>Category</label>
               {editMode ? (
                 <input
                   className="w-full border rounded px-3 py-2 text-gray-900"
@@ -206,12 +222,12 @@ export default function ProductDetail() {
                   disabled={saving}
                 />
               ) : (
-                <div className="text-gray-800 font-normal">{product.category}</div>
+                <div style={{ fontSize: '1.125rem', fontWeight: 500, textTransform: 'capitalize', textAlign: 'left' }} className="text-gray-900 mt-1">{product.category}</div>
               )}
             </div>
             {/* Price */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1" style={{ fontWeight: 'bold' }}>Price</label>
+              <label className="block text-sm mb-1" style={{ color: '#9ca3af', fontWeight: 'normal', textAlign: 'left' }}>Price</label>
               {editMode ? (
                 <input
                   className="w-full border rounded px-3 py-2 text-gray-900"
@@ -222,27 +238,45 @@ export default function ProductDetail() {
                   disabled={saving}
                 />
               ) : (
-                <div className="text-gray-800 font-normal">${product.price}</div>
+                <div style={{ fontSize: '1.125rem', fontWeight: 500 }} className="text-gray-900 mt-1">${product.price}</div>
               )}
             </div>
             {/* Created At */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1" style={{ fontWeight: 'bold' }}>Created At</label>
-              <div className="text-xs text-gray-500 font-normal">{product.created_at && new Date(product.created_at).toLocaleString()}</div>
+              <label className="block text-sm mb-1" style={{ color: '#9ca3af', fontWeight: 'normal', textAlign: 'left' }}>Created At</label>
+              <div style={{ fontSize: '1.125rem', fontWeight: 500 }} className="text-gray-900 mt-1">{product.created_at && new Date(product.created_at).toLocaleString()}</div>
             </div>
             {/* Last Updated */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1" style={{ fontWeight: 'bold' }}>Last Updated</label>
-              <div className="text-xs text-gray-500 font-normal">{product.updated_at && new Date(product.updated_at).toLocaleString()}</div>
+              <label className="block text-sm mb-1" style={{ color: '#9ca3af', fontWeight: 'normal', textAlign: 'left' }}>Last Updated</label>
+              <div style={{ fontSize: '1.125rem', fontWeight: 500 }} className="text-gray-900 mt-1">{product.updated_at && new Date(product.updated_at).toLocaleString()}</div>
             </div>
             {/* Product ID */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1" style={{ fontWeight: 'bold' }}>Product ID</label>
-              <div className="text-xs text-gray-500 font-normal">{product.product_id}</div>
+              <label className="block text-sm mb-1" style={{ color: '#9ca3af', fontWeight: 'normal', textAlign: 'left' }}>Product ID</label>
+              <div style={{ fontSize: '1.125rem', fontWeight: 500, textAlign: 'left' }} className="text-gray-900 mt-1">{product.product_id}</div>
             </div>
+            {/* Product Image - moved here */}
+            {product.image_url && (
+              <div className="flex justify-center mb-2" style={{ justifyContent: 'flex-start', marginBottom: '0.5rem' }}>
+                <img
+                  src={product.image_url || "/placeholder.webp"}
+                  alt={product.name}
+                  className="w-64 h-56 object-contain rounded-xl bg-gray-50 shadow-sm"
+                  style={{ marginBottom: '0.5rem' }}
+                  onError={e => {
+                    const target = e.target as HTMLImageElement;
+                    if (target.src.indexOf('placeholder.webp') === -1) {
+                      target.src = "/placeholder.webp";
+                    }
+                  }}
+                />
+              </div>
+            )}
           </div>
         </div>
       )}
+      {/* Buttons centered */}
       <div className="flex flex-col items-center" style={{ gap: '1rem', marginTop: '1.5rem' }}>
         {editMode ? (
           <Button
@@ -258,6 +292,22 @@ export default function ProductDetail() {
             variant="default"
             className="w-48"
             onClick={() => setEditMode(true)}
+            style={{
+              color: '#fff', // White text
+              background: '#111', // Black background
+              border: '1.5px solid #111', // Black border
+              transition: 'background 0.2s, border-color 0.2s, color 0.2s',
+            }}
+            onMouseOver={e => {
+              e.currentTarget.style.background = 'rgba(17,17,17,0.7)'; // Translucent black on hover
+              e.currentTarget.style.borderColor = '#111'; // Keep border black
+              e.currentTarget.style.color = '#fff'; // Keep text white
+            }}
+            onMouseOut={e => {
+              e.currentTarget.style.background = '#111'; // Black
+              e.currentTarget.style.borderColor = '#111'; // Black border
+              e.currentTarget.style.color = '#fff'; // White text
+            }}
           >
             Edit Product
           </Button>
@@ -267,11 +317,44 @@ export default function ProductDetail() {
           className="w-48"
           onClick={handleDelete}
           disabled={deleting}
-          style={{ color: '#fff' }}
+          style={{
+            color: '#fff',
+            background: '#dc2626', // Default red
+            border: '1.5px solid transparent', // Reserve space for border
+            transition: 'background 0.2s, border-color 0.2s',
+          }}
+          onMouseOver={e => {
+            e.currentTarget.style.background = '#f87171'; // Lighter red
+            e.currentTarget.style.borderColor = '#991b1b'; // Dark red border
+          }}
+          onMouseOut={e => {
+            e.currentTarget.style.background = '#dc2626'; // Default red
+            e.currentTarget.style.borderColor = 'transparent';
+          }}
         >
           {deleting ? 'Deleting...' : 'Delete Product'}
         </Button>
-        <Button variant="outline" className="w-48" onClick={() => navigate('/products')}>
+        <Button 
+          variant="link" 
+          className="w-48" 
+          onClick={() => navigate('/products')}
+          style={{ 
+            color: '#111', // Black text
+            background: '#e5e7eb', // Slightly darker than #f3f4f6
+            border: '1.5px solid transparent', // Reserve space for border
+            transition: 'background 0.2s, border-color 0.2s, color 0.2s',
+          }}
+          onMouseOver={e => { 
+            e.currentTarget.style.background = '#d1d5db'; // Darker grey on hover
+            e.currentTarget.style.borderColor = '#111'; // Black border
+            e.currentTarget.style.color = '#111'; // Keep text black on hover
+          }}
+          onMouseOut={e => { 
+            e.currentTarget.style.background = '#e5e7eb'; // Slightly darker default
+            e.currentTarget.style.borderColor = 'transparent'; 
+            e.currentTarget.style.color = '#111'; // Keep text black
+          }}
+        >
           Back
         </Button>
       </div>

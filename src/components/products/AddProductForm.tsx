@@ -75,11 +75,63 @@ const AddProductForm: React.FC = () => {
   };
 
   return (
-    <div className="flex items-center justify-center w-full h-full">
-      <div className="relative max-w-md bg-white p-6 rounded-lg shadow mx-auto w-full">
+    <div
+      style={{
+        width: "100vw",
+        height: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "rgba(31, 41, 55, 0.35)", // translucent dark overlay
+        position: "fixed",
+        inset: 0,
+        zIndex: 100,
+      }}
+    >
+      <div
+        style={{
+          maxWidth: "28rem", // ~448px
+          width: "100%",
+          background: "#fff",
+          borderRadius: "0.75rem",
+          boxShadow:
+            "0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1)",
+          padding: "1.5rem",
+          position: "relative",
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
         <button
-          className="absolute top-3 right-3 text-gray-500 hover:text-black text-2xl font-bold z-10 bg-white rounded-full px-2 py-0.5 shadow"
-          style={{ zIndex: 10, background: "white" }}
+          style={{
+            position: "absolute",
+            top: "1rem",
+            right: "1rem",
+            color: "#6b7280", // text-gray-500
+            background: "white",
+            borderRadius: "9999px",
+            fontSize: "1.25rem", // slightly smaller
+            fontWeight: 700,
+            width: '1.75rem', // 28px
+            height: '1.75rem', // 28px
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 0,
+            boxShadow: "0 1px 2px 0 rgba(0,0,0,0.05)",
+            zIndex: 10,
+            border: "1.5px solid #888", // darker border
+            cursor: "pointer",
+            transition: "color 0.2s, border-color 0.2s",
+          }}
+          onMouseOver={(e) => {
+            e.currentTarget.style.color = "#000";
+            e.currentTarget.style.borderColor = "#222";
+          }}
+          onMouseOut={(e) => {
+            e.currentTarget.style.color = "#6b7280";
+            e.currentTarget.style.borderColor = "#888";
+          }}
           onClick={() => {
             if (typeof window !== "undefined" && window.dispatchEvent) {
               window.dispatchEvent(new CustomEvent("closeAddProductModal"));
@@ -109,6 +161,22 @@ const AddProductForm: React.FC = () => {
               value={product.name}
               onChange={handleChange}
               className="w-full min-w-[280px] max-w-full px-4 py-2"
+              style={{
+                fontFamily: 'inherit',
+                fontSize: '1rem',
+                fontWeight: 400,
+                border: '1.5px solid #d1d5db',
+                outline: 'none',
+                transition: 'border-color 0.2s, box-shadow 0.2s',
+              }}
+              onFocus={e => {
+                e.currentTarget.style.border = '1.5px solid #6b7280';
+                e.currentTarget.style.boxShadow = '0 0 0 1.5px #6b7280';
+              }}
+              onBlur={e => {
+                e.currentTarget.style.border = '1.5px solid #d1d5db';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
             />
           </div>
 
@@ -122,6 +190,22 @@ const AddProductForm: React.FC = () => {
               value={product.description}
               onChange={handleChange}
               className="w-full min-w-[280px] max-w-full px-4 py-2"
+              style={{
+                fontFamily: 'inherit',
+                fontSize: '1rem',
+                fontWeight: 400,
+                border: '1.5px solid #d1d5db',
+                outline: 'none',
+                transition: 'border-color 0.2s, box-shadow 0.2s',
+              }}
+              onFocus={e => {
+                e.currentTarget.style.border = '1.5px solid #6b7280';
+                e.currentTarget.style.boxShadow = '0 0 0 1.5px #6b7280';
+              }}
+              onBlur={e => {
+                e.currentTarget.style.border = '1.5px solid #d1d5db';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
             />
           </div>
 
@@ -135,6 +219,22 @@ const AddProductForm: React.FC = () => {
               value={product.image_url}
               onChange={handleChange}
               className="w-full min-w-[280px] max-w-full px-4 py-2"
+              style={{
+                fontFamily: 'inherit',
+                fontSize: '1rem',
+                fontWeight: 400,
+                border: '1.5px solid #d1d5db',
+                outline: 'none',
+                transition: 'border-color 0.2s, box-shadow 0.2s',
+              }}
+              onFocus={e => {
+                e.currentTarget.style.border = '1.5px solid #6b7280';
+                e.currentTarget.style.boxShadow = '0 0 0 1.5px #6b7280';
+              }}
+              onBlur={e => {
+                e.currentTarget.style.border = '1.5px solid #d1d5db';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
             />
           </div>
 
@@ -148,6 +248,22 @@ const AddProductForm: React.FC = () => {
               value={product.category}
               onChange={handleChange}
               className="w-full min-w-[280px] max-w-full px-4 py-2"
+              style={{
+                fontFamily: 'inherit',
+                fontSize: '1rem',
+                fontWeight: 400,
+                border: '1.5px solid #d1d5db',
+                outline: 'none',
+                transition: 'border-color 0.2s, box-shadow 0.2s',
+              }}
+              onFocus={e => {
+                e.currentTarget.style.border = '1.5px solid #6b7280';
+                e.currentTarget.style.boxShadow = '0 0 0 1.5px #6b7280';
+              }}
+              onBlur={e => {
+                e.currentTarget.style.border = '1.5px solid #d1d5db';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
             />
           </div>
 
@@ -175,12 +291,31 @@ const AddProductForm: React.FC = () => {
                 }))
               }
             >
-              <SelectTrigger className="w-full min-w-[280px] max-w-full px-4 py-2">
+              <SelectTrigger
+                className="w-full min-w-[280px] max-w-full px-4 py-2"
+                style={{
+                  border: '1.5px solid #d1d5db',
+                  outline: 'none',
+                  transition: 'border-color 0.2s, box-shadow 0.2s',
+                }}
+                onFocus={e => {
+                  e.currentTarget.style.border = '1.5px solid #6b7280';
+                  e.currentTarget.style.boxShadow = '0 0 0 1.5px #6b7280';
+                }}
+                onBlur={e => {
+                  e.currentTarget.style.border = '1.5px solid #d1d5db';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
+              >
                 <SelectValue placeholder="Select..." />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="yes">Yes</SelectItem>
-                <SelectItem value="no">No</SelectItem>
+                <SelectItem value="yes" style={{ paddingLeft: '0.5rem', borderBottom: '1px solid #e5e7eb' }}>
+                  Yes
+                </SelectItem>
+                <SelectItem value="no" style={{ paddingLeft: '0.5rem' }}>
+                  No
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -196,12 +331,49 @@ const AddProductForm: React.FC = () => {
               value={product.price}
               onChange={handleChange}
               className="w-full min-w-[280px] max-w-full px-4 py-2"
+              style={{
+                fontFamily: 'inherit',
+                fontSize: '1rem',
+                fontWeight: 400,
+                border: '1.5px solid #d1d5db',
+                outline: 'none',
+                transition: 'border-color 0.2s, box-shadow 0.2s',
+              }}
+              onFocus={e => {
+                e.currentTarget.style.border = '1.5px solid #6b7280';
+                e.currentTarget.style.boxShadow = '0 0 0 1.5px #6b7280';
+              }}
+              onBlur={e => {
+                e.currentTarget.style.border = '1.5px solid #d1d5db';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
             />
           </div>
 
           <Button
             type="submit"
-            className="w-full bg-black text-white hover:bg-gray-800 mt-2"
+            className="w-full text-black mt-2"
+            style={{
+              background: '#f3f4f6', // light grey
+              color: '#111',
+              border: '1.5px solid transparent',
+              outline: 'none',
+              transition: 'background 0.2s, border-color 0.2s, outline 0.2s',
+              width: '100%',
+              marginTop: '0.5rem',
+            }}
+            onMouseOver={e => {
+              e.currentTarget.style.background = '#d1d5db'; // darker light grey
+              e.currentTarget.style.border = '1.5px solid #000';
+              e.currentTarget.style.outline = 'none'; // Only border, no outline
+              e.currentTarget.style.outlineOffset = '0px';
+            }}
+            onMouseOut={e => {
+              e.currentTarget.style.background = '#f3f4f6';
+              e.currentTarget.style.border = '1.5px solid transparent';
+              e.currentTarget.style.outline = 'none';
+              e.currentTarget.style.outlineOffset = '0px';
+            }}
           >
             Submit
           </Button>
