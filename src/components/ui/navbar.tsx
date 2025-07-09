@@ -1,7 +1,8 @@
 import React from 'react';
 
-export function NavBar({ active }: { active: 'products' | 'orders' }) {
+export function NavBar({ active, forceUnderlineProducts }: { active: 'products' | 'orders', forceUnderlineProducts?: boolean }) {
   const [ordersHover, setOrdersHover] = React.useState(false);
+  const [productsHover, setProductsHover] = React.useState(false);
   return (
     <header className="w-full">
       <div className="max-w-4xl mx-auto px-0 py-4 flex items-center justify-between" style={{ width: '100%' }}>
@@ -22,17 +23,25 @@ export function NavBar({ active }: { active: 'products' | 'orders' }) {
         <nav className="flex items-center text-sm font-medium" style={{ gap: '1rem' }}>
           <a
             href="/products"
-            className={active === 'products' ? 'underline underline-offset-4' : ''}
-            style={{ color: '#60a5fa', textDecoration: active === 'products' ? 'underline' : ordersHover ? 'underline' : 'none', textUnderlineOffset: active === 'products' || ordersHover ? '4px' : undefined }}
-            onMouseEnter={() => setOrdersHover(true)}
-            onMouseLeave={() => setOrdersHover(false)}
+            style={{
+              color: '#60a5fa',
+              textDecoration: forceUnderlineProducts ? 'underline' : productsHover ? 'underline' : 'none',
+              textUnderlineOffset: (forceUnderlineProducts || productsHover) ? '4px' : undefined
+            }}
+            onMouseEnter={() => setProductsHover(true)}
+            onMouseLeave={() => setProductsHover(false)}
           >
             Products
           </a>
           <a
             href="/orders"
-            className={active === 'orders' ? 'underline underline-offset-4' : ''}
-            style={{ color: '#60a5fa', textDecoration: active === 'orders' ? 'underline' : 'none', textUnderlineOffset: active === 'orders' ? '4px' : undefined }}
+            style={{
+              color: '#60a5fa',
+              textDecoration: ordersHover ? 'underline' : 'none',
+              textUnderlineOffset: ordersHover ? '4px' : undefined
+            }}
+            onMouseEnter={() => setOrdersHover(true)}
+            onMouseLeave={() => setOrdersHover(false)}
           >
             Orders
           </a>

@@ -99,7 +99,7 @@ export default function OrderCatalog() {
       {/* Add extra space below heading before orders list */}
       <div style={{ height: '1.5rem' }} />
 
-      <div style={{ width: '100%', maxWidth: '48rem', margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <div style={{ width: '100%', maxWidth: '64rem', margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <OrderList />
       </div>
     </div>

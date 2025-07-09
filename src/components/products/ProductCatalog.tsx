@@ -55,7 +55,7 @@ export default function ProductCatalog() {
       )}
 
       {/* Top Navigation */}
-      <NavBar active="products" />
+      <NavBar active="products" forceUnderlineProducts={true} />
 
       {/* Page Heading directly below nav */}
       <h1

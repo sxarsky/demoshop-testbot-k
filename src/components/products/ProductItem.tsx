@@ -1,4 +1,3 @@
-import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
@@ -10,7 +9,7 @@ type Product = {
   image_url?: string;
 };
 
-export default function ProductItem({ product }: { product: Product }) {
+export default function ProductItem({ product, horizontal = false, minHeight }: { product: Product, horizontal?: boolean, minHeight?: number }) {
   const [imgSrc, setImgSrc] = useState(
     product.image_url && product.image_url.trim() !== ""
       ? product.image_url
@@ -22,40 +21,92 @@ export default function ProductItem({ product }: { product: Product }) {
       setImgSrc("/placeholder.webp")
     }
   }
-  return (
-    <Card className="shadow-none border-0">
-      <CardContent
-        className="flex items-center py-2 px-4 min-h-0 border-0 !gap-4 !p-0"
-        style={{ gap: '1rem', padding: 0, width: '100%' }}
+  if (horizontal) {
+    // For OrderDetail: horizontal, no box, name right of photo, price under name, button far right
+    return (
+      <div
+        style={{
+          width: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          background: 'none',
+          border: 'none',
+          borderRadius: 0,
+          boxShadow: 'none',
+          padding: 0,
+          marginBottom: '0.5rem',
+          gap: '1rem', // decreased gap for even less space between name and button
+        }}
       >
         {/* Product Image */}
         <img
           src={imgSrc}
           alt={product.name}
-          style={{ width: '60px', height: '60px' }}
-          className="object-cover rounded bg-muted flex items-center justify-center text-xs text-muted-foreground border-0 outline-none"
+          style={{ width: '72px', height: '72px', objectFit: 'cover', borderRadius: '0.5rem', flexShrink: 0 }}
+          className="object-cover rounded bg-muted border-0 outline-none"
           loading="lazy"
           onError={handleImgError}
         />
-
         {/* Product Info */}
-        <div className="flex flex-col flex-grow items-start gap-2" style={{ gap: '0.5rem', minWidth: '12rem', marginRight: '8rem', marginLeft: 0 }}>
-          <h2 className="text-lg leading-none m-0 p-0" style={{ margin: 0, padding: 0, lineHeight: 1, fontWeight: 400 }}>{product.name}</h2>
-          <p className="text-xs text-muted-foreground leading-none m-0 p-0" style={{ margin: 0, padding: 0, lineHeight: 1 }}>${product.price.toFixed(2)}</p>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 0, flexGrow: 1, marginLeft: '0.25rem' }}>
+          <span style={{ fontSize: '1.1rem', fontWeight: 500, color: '#1e293b', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{product.name}</span>
+          <span style={{ fontSize: '1rem', color: '#0f766e', fontWeight: 500, margin: 0, marginTop: '0.25rem' }}>${product.price.toFixed(2)}</span>
         </div>
-
-        {/* View Details */}
         <Button
           variant="link"
-          className="ml-auto"
-          style={{ color: '#60a5fa', transition: 'background 0.2s', background: '#f3f4f6', minWidth: '7rem', textAlign: 'center', marginLeft: 'auto' }}
+          style={{ color: '#60a5fa', background: '#f3f4f6', borderRadius: '0.5rem', fontWeight: 500, padding: '0.5rem 1.25rem', border: '1px solid #9ca3af', boxShadow: 'none', transition: 'background 0.2s', minWidth: '7rem', textAlign: 'center', marginLeft: 'auto', fontSize: '1rem' }}
           onMouseOver={e => { e.currentTarget.style.background = '#e5e7eb'; }}
           onMouseOut={e => { e.currentTarget.style.background = '#f3f4f6'; }}
           onClick={() => navigate(`/products/${product.product_id}`)}
         >
           View Details
         </Button>
-      </CardContent>
-    </Card>
+      </div>
+    );
+  }
+  // Boxed layout
+  return (
+    <div
+      style={{
+        width: '100%',
+        background: '#f9fafb',
+        border: '1px solid #9ca3af', // darker border
+        borderRadius: '0.75rem',
+        boxShadow: '0 2px 8px 0 rgba(0,0,0,0.03)',
+        padding: '0.75rem 1rem',
+        marginBottom: '0.5rem',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'flex-start',
+        gap: '1.25rem', // more vertical space
+        minHeight: minHeight || '180px',
+      }}
+    >
+      {/* Product Image */}
+      <img
+        src={imgSrc}
+        alt={product.name}
+        style={{ width: '240px', height: '240px', marginBottom: '0.5rem', objectFit: 'cover', borderRadius: '0.5rem' }}
+        className="object-cover rounded bg-muted flex items-center justify-center text-xs text-muted-foreground border-0 outline-none"
+        loading="lazy"
+        onError={handleImgError}
+      />
+      {/* Product Info */}
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.15rem', width: '100%', marginTop: '0.5rem' }}>
+        <h2 style={{ fontSize: '1.1rem', fontWeight: 500, color: '#1e293b', margin: 0, textAlign: 'center' }}>{product.name}</h2>
+        <p style={{ fontSize: '1.05rem', color: '#0f766e', fontWeight: 500, margin: 0, textAlign: 'center' }}>${product.price.toFixed(2)}</p>
+      </div>
+      {/* View Details */}
+      <Button
+        variant="link"
+        style={{ color: '#60a5fa', background: '#f3f4f6', borderRadius: '0.5rem', fontWeight: 500, padding: '0.5rem 1.25rem', border: '1px solid #9ca3af', boxShadow: 'none', transition: 'background 0.2s', minWidth: '7rem', textAlign: 'center', marginTop: '0.5rem', fontSize: '1rem' }}
+        onMouseOver={e => { e.currentTarget.style.background = '#e5e7eb'; }}
+        onMouseOut={e => { e.currentTarget.style.background = '#f3f4f6'; }}
+        onClick={() => navigate(`/products/${product.product_id}`)}
+      >
+        View Details
+      </Button>
+    </div>
   );
 }

@@ -38,10 +38,10 @@ export default function OrderList() {
   return (
     <div
       className="w-full max-w-3xl mx-auto flex flex-col"
-      style={{ gap: '2.5rem', display: 'flex', flexDirection: 'column' }}
+      style={{ gap: '2.5rem', display: 'flex', flexDirection: 'column', maxWidth: '64rem', width: '100%', margin: '0 auto' }}
     >
       {orders.map((order) => (
-        <OrderItem key={order.order_id} order={order} />
+        <OrderItem key={order.order_id} order={order} gapOverride={"16rem"} />
       ))}
     </div>
   );

@@ -50,9 +50,31 @@ export default function ProductList() {
   if (error) return <div className="text-red-500">{error}</div>
 
   return (
-    <div className="flex flex-col" style={{ gap: '1.5rem' }}>
+    <div
+      style={{
+        width: '100%',
+        display: 'flex',
+        flexWrap: 'wrap',
+        columnGap: '2.5rem', // more horizontal space between boxes
+        rowGap: '2.5rem', // more vertical space between boxes
+        justifyContent: 'center',
+        alignItems: 'stretch',
+      }}
+    >
       {products.map(product => (
-        <ProductItem key={product.product_id} product={product} />
+        <div
+          key={product.product_id}
+          style={{
+            flex: '0 1 27%',
+            minWidth: '160px',
+            maxWidth: '27%',
+            height: '420px', // increased height
+            display: 'flex',
+            alignItems: 'stretch',
+          }}
+        >
+          <ProductItem product={product} minHeight={400} />
+        </div>
       ))}
     </div>
   )
