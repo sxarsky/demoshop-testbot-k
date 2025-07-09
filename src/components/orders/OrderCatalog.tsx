@@ -64,6 +64,19 @@ export default function OrderCatalog() {
                 style={{ cursor: 'pointer' }}
               />
             </a>
+            <span
+              style={{
+                fontSize: '1.25rem', // text-xl
+                fontWeight: 600, // semi-bold
+                color: '#111827', // gray-900
+                marginLeft: '0.5rem',
+                letterSpacing: '-0.01em',
+                userSelect: 'none',
+              }}
+            >
+              Demo Shop Admin Console
+            </span>
+            <span style={{ marginRight: '2.5rem' }} />
           </div>
 
           {/* Nav Links */}

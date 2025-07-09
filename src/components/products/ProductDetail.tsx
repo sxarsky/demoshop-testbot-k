@@ -112,7 +112,6 @@ export default function ProductDetail() {
 
   // Delete product
   const handleDelete = async () => {
-    if (!window.confirm('Are you sure you want to delete this product?')) return;
     setDeleting(true);
     try {
       await fetch(`https://demoshop.skyramp.dev/api/v1/products/${product.product_id}`, { method: 'DELETE' });
@@ -258,12 +257,21 @@ export default function ProductDetail() {
             </div>
             {/* Product Image - moved here */}
             {product.image_url && (
-              <div className="flex justify-center mb-2" style={{ justifyContent: 'flex-start', marginBottom: '0.5rem' }}>
+              <div
+                className="flex justify-center mb-2"
+                style={{ justifyContent: 'flex-start', marginBottom: '2.5rem' }} // Increased space below image
+              >
                 <img
                   src={product.image_url || "/placeholder.webp"}
                   alt={product.name}
-                  className="w-64 h-56 object-contain rounded-xl bg-gray-50 shadow-sm"
-                  style={{ marginBottom: '0.5rem' }}
+                  style={{
+                    width: '24rem', // 384px
+                    height: '20rem', // 320px
+                    objectFit: 'contain',
+                    borderRadius: '0.75rem', // rounded-xl
+                    background: '#f9fafb', // bg-gray-50
+                    boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)', // shadow-sm
+                  }}
                   onError={e => {
                     const target = e.target as HTMLImageElement;
                     if (target.src.indexOf('placeholder.webp') === -1) {

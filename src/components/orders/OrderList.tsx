@@ -35,18 +35,23 @@ export default function OrderList() {
   if (error) return <div className="text-center text-red-500 py-8">{error}</div>;
   if (!orders.length) return <div className="text-center py-8">No orders found.</div>;
 
+  // Sort orders by order_id descending
+  const sortedOrders = [...orders].sort((a, b) => b.order_id - a.order_id);
+
   return (
     <div
       className="w-full max-w-3xl mx-auto flex flex-col"
       style={{ gap: '2.5rem', display: 'flex', flexDirection: 'column', maxWidth: '64rem', width: '100%', margin: '0 auto' }}
     >
-      {orders.map((order) => (
+
+      {sortedOrders.map((order) => (
         <OrderItem
           key={order.order_id}
           order={order}
           gapOverride={"16rem"}
           data-testId={`order-id-${order.customer_email} - ${order.items.length} items`}
         />
+
       ))}
     </div>
   );
