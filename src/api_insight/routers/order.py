@@ -36,7 +36,7 @@ async def create_order(
     except ValueError as exc:
         raise ResourceNotFoundException(status_code=404, detail="Invalid product id") from exc
 
-@router.get("", response_model=List[Order],
+@router.get("", response_model=List[OrderRead],
            summary="Get all orders",
            description="Retrieve all orders with optional filtering")
 async def get_orders(

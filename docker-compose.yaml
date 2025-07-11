@@ -12,8 +12,6 @@ services:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
     command: ["python3", "/init_data/load_data.py"]
-    volumes:
-      - ./init_data:/init_data
     depends_on:
       - redis
   api-insight:

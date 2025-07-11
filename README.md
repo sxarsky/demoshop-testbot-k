@@ -15,6 +15,29 @@ To run the sample Store API server:
 
 The API server will now be running in a Docker container.
 
+## Install as K8s resources on local cluster
+
+1. Create kind cluster
+   ```
+   kind create cluster -n local-kind
+   ```
+2. Build local images
+   ```
+   docker build . -t api-insight:v1.0
+   docker build init_data -f init_data/Dockerfile -t init-data:v1.0
+   ```
+3. Load local images to kind cluster
+   ```
+   kind load docker-image init-data:v1.0 --name local-kind
+   kind load docker-image api-insight:v1.0 --name local-kind
+   ```
+4. Install using Helm
+   ```
+   helm install api-insight ./charts/api-insight
+   ```
+   
+   api-insight will fail initially because it waits for redis to get ready. Once redis svc is up and running, api-insight will be ready state.
+
 ## Test the API
 To test and explore the Store API endpoints:
 
