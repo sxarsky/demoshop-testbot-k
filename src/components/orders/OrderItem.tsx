@@ -1,47 +1,49 @@
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Order } from "./OrderList";
 
-interface OrderItemProps {
-  order: Order;
-  gapOverride?: string;
-  'data-testId'?: string;
-}
-
-export default function OrderItem({ order, gapOverride, 'data-testId': dataTestId }: OrderItemProps) {
+export default function OrderItem({ order, gapOverride, dataTestId }: { order: Order; gapOverride?: string; dataTestId?: string }) {
   return (
-    <Card className="shadow-none border-0" style={{ width: '100%' }} data-testId={dataTestId}>
-      <CardContent
-        className="flex items-center py-2 px-4 min-h-0 border-0 !gap-4 !p-0"
-        style={{ gap: '1rem', padding: 0, width: '100%' }}
+    <div
+      style={{
+        width: "100%",
+        background: "#f9fafb",
+        border: "1.5px solid #9ca3af",
+        borderRadius: "0.75rem",
+        boxShadow: "0 2px 8px 0 rgba(0,0,0,0.03)",
+        padding: "1.25rem 1.5rem",
+        marginBottom: 0, // Remove extra margin between orders
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        gap: gapOverride || "10rem",
+      }}
+      data-testid={dataTestId}
+    >
+      {/* Order Info */}
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "0.5rem", minWidth: "16rem" }}>
+        <span style={{ fontSize: "1.125rem", fontWeight: 500, color: "#1e293b" }}>
+          {order.customer_email}
+        </span>
+        <span style={{ fontSize: "0.95rem", color: "#64748b" }}>
+          {order.items.length} item{order.items.length !== 1 ? "s" : ""}
+        </span>
+        <span style={{ fontSize: "1rem", color: "#0f766e", fontWeight: 500 }}>
+          ${order.total_amount.toFixed(2)}
+        </span>
+      </div>
+      {/* View Details */}
+      <Button
+        variant="link"
+        className="ml-auto"
+        style={{ color: "#60a5fa", background: "#f3f4f6", borderRadius: "0.5rem", fontWeight: 500, padding: "0.5rem 1.25rem", border: "1px solid #9ca3af", boxShadow: "none", transition: "background 0.2s", minWidth: '7rem', textAlign: 'center', fontSize: '1rem', marginTop: '0.5rem' }}
+        onMouseOver={e => { e.currentTarget.style.background = "#e5e7eb"; }}
+        onMouseOut={e => { e.currentTarget.style.background = "#f3f4f6"; }}
+        onClick={() => {
+          window.location.href = `/orders/${order.order_id}`;
+        }}
       >
-        {/* Order Info */}
-        <div
-          className="flex flex-col flex-grow items-start gap-2"
-          style={{ gap: '0.5rem', minWidth: '16rem', marginRight: gapOverride || '20rem' }}
-        >
-          <h2 className="text-lg leading-none m-0 p-0" style={{ margin: 0, padding: 0, lineHeight: 1, fontWeight: 400 }}>
-            <span style={{ fontWeight: 400 }}>{order.customer_email} - {order.items.length} items</span>
-          </h2>
-          <p className="text-xs text-muted-foreground leading-none m-0 p-0" style={{ margin: 0, padding: 0, lineHeight: 1 }}>
-            ${order.total_amount.toFixed(2)}
-          </p>
-        </div>
-
-        {/* View Details */}
-        <Button
-          variant="link"
-          className="ml-auto"
-          style={{ color: '#60a5fa', transition: 'background 0.2s', background: '#f3f4f6' }}
-          onMouseOver={e => { e.currentTarget.style.background = '#e5e7eb'; }}
-          onMouseOut={e => { e.currentTarget.style.background = '#f3f4f6'; }}
-          onClick={() => {
-            window.location.href = `/orders/${order.order_id}`;
-          }}
-        >
-          View Details
-        </Button>
-      </CardContent>
-    </Card>
+        View Details
+      </Button>
+    </div>
   );
 }

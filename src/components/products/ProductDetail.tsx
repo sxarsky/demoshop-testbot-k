@@ -3,51 +3,6 @@ import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { NavBar } from '../ui/navbar';
 
-function Header() {
-  const [ordersHover, setOrdersHover] = useState(false); // Track hover state for Orders link
-  return (
-    <header className="w-full">
-      <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-        {/* Logo + Brand */}
-        <div className="flex items-center gap-2">
-          <a href="https://skyramp.dev" target="_blank" rel="noopener noreferrer">
-            <img
-              src="/logo.avif"
-              alt="Skyramp Logo"
-              width={150}
-              height={100}
-              className="object-contain"
-              style={{ cursor: 'pointer' }}
-            />
-          </a>
-        </div>
-        {/* Nav Links */}
-        <nav className="flex items-center text-sm font-medium" style={{ gap: '1rem' }}>
-          <a
-            href="/products"
-            className="underline underline-offset-4"
-            style={{ color: '#60a5fa' }}
-          >
-            Products   
-          </a>
-          <a
-            href="/orders"
-            style={{
-              color: '#60a5fa',
-              textDecoration: ordersHover ? 'underline' : 'none',
-              textUnderlineOffset: ordersHover ? '4px' : undefined,
-            }}
-            onMouseEnter={() => setOrdersHover(true)}
-            onMouseLeave={() => setOrdersHover(false)}
-          >
-            Orders
-          </a>
-        </nav>
-      </div>
-    </header>
-  )
-}
-
 export default function ProductDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
@@ -259,7 +214,7 @@ export default function ProductDetail() {
             {product.image_url && (
               <div
                 className="flex justify-center mb-2"
-                style={{ justifyContent: 'flex-start', marginBottom: '2.5rem' }} // Increased space below image
+                style={{ justifyContent: 'center', marginBottom: '2.5rem' }} // Center image
               >
                 <img
                   src={product.image_url || "/placeholder.webp"}

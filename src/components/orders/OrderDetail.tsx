@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import ProductItem from "../products/ProductItem";
-import { NavBar } from '../ui/navbar';
+import { NavBar } from "@/components/ui/navbar";
 
 export default function OrderDetail() {
   const { order_id } = useParams<{ order_id: string }>();
