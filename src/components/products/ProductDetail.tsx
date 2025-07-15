@@ -82,7 +82,7 @@ export default function ProductDetail() {
   };
 
   return (
-    <div className="min-h-screen bg-white px-6 py-10" style={{ width: '100%', maxWidth: '80rem', margin: '0 auto' }}>
+    <div className="min-h-screen bg-white px-6 py-10" style={{ width: '100%', maxWidth: '80rem', margin: '0 auto' }} data-testId="product-detail-root">
       <NavBar active="products" />
       {/* Page Heading directly below nav */}
       <h1
@@ -94,20 +94,21 @@ export default function ProductDetail() {
           paddingTop: '0.5rem',
           marginBottom: '1.5rem', // space below heading
         }}
+        data-testId="product-detail-heading"
       >
         Product Details
       </h1>
-      {loading && <div className="flex justify-center items-center h-40" style={{ justifyContent: 'flex-start' }}><span className="text-lg text-gray-500" style={{ textAlign: 'left' }}>Loading...</span></div>}
-      {error && <div className="text-red-500 text-center font-semibold" style={{ textAlign: 'left' }}>{error}</div>}
+      {loading && <div className="flex justify-center items-center h-40" style={{ justifyContent: 'flex-start' }} data-testId="product-detail-loading"><span className="text-lg text-gray-500" style={{ textAlign: 'left' }}>Loading...</span></div>}
+      {error && <div className="text-red-500 text-center font-semibold" style={{ textAlign: 'left' }} data-testId="product-detail-error">{error}</div>}
       {!loading && !error && !product && (
-        <div className="text-gray-500 text-center" style={{ textAlign: 'left' }}>Product not found.</div>
+        <div className="text-gray-500 text-center" style={{ textAlign: 'left' }} data-testId="product-detail-notfound">Product not found.</div>
       )}
       {product && Object.keys(product).length > 0 && (
-        <div className="max-w-lg mx-auto w-full bg-white rounded-2xl shadow-lg p-8 mb-8 flex flex-col gap-6" style={{ alignItems: 'flex-start', marginLeft: 0, marginRight: '16rem' }}>
+        <div className="max-w-lg mx-auto w-full bg-white rounded-2xl shadow-lg p-8 mb-8 flex flex-col gap-6" style={{ alignItems: 'flex-start', marginLeft: 0, marginRight: '16rem' }} data-testId="product-detail-main">
           <div className="flex flex-col" style={{ gap: '1rem', alignItems: 'flex-start' }}>
             {/* Name */}
-            <div>
-              <label className="block text-sm mb-1" style={{ color: '#9ca3af', fontWeight: 'normal', textAlign: 'left' }}>Name</label>
+            <div data-testId="product-detail-name">
+              <label className="block text-sm mb-1" style={{ color: '#9ca3af', fontWeight: 'normal', textAlign: 'left' }} data-testId="product-detail-label-name">Name</label>
               {editMode ? (
                 <input
                   className="w-full border rounded px-3 py-2 text-gray-900"
@@ -115,14 +116,15 @@ export default function ProductDetail() {
                   value={formState?.name || ''}
                   onChange={handleInputChange}
                   disabled={saving}
+                  data-testId="product-detail-input-name"
                 />
               ) : (
-                <div style={{ fontSize: '1.125rem', fontWeight: 500 }} className="text-gray-900 mt-1">{product.name}</div>
+                <div style={{ fontSize: '1.125rem', fontWeight: 500 }} className="text-gray-900 mt-1" data-testId="product-detail-value-name">{product.name}</div>
               )}
             </div>
             {/* In Stock */}
-            <div className="flex flex-col items-center" style={{ alignItems: 'flex-start' }}>
-              <label className="block text-sm mb-1" style={{ color: '#9ca3af', fontWeight: 'normal', textAlign: 'left' }}>In Stock</label>
+            <div className="flex flex-col items-center" style={{ alignItems: 'flex-start' }} data-testId="product-detail-instock">
+              <label className="block text-sm mb-1" style={{ color: '#9ca3af', fontWeight: 'normal', textAlign: 'left' }} data-testId="product-detail-label-instock">In Stock</label>
               {editMode ? (
                 <select
                   className="w-40 border rounded px-3 py-2"
@@ -130,6 +132,7 @@ export default function ProductDetail() {
                   value={formState?.in_stock ? 'true' : 'false'}
                   onChange={e => setFormState((prev: any) => ({ ...prev, in_stock: e.target.value === 'true' }))}
                   disabled={saving}
+                  data-testId="product-detail-input-instock"
                 >
                   <option value="true">Yes</option>
                   <option value="false">No</option>
@@ -138,6 +141,7 @@ export default function ProductDetail() {
                 <span
                   className="px-4 py-1 rounded-full text-sm font-semibold bg-green-600 text-white"
                   style={{ background: '#16a34a', color: 'white', padding: '0.5rem 1.25rem' }}
+                  data-testId="product-detail-value-instock"
                 >
                   In Stock
                 </span>
@@ -145,14 +149,15 @@ export default function ProductDetail() {
                 <span
                   className="px-4 py-1 rounded-full text-sm font-semibold bg-red-600 text-white"
                   style={{ background: '#dc2626', color: 'white', padding: '0.5rem 1.25rem' }}
+                  data-testId="product-detail-value-outstock"
                 >
                   Out of Stock
                 </span>
               )}
             </div>
             {/* Description */}
-            <div>
-              <label className="block text-sm mb-1" style={{ color: '#9ca3af', fontWeight: 'normal', textAlign: 'left' }}>Description</label>
+            <div data-testId="product-detail-description">
+              <label className="block text-sm mb-1" style={{ color: '#9ca3af', fontWeight: 'normal', textAlign: 'left' }} data-testId="product-detail-label-description">Description</label>
               {editMode ? (
                 <textarea
                   className="w-full border rounded px-3 py-2 text-gray-900"
@@ -160,14 +165,15 @@ export default function ProductDetail() {
                   value={formState?.description || ''}
                   onChange={handleInputChange}
                   disabled={saving}
+                  data-testId="product-detail-input-description"
                 />
               ) : (
-                <div style={{ fontSize: '1.125rem', fontWeight: 500 }} className="text-gray-900 mt-1">{product.description}</div>
+                <div style={{ fontSize: '1.125rem', fontWeight: 500 }} className="text-gray-900 mt-1" data-testId="product-detail-value-description">{product.description}</div>
               )}
             </div>
             {/* Category */}
-            <div>
-              <label className="block text-sm mb-1" style={{ color: '#9ca3af', fontWeight: 'normal', textAlign: 'left' }}>Category</label>
+            <div data-testId="product-detail-category">
+              <label className="block text-sm mb-1" style={{ color: '#9ca3af', fontWeight: 'normal', textAlign: 'left' }} data-testId="product-detail-label-category">Category</label>
               {editMode ? (
                 <input
                   className="w-full border rounded px-3 py-2 text-gray-900"
@@ -175,14 +181,15 @@ export default function ProductDetail() {
                   value={formState?.category || ''}
                   onChange={handleInputChange}
                   disabled={saving}
+                  data-testId="product-detail-input-category"
                 />
               ) : (
-                <div style={{ fontSize: '1.125rem', fontWeight: 500, textTransform: 'capitalize', textAlign: 'left' }} className="text-gray-900 mt-1">{product.category}</div>
+                <div style={{ fontSize: '1.125rem', fontWeight: 500, textTransform: 'capitalize', textAlign: 'left' }} className="text-gray-900 mt-1" data-testId="product-detail-value-category">{product.category}</div>
               )}
             </div>
             {/* Price */}
-            <div>
-              <label className="block text-sm mb-1" style={{ color: '#9ca3af', fontWeight: 'normal', textAlign: 'left' }}>Price</label>
+            <div data-testId="product-detail-price">
+              <label className="block text-sm mb-1" style={{ color: '#9ca3af', fontWeight: 'normal', textAlign: 'left' }} data-testId="product-detail-label-price">Price</label>
               {editMode ? (
                 <input
                   className="w-full border rounded px-3 py-2 text-gray-900"
@@ -191,31 +198,33 @@ export default function ProductDetail() {
                   value={formState?.price || ''}
                   onChange={handleInputChange}
                   disabled={saving}
+                  data-testId="product-detail-input-price"
                 />
               ) : (
-                <div style={{ fontSize: '1.125rem', fontWeight: 500 }} className="text-gray-900 mt-1">${product.price}</div>
+                <div style={{ fontSize: '1.125rem', fontWeight: 500 }} className="text-gray-900 mt-1" data-testId="product-detail-value-price">${product.price}</div>
               )}
             </div>
             {/* Created At */}
-            <div>
-              <label className="block text-sm mb-1" style={{ color: '#9ca3af', fontWeight: 'normal', textAlign: 'left' }}>Created At</label>
-              <div style={{ fontSize: '1.125rem', fontWeight: 500 }} className="text-gray-900 mt-1">{product.created_at && new Date(product.created_at).toLocaleString()}</div>
+            <div data-testId="product-detail-createdat">
+              <label className="block text-sm mb-1" style={{ color: '#9ca3af', fontWeight: 'normal', textAlign: 'left' }} data-testId="product-detail-label-createdat">Created At</label>
+              <div style={{ fontSize: '1.125rem', fontWeight: 500 }} className="text-gray-900 mt-1" data-testId="product-detail-value-createdat">{product.created_at && new Date(product.created_at).toLocaleString()}</div>
             </div>
             {/* Last Updated */}
-            <div>
-              <label className="block text-sm mb-1" style={{ color: '#9ca3af', fontWeight: 'normal', textAlign: 'left' }}>Last Updated</label>
-              <div style={{ fontSize: '1.125rem', fontWeight: 500 }} className="text-gray-900 mt-1">{product.updated_at && new Date(product.updated_at).toLocaleString()}</div>
+            <div data-testId="product-detail-updatedat">
+              <label className="block text-sm mb-1" style={{ color: '#9ca3af', fontWeight: 'normal', textAlign: 'left' }} data-testId="product-detail-label-updatedat">Last Updated</label>
+              <div style={{ fontSize: '1.125rem', fontWeight: 500 }} className="text-gray-900 mt-1" data-testId="product-detail-value-updatedat">{product.updated_at && new Date(product.updated_at).toLocaleString()}</div>
             </div>
             {/* Product ID */}
-            <div>
-              <label className="block text-sm mb-1" style={{ color: '#9ca3af', fontWeight: 'normal', textAlign: 'left' }}>Product ID</label>
-              <div style={{ fontSize: '1.125rem', fontWeight: 500, textAlign: 'left' }} className="text-gray-900 mt-1">{product.product_id}</div>
+            <div data-testId="product-detail-id">
+              <label className="block text-sm mb-1" style={{ color: '#9ca3af', fontWeight: 'normal', textAlign: 'left' }} data-testId="product-detail-label-id">Product ID</label>
+              <div style={{ fontSize: '1.125rem', fontWeight: 500, textAlign: 'left' }} className="text-gray-900 mt-1" data-testId="product-detail-value-id">{product.product_id}</div>
             </div>
             {/* Product Image - moved here */}
             {product.image_url && (
               <div
                 className="flex justify-center mb-2"
                 style={{ justifyContent: 'center', marginBottom: '2.5rem' }} // Center image
+                data-testId="product-detail-image-container"
               >
                 <img
                   src={productImageUrlMap[product.image_url] || product.image_url || "/placeholder.webp"}
@@ -236,6 +245,7 @@ export default function ProductDetail() {
                       target.src = "/placeholder.webp";
                     }
                   }}
+                  data-testId="product-detail-image"
                 />
               </div>
             )}
@@ -243,13 +253,14 @@ export default function ProductDetail() {
         </div>
       )}
       {/* Buttons centered */}
-      <div className="flex flex-col items-center" style={{ gap: '1rem', marginTop: '1.5rem' }}>
+      <div className="flex flex-col items-center" style={{ gap: '1rem', marginTop: '1.5rem' }} data-testId="product-detail-buttons">
         {editMode ? (
           <Button
             variant="default"
             className="w-48"
             onClick={handleSave}
             disabled={saving}
+            data-testId="product-detail-save-btn"
           >
             {saving ? 'Saving...' : 'Save Product'}
           </Button>
@@ -274,6 +285,7 @@ export default function ProductDetail() {
               e.currentTarget.style.borderColor = '#111'; // Black border
               e.currentTarget.style.color = '#fff'; // White text
             }}
+            data-testId="product-detail-edit-btn"
           >
             Edit Product
           </Button>
@@ -297,6 +309,7 @@ export default function ProductDetail() {
             e.currentTarget.style.background = '#dc2626'; // Default red
             e.currentTarget.style.borderColor = 'transparent';
           }}
+          data-testId="product-detail-delete-btn"
         >
           {deleting ? 'Deleting...' : 'Delete Product'}
         </Button>
@@ -320,6 +333,7 @@ export default function ProductDetail() {
             e.currentTarget.style.borderColor = 'transparent'; 
             e.currentTarget.style.color = '#111'; // Keep text black
           }}
+          data-testId="product-detail-back-btn"
         >
           Back
         </Button>
