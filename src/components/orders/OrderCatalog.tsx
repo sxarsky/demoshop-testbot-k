@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import OrderList from "./OrderList";
 
+const AddOrderForm = React.lazy(() => import("./AddOrderForm"));
+
 export default function OrderCatalog() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [deletedBanner, setDeletedBanner] = useState<{
@@ -141,6 +143,46 @@ export default function OrderCatalog() {
       </div>
       {/* Add extra space below heading before orders list */}
       <div style={{ height: '1.5rem' }} />
+
+      {/* Add Order Button */}
+      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '2rem' }}>
+        <Button
+          style={{
+            width: '12rem',
+            color: '#fff',
+            background: '#111',
+            border: '1.5px solid #111',
+            transition: 'background 0.2s, border-color 0.2s, color 0.2s',
+            fontWeight: 600,
+            fontSize: '1.1rem',
+            borderRadius: '0.5rem',
+            padding: '0.75rem 0',
+            boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
+            outline: 'none',
+            cursor: 'pointer',
+          }}
+          onMouseOver={e => {
+            e.currentTarget.style.background = 'rgba(17,17,17,0.7)';
+            e.currentTarget.style.borderColor = '#111';
+            e.currentTarget.style.color = '#fff';
+          }}
+          onMouseOut={e => {
+            e.currentTarget.style.background = '#111';
+            e.currentTarget.style.borderColor = '#111';
+            e.currentTarget.style.color = '#fff';
+          }}
+          onClick={() => setShowAddForm(true)}
+        >
+          Add Order
+        </Button>
+      </div>
+
+      {/* AddOrderForm Modal */}
+      {showAddForm && (
+        <React.Suspense fallback={<div style={{position:'fixed',top:0,left:0,width:'100vw',height:'100vh',background:'rgba(31,41,55,0.35)',zIndex:100,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.5rem',color:'#374151'}}>Loading...</div>}>
+          <AddOrderForm onClose={() => setShowAddForm(false)} />
+        </React.Suspense>
+      )}
 
       <div style={{ width: '100%' }}>
         <div style={{ maxWidth: '64rem', margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
