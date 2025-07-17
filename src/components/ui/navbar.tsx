@@ -185,22 +185,17 @@ export function NavBar({ active, forceUnderlineProducts, hideLinks }: { active: 
   const [ordersHover, setOrdersHover] = React.useState(false);
   const [productsHover, setProductsHover] = React.useState(false);
   const [newSessionHover, setNewSessionHover] = React.useState(false);
-  const [sessionId, setSessionId] = React.useState(''); // Start with empty string
+  const [sessionId, setSessionId] = React.useState('');
   const [editing, setEditing] = React.useState(false);
   const [inputValue, setInputValue] = React.useState('');
   const [copied, setCopied] = React.useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
 
-  // Async session ID initialization
+  // Always fetch session from cookie on mount
   React.useEffect(() => {
-    let mounted = true;
-    getOrCreateSessionId().then(id => {
-      if (mounted) {
-        setSessionId(id);
-        setInputValue(id);
-      }
-    });
-    return () => { mounted = false; };
+    const id = getSessionIdFromCookie();
+    setSessionId(id);
+    setInputValue(id);
   }, []);
 
   // Save session ID from input, validate, update cookie, refresh page, exit edit mode

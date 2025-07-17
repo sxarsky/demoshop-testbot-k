@@ -3,10 +3,26 @@ import ProductCatalog from './components/products/ProductCatalog'
 import ProductDetail from './components/products/ProductDetail'
 import OrderCatalog from './components/orders/OrderCatalog'
 import OrderDetail from './components/orders/OrderDetail'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { ensureSessionId, getSessionIdFromCookie } from './lib/utils'
 import './App.css'
 
 function App() {
+  const [sessionId, setSessionId] = useState<string>('');
+
+  useEffect(() => {
+    (async () => {
+      const id = await ensureSessionId();
+      setSessionId(id);
+    })();
+  }, []);
+
+  if (!sessionId) {
+    // Optionally show a loading spinner while sessionId is being set
+    return <div style={{ textAlign: 'center', marginTop: '4rem' }}>Initializing session...</div>;
+  }
+  
+
   return (
     <BrowserRouter>
       <Routes>

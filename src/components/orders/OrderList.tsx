@@ -19,7 +19,7 @@ export default function OrderList() {
       setLoading(true);
       const sessionId = getSessionIdFromCookie();
       fetch('https://dev.demoshop.skyramp.dev/api/v1/orders?limit=50', {
-        headers: { 'Authorization': `Bearer ${getSessionIdFromCookie()}` }
+        headers: { 'Authorization': `Bearer ${sessionId}` }
       })
         .then(res => {
           if (!res.ok) throw new Error("Failed to fetch orders");
