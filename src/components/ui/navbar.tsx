@@ -60,7 +60,6 @@ function SessionIdDisplay({ sessionId, onEdit, onCopy, copied }: { sessionId: st
         )}
       </span>
       <button
-        data-testId="session-id-copy-btn"
         onClick={onCopy}
         style={{
           background: 'transparent',
@@ -232,7 +231,7 @@ export function NavBar({ active, forceUnderlineProducts, hideLinks }: { active: 
         data-testId="navbar-container"
       >
         {/* Logo + Brand (always left-aligned) */}
-        <div className="flex items-center" style={{ gap: logoGap }}>
+        <div className="flex items-center" style={{ gap: logoGap }} data-testId="navbar-brand-container">
           <a href="/products" data-testId="navbar-logo">
             <img
               src="/logo.avif"

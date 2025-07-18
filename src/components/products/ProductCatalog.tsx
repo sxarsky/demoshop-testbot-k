@@ -46,12 +46,14 @@ export default function ProductCatalog() {
               paddingBottom: '0.5rem',
               border: 'none',
             }}
+            data-testId="delete-message-banner"
           >
             <span data-testId="delete-message">Your product <b>{deletedBanner.name}</b> has been deleted!</span>
             <button
               className="ml-4 text-red-500 hover:text-red-700 font-bold text-lg px-2"
               aria-label="Dismiss"
               onClick={() => setDeletedBanner(null)}
+              data-testId="delete-message-dismiss"
             >
               ×
             </button>
