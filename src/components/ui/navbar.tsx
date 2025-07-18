@@ -135,28 +135,27 @@ function SessionIdEdit({ inputValue, setInputValue, onSave, onCancel, inputRef }
       <button
         onClick={onSave}
         style={{
-          background: 'transparent',
+          background: 'none',
           border: 'none',
           padding: 0,
           marginLeft: '0.05rem',
           cursor: 'pointer',
           verticalAlign: 'middle',
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
         }}
         title="Save Session ID"
       >
-        {/* Save icon */}
+        {/* Green checkmark icon only */}
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 20 20"
           width="18"
           height="18"
-          style={{ verticalAlign: 'middle', position: 'relative', top: '-2px', marginRight: '0.05rem' }}
+          style={{ verticalAlign: 'middle', color: '#22c55e', fill: 'none', stroke: '#22c55e', strokeWidth: 2.5 }}
         >
-          <g>
-            <line x1="5" y1="16" x2="15" y2="16" stroke="#2563eb" strokeWidth="2" />
-            <polyline points="7,10 10,13 13,10" fill="none" stroke="#2563eb" strokeWidth="2" />
-            <line x1="10" y1="4" x2="10" y2="13" stroke="#2563eb" strokeWidth="2" />
-          </g>
+          <polyline points="7 12 10 15 16 6" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </button>
       <button
@@ -231,7 +230,7 @@ export function NavBar({ active, forceUnderlineProducts, hideLinks }: { active: 
       >
         {/* Logo + Brand (always left-aligned) */}
         <div className="flex items-center" style={{ gap: logoGap }}>
-          <a href="https://skyramp.dev" target="_blank" rel="noopener noreferrer">
+          <a href="/products">
             <img
               src="/logo.avif"
               alt="Skyramp Logo"
