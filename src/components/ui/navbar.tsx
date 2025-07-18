@@ -230,7 +230,7 @@ export function NavBar({ active, forceUnderlineProducts, hideLinks }: { active: 
       >
         {/* Logo + Brand (always left-aligned) */}
         <div className="flex items-center" style={{ gap: logoGap }}>
-          <a href="/products">
+          <a href="/products" data-testId="navbar-logo">
             <img
               src="/logo.avif"
               alt="Skyramp Logo"
@@ -241,6 +241,7 @@ export function NavBar({ active, forceUnderlineProducts, hideLinks }: { active: 
             />
           </a>
           <span
+            data-testId="navbar-title"
             style={{
               fontSize: '1.25rem',
               fontWeight: 600,
@@ -256,6 +257,7 @@ export function NavBar({ active, forceUnderlineProducts, hideLinks }: { active: 
           </span>
           {/* Editable Session ID to the right of brand */}
           <span
+            data-testId="session-id-container"
             style={{
               fontSize: '1rem',
               fontWeight: 500,
@@ -279,6 +281,7 @@ export function NavBar({ active, forceUnderlineProducts, hideLinks }: { active: 
                 onSave={handleSessionIdSave}
                 onCancel={() => { setEditing(false); setInputValue(sessionId); }}
                 inputRef={inputRef}
+                data-testId="session-id-edit"
               />
             ) : (
               <SessionIdDisplay
@@ -294,6 +297,7 @@ export function NavBar({ active, forceUnderlineProducts, hideLinks }: { active: 
                   }
                 }}
                 copied={copied}
+                data-testId="session-id-value"
               />
             )}
           </span>
@@ -303,6 +307,7 @@ export function NavBar({ active, forceUnderlineProducts, hideLinks }: { active: 
           <nav className="flex items-center text-sm font-medium justify-end" style={{ gap: '0.1rem', marginLeft: 'auto' }}>
             <a
               href="/products"
+              data-testId="navbar-products"
               style={{
                 color: '#60a5fa',
                 textDecoration: (active === 'products' || forceUnderlineProducts) ? 'underline' : productsHover ? 'underline' : 'none',
@@ -321,6 +326,7 @@ export function NavBar({ active, forceUnderlineProducts, hideLinks }: { active: 
             </a>
             <a
               href="/orders"
+              data-testId="navbar-orders"
               style={{
                 color: '#60a5fa',
                 textDecoration: active === 'orders' && !forceUnderlineProducts ? 'underline' : ordersHover ? 'underline' : 'none', // Underline only on OrderCatalog or hover
@@ -340,6 +346,7 @@ export function NavBar({ active, forceUnderlineProducts, hideLinks }: { active: 
             </a>
             <a
               href="#"
+              data-testId="navbar-clear-state"
               style={{
                 color: '#fff',
                 background: newSessionHover ? '#2563eb' : '#3b82f6',

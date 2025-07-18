@@ -78,6 +78,7 @@ const AddProductForm: React.FC = () => {
 
   return (
     <div
+      data-testId="add-product-modal"
       style={{
         width: "100vw",
         height: "100vh",
@@ -126,6 +127,7 @@ const AddProductForm: React.FC = () => {
             cursor: "pointer",
             transition: "color 0.2s, border-color 0.2s",
           }}
+          data-testId="add-product-modal-close"
           onMouseOver={(e) => {
             e.currentTarget.style.color = "#000";
             e.currentTarget.style.borderColor = "#222";
@@ -144,7 +146,7 @@ const AddProductForm: React.FC = () => {
         >
           ×
         </button>
-        <h3 className="text-2xl font-semibold text-center mb-6">
+        <h3 className="text-2xl font-semibold text-center mb-6" data-testId="add-product-heading">
           Add new product
         </h3>
 
@@ -163,6 +165,7 @@ const AddProductForm: React.FC = () => {
               value={product.name}
               onChange={handleChange}
               className="w-full min-w-[280px] max-w-full px-4 py-2"
+              data-testId="new_product_name"
               style={{
                 fontFamily: 'inherit',
                 fontSize: '1rem',
@@ -192,6 +195,7 @@ const AddProductForm: React.FC = () => {
               value={product.description}
               onChange={handleChange}
               className="w-full min-w-[280px] max-w-full px-4 py-2"
+              data-testId="new_product_description"
               style={{
                 fontFamily: 'inherit',
                 fontSize: '1rem',
@@ -221,6 +225,7 @@ const AddProductForm: React.FC = () => {
               value={product.image_url}
               onChange={handleChange}
               className="w-full min-w-[280px] max-w-full px-4 py-2"
+              data-testId="new_product_image_url"
               style={{
                 fontFamily: 'inherit',
                 fontSize: '1rem',
@@ -250,6 +255,7 @@ const AddProductForm: React.FC = () => {
               value={product.category}
               onChange={handleChange}
               className="w-full min-w-[280px] max-w-full px-4 py-2"
+              data-testId="new_product_category"
               style={{
                 fontFamily: 'inherit',
                 fontSize: '1rem',
@@ -312,10 +318,10 @@ const AddProductForm: React.FC = () => {
                 <SelectValue placeholder="Select..." />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="yes" style={{ paddingLeft: '0.5rem', borderBottom: '1px solid #e5e7eb' }}>
+                <SelectItem value="yes" data-testId="new_product_instock_yes" style={{ paddingLeft: '0.5rem', borderBottom: '1px solid #e5e7eb' }}>
                   Yes
                 </SelectItem>
-                <SelectItem value="no" style={{ paddingLeft: '0.5rem' }}>
+                <SelectItem value="no" data-testId="new_product_instock_no" style={{ paddingLeft: '0.5rem' }}>
                   No
                 </SelectItem>
               </SelectContent>
@@ -333,6 +339,7 @@ const AddProductForm: React.FC = () => {
               value={product.price}
               onChange={handleChange}
               className="w-full min-w-[280px] max-w-full px-4 py-2"
+              data-testId="new_product_price"
               style={{
                 fontFamily: 'inherit',
                 fontSize: '1rem',

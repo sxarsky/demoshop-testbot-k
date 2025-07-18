@@ -72,6 +72,7 @@ export default function ProductCatalog() {
           paddingTop: '0.5rem',
           marginBottom: '1.5rem', // space below heading
         }}
+        data-testId="product-catalog-heading"
       >
         Product Catalog
       </h1>
