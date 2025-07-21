@@ -66,7 +66,7 @@ export default function OrderCatalog() {
     <div className="min-h-screen bg-white px-6 py-10" style={{ width: '100%', maxWidth: '64rem', margin: '0 auto', paddingLeft: 0 }}>
       {/* Deleted Banner */}
       {deletedBanner && (
-        <div className="max-w-xl mx-auto mb-6">
+        <div className="max-w-xl mx-auto mb-6" data-testId="cancel-order-banner">
           <div
             className="flex items-center justify-between text-red-800 shadow-sm text-sm"
             style={{
@@ -78,14 +78,16 @@ export default function OrderCatalog() {
               paddingBottom: "0.5rem",
               border: "none",
             }}
+            data-testId="cancel-order-message-container"
           >
-            <span>
-              The order for <b>{deletedBanner.customer_email}</b> with <b>{deletedBanner.itemCount}</b> items has been cancelled.
+            <span data-testId="cancel-order-message">
+              The order for <b data-testId="order-email">{deletedBanner.customer_email}</b> with <b data-testId="order-item-count">{deletedBanner.itemCount}</b> items has been cancelled.
             </span>
             <button
               className="ml-4 text-red-500 hover:text-red-700 font-bold text-lg px-2"
               aria-label="Dismiss"
               onClick={() => setDeletedBanner(null)}
+              data-testId="cancel-order-banner-dismiss-btn"
             >
               ×
             </button>
@@ -107,26 +109,25 @@ export default function OrderCatalog() {
             paddingTop: '0.5rem',
             marginBottom: '1.5rem',
           }}
+          data-testId="order-catalog-heading"
         >
           Order Catalog
         </h1>
       </div>
-      {/* Add extra space below heading before orders list */}
-      <div style={{ height: '1.5rem' }} />
 
       {/* Add Order Button */}
       <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '2rem' }}>
         <Button
           style={{
-            width: '12rem',
+            width: '9rem',
             color: '#fff',
             background: '#111',
             border: '1.5px solid #111',
             transition: 'background 0.2s, border-color 0.2s, color 0.2s',
-            fontWeight: 600,
+            fontWeight: 500,
             fontSize: '1.1rem',
             borderRadius: '0.5rem',
-            padding: '0.75rem 0',
+            padding: '0.75rem 0', // match Add Product button height
             boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
             outline: 'none',
             cursor: 'pointer',
@@ -142,6 +143,7 @@ export default function OrderCatalog() {
             e.currentTarget.style.color = '#fff';
           }}
           onClick={() => setShowAddForm(true)}
+          data-testId="add-order-btn"
         >
           Add Order
         </Button>

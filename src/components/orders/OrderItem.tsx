@@ -17,17 +17,17 @@ export default function OrderItem({ order, gapOverride, dataTestId }: { order: O
         justifyContent: "space-between",
         gap: gapOverride || "10rem",
       }}
-      data-testid={dataTestId}
+      data-testId={`order-box-${order.order_id}`}
     >
       {/* Order Info */}
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "0.5rem", minWidth: "16rem" }}>
-        <span style={{ fontSize: "1.125rem", fontWeight: 500, color: "#1e293b" }}>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "0.5rem", minWidth: "16rem" }} data-testId="order-info-container">
+        <span style={{ fontSize: "1.125rem", fontWeight: 500, color: "#1e293b" }} data-testId="order-email">
           {order.customer_email}
         </span>
         <span style={{ fontSize: "0.95rem", color: "#64748b" }}>
           {order.items.length} item{order.items.length !== 1 ? "s" : ""}
         </span>
-        <span style={{ fontSize: "1rem", color: "#0f766e", fontWeight: 500 }}>
+        <span style={{ fontSize: "1rem", color: "#0f766e", fontWeight: 500 }} data-testId="order-price">
           ${order.total_amount.toFixed(2)}
         </span>
       </div>
@@ -41,6 +41,7 @@ export default function OrderItem({ order, gapOverride, dataTestId }: { order: O
         onClick={() => {
           window.location.href = `/orders/${order.order_id}`;
         }}
+        data-testId="order-view-details-btn"
       >
         View Details
       </Button>

@@ -131,6 +131,7 @@ const AddOrderForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           flexDirection: "column",
           overflow: 'auto',
         }}
+        data-testId="add-order-modal-box"
       >
         <button
           style={{
@@ -165,112 +166,112 @@ const AddOrderForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           onClick={onClose}
           aria-label="Close"
           type="button"
+          data-testId="add-order-dismiss-btn"
         >
           ×
         </button>
-        <h3 className="text-2xl font-semibold text-center mb-6">Add new order</h3>
-        {error && <div className="text-red-500 text-center mb-2">{error}</div>}
+        <h3 className="text-2xl font-semibold text-center mb-6" data-testId="add-order-heading">Add new order</h3>
+        {error && <div className="text-red-500 text-center mb-2" data-testId={error === "All fields and at least one product are required." ? "add-order-error-required-fields" : undefined}>{error}</div>}
         <form className="flex flex-col" style={{ gap: "1rem" }} onSubmit={handleSubmit}>
-          <div className="pb-1">
-            <label className="block text-sm font-medium text-gray-700 mb-1 text-left">Customer Email</label>
-            <Input name="customer_email" placeholder="e.g. user@email.com" value={order.customer_email} onChange={handleChange} className="w-full min-w-[280px] max-w-full px-4 py-2" style={{ fontFamily: 'inherit', fontSize: '1rem', fontWeight: 400, border: '1.5px solid #d1d5db', outline: 'none', transition: 'border-color 0.2s, box-shadow 0.2s' }} onFocus={e => { e.currentTarget.style.border = '1.5px solid #6b7280'; e.currentTarget.style.boxShadow = '0 0 0 1.5px #6b7280'; }} onBlur={e => { e.currentTarget.style.border = '1.5px solid #d1d5db'; e.currentTarget.style.boxShadow = 'none'; }} />
-          </div>
-          <div className="pb-1">
-            <label className="block text-sm font-medium text-gray-700 mb-1 text-left">Products</label>
-            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-              <div style={{ position: 'relative', minWidth: '260px', flex: 1 }}>
-                <Select
-                  value={addingProduct.product_id}
-                  onValueChange={val => setAddingProduct(ap => ({ ...ap, product_id: val }))}
-                >
-                  <SelectTrigger
-                    style={{
-                      border: '1.5px solid #d1d5db',
-                      outline: 'none',
-                      transition: 'border-color 0.2s, box-shadow 0.2s',
-                      width: '100%',
-                      minWidth: '260px',
-                      padding: '0.5rem 1rem',
-                      background: '#fff',
-                      borderRadius: '0.375rem',
-                      fontSize: '1rem',
-                      fontWeight: 400,
-                      color: '#111827',
-                      textAlign: 'left',
-                    }}
+          <div data-testId="add-order-form-fields-container">
+            <div className="pb-1">
+              <label className="block text-sm font-medium text-gray-700 mb-1 text-left" data-testId="add-order-label-email">Customer Email</label>
+              <Input name="customer_email" placeholder="e.g. user@email.com" value={order.customer_email} onChange={handleChange} className="w-full min-w-[280px] max-w-full px-4 py-2" style={{ fontFamily: 'inherit', fontSize: '1rem', fontWeight: 400, border: '1.5px solid #d1d5db', outline: 'none', transition: 'border-color 0.2s, box-shadow 0.2s' }} onFocus={e => { e.currentTarget.style.border = '1.5px solid #6b7280'; e.currentTarget.style.boxShadow = '0 0 0 1.5px #6b7280'; }} onBlur={e => { e.currentTarget.style.border = '1.5px solid #d1d5db'; e.currentTarget.style.boxShadow = 'none'; }} data-testId="add-order-input-email" />
+            </div>
+            <div className="pb-1" data-testId="add-order-products-main-container">
+              <label className="block text-sm font-medium text-gray-700 mb-1 text-left" data-testId="add-order-label-products">Products</label>
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }} data-testId="add-order-products-container">
+                <div style={{ position: 'relative', minWidth: '260px', flex: 1 }} data-testId="add-order-products-select-container">
+                  <Select
+                    value={addingProduct.product_id}
+                    onValueChange={val => setAddingProduct(ap => ({ ...ap, product_id: val }))}
                   >
-                    <SelectValue placeholder="Select product...">
-                      {addingProduct.product_id && productsList.length > 0
-                        ? (() => {
-                            const selected = productsList.find(p => String(p.product_id).trim() === String(addingProduct.product_id).trim());
-                            return selected
-                              ? <span style={{fontWeight:500}}>{selected.name} <span style={{color:'#6b7280',fontWeight:400}}>${selected.price}</span></span>
-                              : null;
-                          })()
-                        : null}
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {productsList.map(p => (
-                      <SelectItem key={p.product_id} value={p.product_id} style={{ paddingLeft: '0.5rem', borderBottom: '1px solid #e5e7eb' }}>
-                        {p.name} (${p.price})
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <Input
-                type="number"
-                min={1}
-                value={addingProduct.quantity}
-                onChange={e => {
-                  const val = Number(e.target.value);
-                  setAddingProduct(ap => ({ ...ap, quantity: val > 0 ? val : 1 }));
-                }}
-                style={{
-                  border: '1.5px solid #d1d5db',
-                  fontSize: '1rem',
-                  width: '3.5rem',
-                  textAlign: 'center',
-                  paddingLeft: 0,
-                  paddingRight: 0,
-                  borderRadius: '0.375rem',
-                  height: '2.5rem',
-                }}
-              />
-              <Button type="button" onClick={() => handleAddProduct()} style={{ background: '#f3f4f6', color: '#111', border: '1.5px solid transparent', outline: 'none', transition: 'background 0.2s, border-color 0.2s, outline 0.2s', marginLeft: '0.5rem', height: '2.5rem', borderRadius: '0.375rem', fontWeight: 500 }} onMouseOver={e => { e.currentTarget.style.background = '#d1d5db'; e.currentTarget.style.border = '1.5px solid #000'; }} onMouseOut={e => { e.currentTarget.style.background = '#f3f4f6'; e.currentTarget.style.border = '1.5px solid transparent'; }}>Add</Button>
-            </div>
-            {/* List of products to be added */}
-            <div style={{ marginTop: '0.5rem', maxHeight: '14rem', overflowY: 'auto' }}>
-              {order.items.length > 0 && (
-                <div style={{ border: '1.5px solid #e5e7eb', borderRadius: '0.5rem', background: '#f9fafb', padding: '0.5rem 0.5rem 0.5rem 0.5rem', marginBottom: '0.5rem', minHeight: '3.5rem' }}>
-                  <div style={{ display: 'flex', fontWeight: 600, color: '#374151', marginBottom: '0.25rem', fontSize: '1rem' }}>
-                    <span style={{ flex: 2 }}>Name</span>
-                    <span style={{ flex: 1, textAlign: 'center' }}>Quantity</span>
-                    <span style={{ flex: 1, textAlign: 'center' }}>Unit Price</span>
-                    <span style={{ flex: 1, textAlign: 'center' }}>Total</span>
-                    <span style={{ flex: 0.5 }}></span>
-                  </div>
-                  {order.items.map((op, idx) => {
-                    // Debug: log all product_ids and the one being searched
-                    // console.log('productsList ids:', productsList.map(p => p.product_id));
-                    // console.log('Searching for:', op.product_id);
-                    const prod = productsList.find(p => String(p.product_id).trim() === String(op.product_id).trim());
-                    return (
-                      <div key={op.product_id + idx} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem', fontSize: '0.98rem', background: '#fff', borderRadius: '0.375rem', padding: '0.25rem 0.5rem' }}>
-                        <span style={{ flex: 2 }}>{prod ? prod.name : op.product_id}</span>
-                        <span style={{ flex: 1, textAlign: 'center' }}>x{op.quantity}</span>
-                        <span style={{ flex: 1, textAlign: 'center', color: '#374151' }}>{prod ? `$${prod.price}` : '-'}</span>
-                        <span style={{ flex: 1, textAlign: 'center', color: '#16a34a', fontWeight: 500 }}>{prod ? `$${(prod.price * op.quantity).toFixed(2)}` : '-'}</span>
-                        <Button type="button" variant="link" style={{ color: '#dc2626', marginLeft: 'auto', flex: 0.5, fontWeight: 500 }} onClick={() => handleRemoveProduct(idx)}>Delete</Button>
-                      </div>
-                    );
-                  })}
+                    <SelectTrigger
+                      style={{
+                        border: '1.5px solid #d1d5db',
+                        outline: 'none',
+                        transition: 'border-color 0.2s, box-shadow 0.2s',
+                        width: '100%',
+                        minWidth: '260px',
+                        padding: '0.5rem 1rem',
+                        background: '#fff',
+                        borderRadius: '0.375rem',
+                        fontSize: '1rem',
+                        fontWeight: 400,
+                        color: '#111827',
+                        textAlign: 'left',
+                      }}
+                    >
+                      <SelectValue placeholder="Select product...">
+                        {addingProduct.product_id && productsList.length > 0
+                          ? (() => {
+                              const selected = productsList.find(p => String(p.product_id).trim() === String(addingProduct.product_id).trim());
+                              return selected
+                                ? <span style={{fontWeight:500}}>{selected.name} <span style={{color:'#6b7280',fontWeight:400}}>${selected.price}</span></span>
+                                : null;
+                            })()
+                          : null}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {productsList.map(p => (
+                        <SelectItem key={p.product_id} value={p.product_id} style={{ paddingLeft: '0.5rem', borderBottom: '1px solid #e5e7eb' }} data-testId={`add-order-product-option-${p.product_id}`}>
+                          {p.name} (${p.price})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
-              )}
+                <Input
+                  type="number"
+                  min={1}
+                  value={addingProduct.quantity}
+                  onChange={e => {
+                    const val = Number(e.target.value);
+                    setAddingProduct(ap => ({ ...ap, quantity: val > 0 ? val : 1 }));
+                  }}
+                  style={{
+                    border: '1.5px solid #d1d5db',
+                    fontSize: '1rem',
+                    width: '3.5rem',
+                    textAlign: 'center',
+                    paddingLeft: 0,
+                    paddingRight: 0,
+                    borderRadius: '0.375rem',
+                    height: '2.5rem',
+                  }}
+                />
+                <Button type="button" onClick={() => handleAddProduct()} style={{ background: '#f3f4f6', color: '#111', border: '1.5px solid transparent', outline: 'none', transition: 'background 0.2s, border-color 0.2s, outline 0.2s', marginLeft: '0.5rem', height: '2.5rem', borderRadius: '0.375rem', fontWeight: 500 }} onMouseOver={e => { e.currentTarget.style.background = '#d1d5db'; e.currentTarget.style.border = '1.5px solid #000'; }} onMouseOut={e => { e.currentTarget.style.background = '#f3f4f6'; e.currentTarget.style.border = '1.5px solid transparent'; }}>Add</Button>
+              </div>
+              {/* List of products to be added */}
+              <div style={{ marginTop: '0.5rem', maxHeight: '14rem', overflowY: 'auto' }}>
+                {order.items.length > 0 && (
+                  <div style={{ border: '1.5px solid #e5e7eb', borderRadius: '0.5rem', background: '#f9fafb', padding: '0.5rem 0.5rem 0.5rem 0.5rem', marginBottom: '0.5rem', minHeight: '3.5rem' }} data-testId="add-order-products-list-box">
+                    <div style={{ display: 'flex', fontWeight: 600, color: '#374151', marginBottom: '0.25rem', fontSize: '1rem' }} data-testId="add-order-products-list-header">
+                      <span style={{ flex: 2 }} data-testId="add-order-products-list-header-name">Name</span>
+                      <span style={{ flex: 1, textAlign: 'center' }} data-testId="add-order-products-list-header-quantity">Quantity</span>
+                      <span style={{ flex: 1, textAlign: 'center' }} data-testId="add-order-products-list-header-unitprice">Unit Price</span>
+                      <span style={{ flex: 1, textAlign: 'center' }} data-testId="add-order-products-list-header-total">Total</span>
+                      <span style={{ flex: 0.5 }}></span>
+                    </div>
+                    {order.items.map((op, idx) => {
+                      const prod = productsList.find(p => String(p.product_id).trim() === String(op.product_id).trim());
+                      return (
+                        <div key={op.product_id + idx} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem', fontSize: '0.98rem', background: '#fff', borderRadius: '0.375rem', padding: '0.25rem 0.5rem' }} data-testId={`add-order-product-row-${op.product_id}`}>
+                          <span style={{ flex: 2 }} data-testId={`add-order-product-name-${op.product_id}`}>{prod ? prod.name : op.product_id}</span>
+                          <span style={{ flex: 1, textAlign: 'center' }} data-testId={`add-order-product-quantity-${op.product_id}`}>x{op.quantity}</span>
+                          <span style={{ flex: 1, textAlign: 'center', color: '#374151' }} data-testId={`add-order-product-unitprice-${op.product_id}`}>{prod ? `$${prod.price}` : '-'}</span>
+                          <span style={{ flex: 1, textAlign: 'center', color: '#16a34a', fontWeight: 500 }} data-testId={`add-order-product-total-${op.product_id}`}>{prod ? `$${(prod.price * op.quantity).toFixed(2)}` : '-'}</span>
+                          <Button type="button" variant="link" style={{ color: '#dc2626', marginLeft: 'auto', flex: 0.5, fontWeight: 500 }} onClick={() => handleRemoveProduct(idx)} data-testId={`add-order-product-delete-btn-${op.product_id}`}>Delete</Button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
             </div>
+            <Button type="submit" className="w-full text-black mt-2" style={{ background: '#f3f4f6', color: '#111', border: '1.5px solid transparent', outline: 'none', transition: 'background 0.2s, border-color 0.2s, outline 0.2s', width: '100%', marginTop: '0.5rem' }} onMouseOver={e => { e.currentTarget.style.background = '#d1d5db'; e.currentTarget.style.border = '1.5px solid #000'; }} onMouseOut={e => { e.currentTarget.style.background = '#f3f4f6'; e.currentTarget.style.border = '1.5px solid transparent'; }} data-testId="add-order-submit-btn">Add Order</Button>
           </div>
-          <Button type="submit" className="w-full text-black mt-2" style={{ background: '#f3f4f6', color: '#111', border: '1.5px solid transparent', outline: 'none', transition: 'background 0.2s, border-color 0.2s, outline 0.2s', width: '100%', marginTop: '0.5rem' }} onMouseOver={e => { e.currentTarget.style.background = '#d1d5db'; e.currentTarget.style.border = '1.5px solid #000'; }} onMouseOut={e => { e.currentTarget.style.background = '#f3f4f6'; e.currentTarget.style.border = '1.5px solid transparent'; }}>Add Order</Button>
         </form>
       </div>
     </div>
