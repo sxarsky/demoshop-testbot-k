@@ -79,28 +79,32 @@ export default function ProductCatalog() {
         Product Catalog
       </h1>
 
-      <div className="flex flex-col items-center pb-4 mb-8 gap-4">
-        <Button
-          variant="default"
-          type="button"
-          onClick={() => {
-            setShowAddForm(true);
-          }}
-          style={{
-            transition: 'background 0.2s, border-color 0.2s, opacity 0.2s',
-            border: '1.5px solid transparent', // Reserve border space to prevent size change
-          }}
-          onMouseOver={e => {
-            e.currentTarget.style.opacity = '0.85';
-            e.currentTarget.style.border = '1.5px solid #111';
-          }}
-          onMouseOut={e => {
-            e.currentTarget.style.opacity = '1';
-            e.currentTarget.style.border = '1.5px solid transparent';
-          }}
-        >
-          Add Product
-        </Button>
+      <div className="add-product-section">
+        <div className="flex flex-col items-center pb-4 mb-8 gap-4">
+          <div className="add-product-button-container">
+            <Button
+              variant="default"
+              type="button"
+              onClick={() => {
+                setShowAddForm(true);
+              }}
+              style={{
+                transition: 'background 0.2s, border-color 0.2s, opacity 0.2s',
+                border: '1.5px solid transparent', // Reserve border space to prevent size change
+              }}
+              onMouseOver={e => {
+                e.currentTarget.style.opacity = '0.85';
+                e.currentTarget.style.border = '1.5px solid #111';
+              }}
+              onMouseOut={e => {
+                e.currentTarget.style.opacity = '1';
+                e.currentTarget.style.border = '1.5px solid transparent';
+              }}
+            >
+              Add Product
+            </Button>
+          </div>
+        </div>
       </div>
       <div style={{ marginTop: '2rem' }}>
         <ProductList />

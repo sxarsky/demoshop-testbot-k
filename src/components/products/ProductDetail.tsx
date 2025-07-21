@@ -120,7 +120,7 @@ export default function ProductDetail() {
       )}
       {product && Object.keys(product).length > 0 && (
         <div className="max-w-lg mx-auto w-full bg-white rounded-2xl shadow-lg p-8 mb-8 flex flex-col gap-6" style={{ alignItems: 'flex-start', marginLeft: 0, marginRight: '16rem' }} data-testId="product-detail-main">
-          <div className="flex flex-col" style={{ gap: '1rem', alignItems: 'flex-start' }}>
+          <div className="flex flex-col" style={{ gap: '1rem', alignItems: 'flex-start' }} data-testId="product-detail-info-container">
             {/* Name */}
             <div data-testId="product-detail-name">
               <label className="block text-sm mb-1" style={{ color: '#9ca3af', fontWeight: 'normal', textAlign: 'left' }} data-testId="product-detail-label-name">Name</label>
