@@ -3,11 +3,10 @@ Order API
 """
 from typing import List, Annotated
 from fastapi import APIRouter, Query, Path
-from api_insight.deps import CacheDep, GetIpDep, EnsureSessionDep
+from api_insight.deps import CacheDep, GetSessionIdDep, EnsureSessionDep
 from api_insight.exceptions import ResourceNotFoundException
 from api_insight.models.order import (
-    OrderCreate, OrderRead,
-    OrderCancel, Order
+    OrderCreate, OrderRead, OrderCancel
 )
 from api_insight.models.params import QueryParams
 from api_insight.crud import orders
@@ -24,14 +23,14 @@ router = APIRouter(
 async def create_order(
     order: OrderCreate,
     cache: CacheDep,
-    ip: GetIpDep
+    session_id: GetSessionIdDep
 ):
     """
     Create a new order
     """
     try:
-        db_order = orders.create_order(cache, ip, order)
-        db_order.items = orders.get_order_items(cache, ip, db_order.order_id)
+        db_order = orders.create_order(cache, session_id, order)
+        db_order.items = orders.get_order_items(cache, session_id, db_order.order_id)
         return db_order
     except ValueError as exc:
         raise ResourceNotFoundException(status_code=404, detail="Invalid product id") from exc
@@ -41,14 +40,14 @@ async def create_order(
            description="Retrieve all orders with optional filtering")
 async def get_orders(
     cache: CacheDep,
-    ip: GetIpDep,
+    session_id: GetSessionIdDep,
     query_params: Annotated[QueryParams, Query()],
 ):
     """
     Get all orders
     """
     order_list = orders.get_orders(cache,
-                                   ip,
+                                   session_id,
                                    query_params.limit,
                                    query_params.offset,
                                    query_params.order,
@@ -61,15 +60,15 @@ async def get_orders(
 async def get_order(
     order_id: Annotated[int, Path(json_schema_extra={'example': 0})],
     cache: CacheDep,
-    ip: GetIpDep
+    session_id: GetSessionIdDep
 ):
     """
     Get a specific order by its ID
     """
-    order = orders.get_order(cache, ip, order_id)
+    order = orders.get_order(cache, session_id, order_id)
     if not order:
         raise ResourceNotFoundException(status_code=404, detail="Order not found")
-    order.items = orders.get_order_items(cache, ip, order_id)
+    order.items = orders.get_order_items(cache, session_id, order_id)
     return order
 
 @router.delete("/{order_id}",
@@ -79,13 +78,13 @@ async def get_order(
 async def cancel_order(
     order_id: Annotated[int, Path(json_schema_extra={'example': 0})],
     cache: CacheDep,
-    ip: GetIpDep
+    session_id: GetSessionIdDep
 ):
     """
     Cancel an existing order
     """
     try:
-        orders.cancel_order(cache, ip, order_id)
+        orders.cancel_order(cache, session_id, order_id)
     except ValueError as exc:
         raise ResourceNotFoundException(status_code=404, detail="Order not found") from exc
     return OrderCancel(message="Order cancelled successfully")

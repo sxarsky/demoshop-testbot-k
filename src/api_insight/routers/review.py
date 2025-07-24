@@ -1,7 +1,7 @@
 """Router for Review API Endpoints"""
 from typing import List, Annotated
 from fastapi import APIRouter, Query, status, Path
-from api_insight.deps import CacheDep, GetIpDep, EnsureSessionDep
+from api_insight.deps import CacheDep, GetSessionIdDep, EnsureSessionDep
 from api_insight.models.review import (
     ReviewResponse, ReviewCreate
 )
@@ -20,7 +20,7 @@ router = APIRouter(
 async def get_reviews(
     product_id: Annotated[int, Path(json_schema_extra={'example': 0})],
     cache: CacheDep,
-    ip: GetIpDep, query_params: Annotated[QueryParams, Query()]
+    session_id: GetSessionIdDep, query_params: Annotated[QueryParams, Query()]
     ):
     """
     Get all reviews
@@ -28,7 +28,7 @@ async def get_reviews(
     try:
         reviews_list = reviews.get_reviews(product_id,
                                        cache,
-                                       ip,
+                                       session_id,
                                        query_params.limit,
                                        query_params.offset,
                                        query_params.order,
@@ -40,13 +40,13 @@ async def get_reviews(
 @router.post("", response_model=ReviewResponse, status_code=status.HTTP_201_CREATED,
                 summary="Create a review",
                 description="Create a review for a product")
-async def create_review(review: ReviewCreate, cache: CacheDep, ip: GetIpDep,
+async def create_review(review: ReviewCreate, cache: CacheDep, session_id: GetSessionIdDep,
                         product_id: Annotated[int, Path(json_schema_extra={'example': 0})]):
     """
     Create a review
     """
     try:
-        db_review = reviews.create_review(review, cache, ip, product_id)
+        db_review = reviews.create_review(review, cache, session_id, product_id)
     except ValueError as exc:
         raise ResourceNotFoundException(status_code=404, detail="Product not foound") from exc
     return db_review

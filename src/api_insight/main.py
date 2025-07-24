@@ -5,7 +5,6 @@ Handles application initialization, middleware setup, and route configuration.
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.openapi.utils import get_openapi
 from fastapi.exceptions import RequestValidationError
 from mangum import Mangum
 from api_insight.core.config import get_settings
@@ -21,7 +20,21 @@ settings = get_settings()
 
 # Initialize FastAPI app
 app = FastAPI(
-    docs_url="/api",
+    title="Demo Shop API",
+    version="1.0.0",
+    description="""The Skyramp Demo Shop mimics a very simple e-commerce setup where \
+            users can create, update, and manage a catalog of products and handle orders. \
+            <br/>It will be used throughout the Skyramp Documentation to demonstrate Skyramp's \
+            functionality and provide a playground to test out the tool. \
+            <br/> <br/> Additional information on this API can be found \
+            <a href=\"https://www.skyramp.dev/docs/references/demo-shop\">here</a>.""",
+    servers=[
+        {
+            "url": f"http://{settings.API_HOST}:{settings.API_PORT}" if settings.API_HOST=="localhost" else f"https://{settings.API_HOST}",
+            "description": "Demoshop server"
+        },
+    ],
+    docs_url="/api/docs",
     redoc_url=None,
     openapi_url="/openapi.json"
 )
@@ -64,34 +77,6 @@ app.include_router(
 
 app.mount("/sample", StaticFiles(directory="sample"), name="sample")
 
-# Custom OpenAPI schema configuration
-def custom_openapi():
-    """
-    Customize OpenAPI schema for API documentation.
-    
-    Returns:
-        dict: Modified OpenAPI schema
-    """
-    if app.openapi_schema:
-        return app.openapi_schema
-
-    openapi_schema = get_openapi(
-        title="Demo Shop API",
-        version="1.0.0",
-        description="""The Skyramp Demo Shop mimics a very simple e-commerce setup where \
-            users can create, update, and manage a catalog of products and handle orders. \
-            <br/>It will be used throughout the Skyramp Documentation to demonstrate Skyramp's \
-            functionality and provide a playground to test out the tool. \
-            <br/> <br/> Additional information on this API can be found \
-            <a href=\"https://www.skyramp.dev/docs/references/demo-shop\">here</a>.""",
-        routes=app.routes,
-    )
-
-    app.openapi_schema = openapi_schema
-    return app.openapi_schema
-
-app.openapi = custom_openapi
-
 # Root endpoint
 @app.get("/",
          summary="Root endpoint",
@@ -107,7 +92,7 @@ async def root():
     return {
         "message": "Demo Shop API",
         "version": settings.API_VERSION,
-        "api-docs": "/api"
+        "api-docs": "/api/docs"
     }
 
 # Health check endpoint
@@ -132,4 +117,4 @@ handler = Mangum(app)
 # Run the application
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host=settings.API_HOST, port=settings.API_PORT)

@@ -7,8 +7,7 @@ from typing import Callable, List, Annotated
 
 from fastapi import APIRouter, status, Path, Query, Request, Response
 from fastapi.routing import APIRoute
-
-from api_insight.deps import CacheDep, GetIpDep, EnsureSessionDep
+from api_insight.deps import CacheDep, GetSessionIdDep, EnsureSessionDep
 from api_insight.exceptions import ResourceNotFoundException
 from api_insight.models.product import ProductCreate, ProductUpdate, ProductResponse
 from api_insight.models.params import QueryParams
@@ -68,7 +67,7 @@ router = APIRouter(
                     "schema": ProductCreate.model_json_schema(),
                 },
                 "application/json": {
-                    "schema": ProductCreate.schema(),
+                    "schema": ProductCreate.model_json_schema(),
                 }
             }
         }
@@ -77,21 +76,21 @@ router = APIRouter(
 async def create_product(
     product: ProductCreate,
     cache: CacheDep,
-    ip: GetIpDep
+    session_id: GetSessionIdDep
 ):
     """Create a new product in the database."""
-    db_product = products.create_product(cache, ip, product)
+    db_product = products.create_product(cache, session_id, product)
     return db_product
 
 @router.get("", response_model=List[ProductResponse], summary="Get a list of products")
 async def get_products(
     query_params: Annotated[QueryParams, Query()],
     cache: CacheDep,
-    ip: GetIpDep
+    session_id: GetSessionIdDep
 ):
     """Get all products from the database."""
     products_list = products.get_products(cache,
-                                          ip,
+                                          session_id,
                                           query_params.limit,
                                           query_params.offset,
                                           query_params.order,
@@ -107,10 +106,10 @@ async def get_products(
 async def get_product(
     product_id: Annotated[int, Path(json_schema_extra={'example': 0})],
     cache: CacheDep,
-    ip: GetIpDep
+    session_id: GetSessionIdDep
 ):
     """Get a single product by its ID."""
-    product = products.get_product(cache, ip, product_id)
+    product = products.get_product(cache, session_id, product_id)
     if not product:
         raise ResourceNotFoundException(status_code=404, detail="Product not found")
     return product
@@ -119,9 +118,9 @@ async def get_product(
 async def update_product(product_id: Annotated[int, Path(json_schema_extra={'example': 0})],
                    product_update: ProductUpdate,
                    cache: CacheDep,
-                   ip: GetIpDep):
+                   session_id: GetSessionIdDep):
     """Update a product's details by its ID."""
-    product = products.update_product(cache, ip, product_id, product_update)
+    product = products.update_product(cache, session_id, product_id, product_update)
     if not product:
         raise ResourceNotFoundException(status_code=404, detail="Product not found")
     return product
@@ -131,9 +130,9 @@ async def update_product(product_id: Annotated[int, Path(json_schema_extra={'exa
                summary="Delete a product by ID")
 async def delete_product(product_id: Annotated[int, Path(json_schema_extra={'example': 0})],
                          cache: CacheDep,
-                         ip: GetIpDep):
+                         session_id: GetSessionIdDep):
     """Delete a product by its ID."""
     try:
-        products.delete_product(cache, ip, product_id)
+        products.delete_product(cache, session_id, product_id)
     except ValueError as exc:
         raise ResourceNotFoundException(status_code=404, detail="Product not found") from exc

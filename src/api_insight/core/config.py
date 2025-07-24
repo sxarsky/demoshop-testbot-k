@@ -25,6 +25,8 @@ class Settings(BaseSettings):
             json_file_encoding='utf-8'
 
     API_VERSION: str
+    API_HOST: str = "localhost"
+    API_PORT: int = 8000
     SKYRAMP_ENVIRONMENT: Literal["local", "dev", "stg", "prd"] = "local"
     REDIS_HOST: str
     AWS_DEFAULT_REGION: str

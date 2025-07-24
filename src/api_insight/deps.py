@@ -3,7 +3,8 @@ Dependencies
 """
 import logging
 from typing import Annotated
-from fastapi import Depends, Request
+from fastapi import Depends
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from redis import Redis
 from api_insight.core.cache import pool, init_data, init_indexes
 logger = logging.getLogger(__name__)
@@ -13,33 +14,27 @@ def get_cache():
 
 CacheDep = Annotated[Redis, Depends(get_cache)]
 
-def get_ip(request: Request):
-    """Get IP"""
-    session_ip_id = request.headers.get("session-ip-id")
-    if session_ip_id and session_ip_id != "":
-        logger.debug("using session_ip_id: %s", session_ip_id)
-        return session_ip_id
-    real_ip = request.headers.get("X-Real-IP")
-    if real_ip and real_ip != "":
-        logger.debug("using real_ip: %s", real_ip)
-        return real_ip
-    xff = request.headers.get("X-Forwarded-For")
-    if xff and len(xff) > 0:
-        # X-Forwarded-For can be a comma-separated list, take the first
-        ip = xff.split(",")[0].strip()
-        logger.debug("using xff: %s", ip)
-        return ip
-    client_host = request.client.host
-    if client_host and client_host != "":
-        logger.debug("using client_host: %s", client_host)
-        return client_host
+security = HTTPBearer(
+    scheme_name="Authorize with Bearer token",
+    description="""Provide the session_id in the box below.
+        To generate a session_id, you can use 
+        <b> https://demoshop.skyramp.dev/api/v1/generate </b>
+        endpoint.
+        """,
+)
+
+def get_session_id(token: Annotated[HTTPAuthorizationCredentials, Depends(security)]):
+    """Get session ID"""
+    if token and token.credentials != "":
+        logger.debug("using bearer token: %s", token.credentials)
+        return token.credentials
     return None
 
-GetIpDep = Annotated[str | None, Depends(get_ip)]
+GetSessionIdDep = Annotated[str | None, Depends(get_session_id)]
 
 def ensure_session_data(
     cache: Redis = Depends(get_cache),
-    session_id: str = Depends(get_ip)
+    session_id: str = Depends(get_session_id)
 ):
     """Ensure data and indexes are initialized for the session (ip)."""
     if not session_id:
