@@ -116,8 +116,8 @@ export default function ProductDetail() {
         <div className="text-gray-500 text-center" style={{ textAlign: 'left' }} data-testId="product-detail-notfound">Product not found.</div>
       )}
       {product && Object.keys(product).length > 0 && (
-        <div className="max-w-lg mx-auto w-full bg-white rounded-2xl shadow-lg p-8 mb-8 flex flex-col gap-6" style={{ alignItems: 'flex-start', marginLeft: 0, marginRight: '16rem' }} data-testId="product-detail-main">
-          <div className="flex flex-col" style={{ gap: '1rem', alignItems: 'flex-start' }} data-testId="product-detail-info-container">
+        <div className="max-w-4xl mx-auto w-full bg-white rounded-2xl shadow-lg p-8 mb-8 flex flex-row gap-10" style={{ alignItems: 'flex-start', marginLeft: 0 }} data-testId="product-detail-main">
+          <div className="flex flex-col flex-1" style={{ gap: '1rem', alignItems: 'flex-start' }} data-testId="product-detail-info-container">
             {/* Name */}
             <div data-testId="product-detail-name">
               <label className="block text-sm mb-1" style={{ color: '#9ca3af', fontWeight: 'normal', textAlign: 'left' }} data-testId="product-detail-label-name">Name</label>
@@ -231,37 +231,36 @@ export default function ProductDetail() {
               <label className="block text-sm mb-1" style={{ color: '#9ca3af', fontWeight: 'normal', textAlign: 'left' }} data-testId="product-detail-label-id">Product ID</label>
               <div style={{ fontSize: '1.125rem', fontWeight: 500, textAlign: 'left' }} className="text-gray-900 mt-1" data-testId="product-detail-value-id">{product.product_id}</div>
             </div>
-            {/* Product Image - moved here */}
-            {product.image_url && (
-              <div
-                className="flex justify-center mb-2"
-                style={{ justifyContent: 'center', marginBottom: '2.5rem' }} // Center image
-                data-testId="product-detail-image-container"
-              >
-                <img
-                  src={productImageUrlMap[product.image_url] || product.image_url || "/placeholder.webp"}
-                  alt={product.name}
-                  style={{
-                    width: '24rem', // 384px
-                    height: '20rem', // 320px
-                    maxWidth: '100%',
-                    maxHeight: '100%',
-                    objectFit: 'contain',
-                    borderRadius: '0.75rem', // rounded-xl
-                    background: '#f9fafb', // bg-gray-50
-                    boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)', // shadow-sm
-                  }}
-                  onError={e => {
-                    const target = e.target as HTMLImageElement;
-                    if (target.src.indexOf('placeholder.webp') === -1) {
-                      target.src = "/placeholder.webp";
-                    }
-                  }}
-                  data-testId="product-detail-image"
-                />
-              </div>
-            )}
           </div>
+          {product.image_url && (
+            <div
+              className="flex justify-center items-start"
+              style={{ minWidth: '24rem', maxWidth: '24rem', marginLeft: '2rem', marginBottom: 0 }}
+              data-testId="product-detail-image-container"
+            >
+              <img
+                src={productImageUrlMap[product.image_url] || product.image_url || "/placeholder.webp"}
+                alt={product.name}
+                style={{
+                  width: '24rem', // 384px
+                  height: '20rem', // 320px
+                  maxWidth: '100%',
+                  maxHeight: '100%',
+                  objectFit: 'contain',
+                  borderRadius: '0.75rem', // rounded-xl
+                  background: '#f9fafb', // bg-gray-50
+                  boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)', // shadow-sm
+                }}
+                onError={e => {
+                  const target = e.target as HTMLImageElement;
+                  if (target.src.indexOf('placeholder.webp') === -1) {
+                    target.src = "/placeholder.webp";
+                  }
+                }}
+                data-testId="product-detail-image"
+              />
+            </div>
+          )}
         </div>
       )}
       {/* Buttons centered */}
