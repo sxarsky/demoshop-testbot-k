@@ -224,7 +224,8 @@ export function NavBar({ active, forceUnderlineProducts, hideLinks }: { active: 
   const navLinksGap = active === 'orders' ? '2.5rem' : '1rem';
 
   return (
-    <header className="w-full" style={{ display: 'flex', justifyContent: 'center', width: '100%' }} data-testId="navbar-header">
+    <header className="w-full" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', width: '100%' }} data-testId="navbar-header">
+      {/* First line: Logo + Brand + Nav Links */}
       <div
         className={`mx-auto px-0 py-4 flex items-center justify-between`}
         style={{ width: hideLinks ? '800px' : navWidth, maxWidth: hideLinks ? '800px' : navMaxWidth }}
@@ -256,52 +257,6 @@ export function NavBar({ active, forceUnderlineProducts, hideLinks }: { active: 
             }}
           >
             Demo Shop Admin Console
-          </span>
-          {/* Editable Session ID to the right of brand */}
-          <span
-            data-testId="session-id-container"
-            style={{
-              fontSize: '1rem',
-              fontWeight: 500,
-              color: '#2563eb',
-              marginLeft: '2.25rem',
-              background: '#dbeafe',
-              borderRadius: '0.375rem',
-              padding: '0.25rem 0.75rem',
-              letterSpacing: '0.01em',
-              userSelect: 'none',
-              textAlign: 'left',
-              whiteSpace: 'nowrap',
-              display: 'inline-block',
-              marginRight: '2.5rem',
-            }}
-          >
-            Session ID: {editing ? (
-              <SessionIdEdit
-                inputValue={inputValue}
-                setInputValue={setInputValue}
-                onSave={handleSessionIdSave}
-                onCancel={() => { setEditing(false); setInputValue(sessionId); }}
-                inputRef={inputRef}
-                data-testId="session-id-edit"
-              />
-            ) : (
-              <SessionIdDisplay
-                sessionId={sessionId}
-                onEdit={() => setEditing(true)}
-                onCopy={async () => {
-                  try {
-                    await navigator.clipboard.writeText(sessionId);
-                    setCopied(true);
-                    setTimeout(() => setCopied(false), 1200);
-                  } catch (err) {
-                    alert('Failed to copy session ID');
-                  }
-                }}
-                copied={copied}
-                data-testId="session-id-display"
-              />
-            )}
           </span>
         </div>
         {/* Nav Links */}
@@ -383,6 +338,59 @@ export function NavBar({ active, forceUnderlineProducts, hideLinks }: { active: 
             </a>
           </nav>
         )}
+      </div>
+      {/* Second line: Session ID container */}
+      <div
+        className="w-full flex items-center justify-center"
+        style={{ minHeight: '3.2rem', borderBottom: '1px solid #e5e7eb' }}
+        data-testId="navbar-sessionid-row"
+      >
+        <span
+          data-testId="session-id-container"
+          style={{
+            fontSize: '1rem',
+            fontWeight: 500,
+            color: '#2563eb',
+            background: '#dbeafe',
+            borderRadius: '0.375rem',
+            padding: '0.25rem 0.75rem',
+            letterSpacing: '0.01em',
+            userSelect: 'none',
+            textAlign: 'left',
+            whiteSpace: 'nowrap',
+            display: 'inline-block',
+            margin: '0.1rem 0 0.1rem 0',
+            position: 'relative',
+            top: '-1.1rem', // Shift up more
+          }}
+        >
+          Session ID: {editing ? (
+            <SessionIdEdit
+              inputValue={inputValue}
+              setInputValue={setInputValue}
+              onSave={handleSessionIdSave}
+              onCancel={() => { setEditing(false); setInputValue(sessionId); }}
+              inputRef={inputRef}
+              data-testId="session-id-edit"
+            />
+          ) : (
+            <SessionIdDisplay
+              sessionId={sessionId}
+              onEdit={() => setEditing(true)}
+              onCopy={async () => {
+                try {
+                  await navigator.clipboard.writeText(sessionId);
+                  setCopied(true);
+                  setTimeout(() => setCopied(false), 1200);
+                } catch (err) {
+                  alert('Failed to copy session ID');
+                }
+              }}
+              copied={copied}
+              data-testId="session-id-display"
+            />
+          )}
+        </span>
       </div>
     </header>
   );

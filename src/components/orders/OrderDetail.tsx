@@ -84,6 +84,7 @@ export default function OrderDetail() {
             lineHeight: '2rem',
             textAlign: 'left',
             margin: 0,
+            marginTop: '1.5rem',
             marginBottom: '1.5rem',
             paddingLeft: 0,
           }}
