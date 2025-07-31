@@ -31,7 +31,7 @@ export default function ProductList() {
       })
       .then((data: Product[]) => {
         const sorted = (data || []).sort(
-          (a, b) => a.product_id - b.product_id
+          (a, b) => b.product_id - a.product_id
         )
         setProducts(sorted)
       })
