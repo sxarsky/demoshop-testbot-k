@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef, useCallback } from "react"
 import { useLocation } from "react-router-dom"
 import ProductItem from "./ProductItem"
 import { getSessionIdFromCookie } from '../../lib/utils';
@@ -19,25 +19,54 @@ export default function ProductList() {
   const [error, setError] = useState<string | null>(null)
   const location = useLocation();
 
-  const fetchProducts = () => {
-    setLoading(true)
-    const sessionId = getSessionIdFromCookie();
-    fetch('https://demoshop.skyramp.dev/api/v1/products?limit=50', {
-      headers: { 'Authorization': `Bearer ${sessionId}` }
-    })
-      .then(res => {
-        if (!res.ok) throw new Error("Failed to fetch products")
-        return res.json()
+  const fetchingRef = useRef(false);
+    const lastFetchTimeRef = useRef(0);
+    const FETCH_COOLDOWN = 5000; // 5 seconds cooldown
+  
+    const fetchProducts = useCallback(() => {
+      // Prevent multiple simultaneous fetches
+      if (fetchingRef.current) {
+        // If already fetching, skip this call
+        return Promise.resolve();
+      }
+  
+      // Implement cooldown to prevent rapid successive fetches
+      const now = Date.now();
+      if (now - lastFetchTimeRef.current < FETCH_COOLDOWN) {
+        console.log("Fetch cooldown active, skipping...");
+        return Promise.resolve();
+      }
+  
+      // Proceed with fetching products
+      fetchingRef.current = true;
+      setLoading(true);
+      lastFetchTimeRef.current = now;
+  
+      const sessionId = getSessionIdFromCookie();
+      
+      return fetch('https://demoshop.skyramp.dev/api/v1/products?limit=50', {
+        headers: { 'Authorization': `Bearer ${sessionId}` }
       })
-      .then((data: Product[]) => {
-        const sorted = (data || []).sort(
-          (a, b) => b.product_id - a.product_id
-        )
-        setProducts(sorted)
-      })
-      .catch(err => setError(err.message))
-      .finally(() => setLoading(false))
-  }
+        .then(res => {
+          if (!res.ok) throw new Error("Failed to fetch products");
+          return res.json();
+        })
+        .then((data) => {
+          const sorted = (data || []).sort(
+            (a: { product_id: number; }, b: { product_id: number; }) => b.product_id - a.product_id
+          );
+          setProducts(sorted);
+          return sorted;
+        })
+        .catch(err => {
+          setError(err.message);
+          throw err;
+        })
+        .finally(() => {
+          setLoading(false);
+          fetchingRef.current = false;
+        });
+    }, []);
 
   useEffect(() => {
     fetchProducts();
@@ -48,7 +77,7 @@ export default function ProductList() {
     };
     document.addEventListener('visibilitychange', handleVisibility);
     return () => document.removeEventListener('visibilitychange', handleVisibility);
-  }, [location])
+  }, [location, fetchProducts]);
 
   if (loading) return <div>Loading products...</div>
   if (error) return <div className="text-red-500">{error}</div>
