@@ -93,6 +93,7 @@ export default function ProductList() {
         justifyContent: 'center',
         alignItems: 'stretch',
       }}
+      data-testId="product-list"
     >
       {products.map(product => (
         <div

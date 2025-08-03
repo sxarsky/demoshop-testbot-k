@@ -149,6 +149,7 @@ export default function ProductItem({ product, horizontal = false, minHeight, 'd
           onMouseOver={e => { e.currentTarget.style.background = '#e5e7eb'; }}
           onMouseOut={e => { e.currentTarget.style.background = '#f3f4f6'; }}
           onClick={() => navigate(`/products/${product.product_id}`)}
+          data-testId={`product-id-${product.name.replace(/\s+/g, '-')}-view-details`}
         >
           View Details
         </Button>
