@@ -70,6 +70,7 @@ def get_or_create_products_index(cache: Redis, key):
 
     definition=IndexDefinition(prefix=[f"{key}:products:"], index_type=IndexType.JSON)
     index.create_index((
+        NumericField("$.product_id", sortable=True, as_name='product_id'),
         TextField("$.name", sortable=True, as_name='name'),
         TextField("$.description", sortable=True, as_name='description'),
         NumericField("$.price", sortable=True, as_name='price'),
