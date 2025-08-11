@@ -9,7 +9,7 @@ from fastapi import APIRouter, status, Path, Query, Request, Response
 from fastapi.routing import APIRoute
 from api_insight.deps import CacheDep, GetSessionIdDep, EnsureSessionDep
 from api_insight.exceptions import ResourceNotFoundException
-from api_insight.models.product import ProductCreate, ProductUpdate, ProductResponse
+from api_insight.models.product import ProductCreate, ProductUpdate, ProductResponse, ProductUpdateResponse
 from api_insight.models.params import QueryParams
 from api_insight.crud import products
 
@@ -114,7 +114,7 @@ async def get_product(
         raise ResourceNotFoundException(status_code=404, detail="Product not found")
     return product
 
-@router.put("/{product_id}", response_model=ProductResponse, summary="Update a product by ID")
+@router.put("/{product_id}", response_model=ProductUpdateResponse, summary="Update a product by ID")
 async def update_product(product_id: Annotated[int, Path(json_schema_extra={'example': 0})],
                    product_update: ProductUpdate,
                    cache: CacheDep,
