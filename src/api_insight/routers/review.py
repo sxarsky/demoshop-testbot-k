@@ -26,13 +26,15 @@ async def get_reviews(
     Get all reviews
     """
     try:
-        reviews_list = reviews.get_reviews(product_id,
-                                       cache,
-                                       session_id,
-                                       query_params.limit,
-                                       query_params.offset,
-                                       query_params.order,
-                                       query_params.orderBy)
+        reviews_list = reviews.get_reviews(
+            product_id,
+            cache,
+            session_id,
+            query_params.limit,
+            query_params.offset,
+            query_params.order,
+            order_by="review_id" if query_params.orderBy is None else query_params.orderBy
+        )
     except ValueError as exc:
         raise ResourceNotFoundException(status_code=404, detail="Product not foound") from exc
     return reviews_list

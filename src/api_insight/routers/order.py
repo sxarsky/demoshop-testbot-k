@@ -46,12 +46,14 @@ async def get_orders(
     """
     Get all orders
     """
-    order_list = orders.get_orders(cache,
-                                   session_id,
-                                   query_params.limit,
-                                   query_params.offset,
-                                   query_params.order,
-                                   query_params.orderBy)
+    order_list = orders.get_orders(
+        cache,
+        session_id,
+        query_params.limit,
+        query_params.offset,
+        query_params.order,
+        order_by="order_id" if query_params.orderBy is None else query_params.orderBy
+    )
     return order_list
 
 @router.get("/{order_id}", response_model=OrderRead,

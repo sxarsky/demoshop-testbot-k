@@ -89,13 +89,14 @@ async def get_products(
     session_id: GetSessionIdDep
 ):
     """Get all products from the database."""
-    products_list = products.get_products(cache,
-                                          session_id,
-                                          query_params.limit,
-                                          query_params.offset,
-                                          query_params.order,
-                                          query_params.orderBy
-                                        )
+    products_list = products.get_products(
+        cache,
+        session_id,
+        query_params.limit,
+        query_params.offset,
+        query_params.order,
+        order_by="product_id" if query_params.orderBy is None else query_params.orderBy
+    )
     return products_list
 
 @router.get("/{product_id}",

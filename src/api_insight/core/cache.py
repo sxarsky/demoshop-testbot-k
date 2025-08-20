@@ -76,6 +76,8 @@ def get_or_create_products_index(cache: Redis, key):
         NumericField("$.price", sortable=True, as_name='price'),
         TextField("$.image_url", sortable=True, as_name='image_url'),
         TextField("$.category", sortable=True, as_name='category'),
+        TextField("$.created_at", sortable=True, as_name='created_at'),
+        TextField("$.updated_at", sortable=True, as_name='updated_at'),
         ),
         definition=definition,
         temporary=settings.KEY_TTL_SECONDS
@@ -97,6 +99,8 @@ def get_or_create_orders_index(cache: Redis, key):
         TextField("$.customer_email", sortable=True, as_name='customer_email'),
         TextField("$.status", sortable=True, as_name='status'),
         NumericField("$.total_amount", sortable=True, as_name='total_amount'),
+        TextField("$.created_at", sortable=True, as_name='created_at'),
+        TextField("$.updated_at", sortable=True, as_name='updated_at'),
         ),
         definition=definition,
         temporary=settings.KEY_TTL_SECONDS
@@ -133,8 +137,11 @@ def get_or_create_reviews_index(cache: Redis, key):
     definition=IndexDefinition(prefix=[f"{key}:reviews:"], index_type=IndexType.JSON)
     index.create_index((
         NumericField("$.product_id", sortable=True, as_name='product_id'),
+        NumericField("$.review_id", sortable=True, as_name='review_id'),
         NumericField("$.rating", sortable=True, as_name='rating'),
         TextField("$.comment", sortable=True, as_name='comment'),
+        TextField("$.created_at", sortable=True, as_name='created_at'),
+        TextField("$.updated_at", sortable=True, as_name='updated_at'),
         ),
         definition=definition,
         temporary=settings.KEY_TTL_SECONDS
