@@ -47,6 +47,7 @@ See [backend/README.md](./backend/README.md) for more details.
 
 ```bash
 cd frontend
+cp .env.local.example .env.local
 npm install
 npm run dev
 ```
