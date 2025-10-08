@@ -1,0 +1,13 @@
+/*
+  Workaround for shadcn/ui Select dropdown not visible in modal overlays:
+  - Increase z-index for radix portal root and select popper content.
+  - You may need to adjust the selector if your portal root is different.
+*/
+
+#radix-portal, [data-radix-popper-content-wrapper] {
+  z-index: 9999 !important;
+}
+
+[data-radix-popper-content-wrapper] > div {
+  z-index: 9999 !important;
+}
