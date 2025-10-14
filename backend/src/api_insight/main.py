@@ -2,7 +2,39 @@
 Main FastAPI application module.
 Handles application initialization, middleware setup, and route configuration.
 """
-import ddtrace.auto
+import os
+
+# Configure OpenTelemetry to send traces to DDOT Collector via OTLP
+# The DDOT Collector will then forward to both Datadog and local sink
+from opentelemetry import trace
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+from opentelemetry.sdk.resources import Resource
+
+# Create resource with service information
+resource = Resource.create({
+    "service.name": os.getenv("DD_SERVICE", "demoshop-backend"),
+    "service.version": os.getenv("DD_VERSION", "1.0.0"),
+    "deployment.environment": os.getenv("DD_ENV", "local"),
+})
+
+# Set up tracer provider
+provider = TracerProvider(resource=resource)
+
+# Configure OTLP exporter to send to DDOT Collector
+# The DDOT Collector will handle forwarding to both Datadog and local sink
+otlp_exporter = OTLPSpanExporter(
+    endpoint=os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT", "http://ddot-collector:4317"),
+    insecure=True
+)
+
+# Add span processor
+provider.add_span_processor(BatchSpanProcessor(otlp_exporter))
+
+# Set the tracer provider
+trace.set_tracer_provider(provider)
+
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -18,6 +50,9 @@ from api_insight.routers.reset import router as reset_router
 from api_insight.exceptions import custom_request_validation_exception_handler
 from api_insight.exceptions import resource_not_found_exception_handler
 from api_insight.exceptions import ResourceNotFoundException
+
+# Import OpenTelemetry instrumentation
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 
 settings = get_settings()
 
@@ -139,6 +174,9 @@ async def health_check():
         "status": "healthy",
         "version": settings.API_VERSION
     }
+
+# Instrument FastAPI with OpenTelemetry
+FastAPIInstrumentor.instrument_app(app)
 
 handler = Mangum(app)
 

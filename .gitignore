@@ -76,3 +76,6 @@ coverage/
 *.swo
 *~
 .history/
+
+# OpenTelemetry traces
+traces/

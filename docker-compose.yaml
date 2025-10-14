@@ -32,10 +32,16 @@ services:
     environment:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
+      - DD_SERVICE=demoshop-backend
+      - DD_ENV=local
+      - DD_VERSION=1.0.0
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://ddot-collector:4317
     ports:
       - "8000:8000"
     depends_on:
       - init-data
+      - ddot-collector
+      - otel-collector
     networks:
       - demoshop-network
 
@@ -54,6 +60,43 @@ services:
       - backend
     networks:
       - demoshop-network
+
+  # Datadog Distribution of OTel Collector - receives OTLP and forwards to both DD and local sink
+  ddot-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    container_name: ddot-collector
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    environment:
+      - DD_API_KEY=dummy_key_for_local_dev
+      - DD_SITE=datadoghq.com
+    ports:
+      - "4317:4317"  # OTLP gRPC
+      - "4318:4318"  # OTLP HTTP
+    volumes:
+      - ./ddot-collector-config.yaml:/etc/otel-collector-config.yaml:ro
+    networks:
+      - demoshop-network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:13133/" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Local OTLP sink for receiving traces
+  otel-collector:
+    image: otel/opentelemetry-collector:latest
+    container_name: otel-collector
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml:ro
+      - ./traces:/traces  # Mount local directory for trace files
+    networks:
+      - demoshop-network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:13133/" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
 networks:
   demoshop-network:
