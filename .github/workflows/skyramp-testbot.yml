@@ -1,5 +1,5 @@
 # Skyramp Test Bot workflow (uses develop branch)
-name: Skyramp Test Bot (Early Access)
+name: Skyramp Testbot (Early Access)
 on: pull_request
 
 env:
@@ -7,7 +7,7 @@ env:
   SKYRAMP_FEATURE_TESTBOT: "1"
 
 jobs:
-  skyramp-test-bot:
+  skyramp-testbot:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -31,7 +31,7 @@ jobs:
 
       - name: Run Skyramp Testbot
         id: testbot
-        uses: letsramp/test-bot@develop
+        uses: letsramp/testbot@develop
         with:
           skyramp_license_file: ${{ secrets.SKYRAMP_LICENSE }}
           cursor_api_key: ${{ secrets.CURSOR_API_KEY }}

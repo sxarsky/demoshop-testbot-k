@@ -1,0 +1,37 @@
+# Skyramp Workspace Configuration
+workspace:
+  repoName: letsramp/demoshop-fullstack
+  repoUrl: https://github.com/letsramp/demoshop-fullstack.git
+metadata:
+  schemaVersion: v1
+  mcpVersion: 1.0.0
+  executorVersion: v1.3.9
+  createdAt: "2026-02-18T19:42:22.676Z"
+  updatedAt: "2026-02-18T19:42:22.680Z"
+services:
+  - serviceName: backend
+    language: python
+    framework: pytest
+    outputDir: backend/tests
+    api:
+      schemaPath: http://localhost:8000/openapi.json
+      authType: none
+      authHeader: ""
+      baseUrl: http://localhost:8000
+    runtimeDetails:
+      serverStartCommand: docker compose up -d backend
+      runtime: docker
+      dockerNetwork: demoshop-fullstack_demoshop-network
+  - serviceName: frontend
+    language: typescript
+    framework: playwright
+    outputDir: frontend/tests
+    api:
+      schemaPath: ""
+      authType: none
+      authHeader: ""
+      baseUrl: http://localhost:5173
+    runtimeDetails:
+      serverStartCommand: docker compose up -d frontend
+      runtime: docker
+      dockerNetwork: demoshop-fullstack_demoshop-network
