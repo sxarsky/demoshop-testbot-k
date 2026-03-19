@@ -31,7 +31,7 @@ jobs:
 
       - name: Run Skyramp Testbot
         id: testbot
-        uses: letsramp/testbot@develop
+        uses: letsramp/testbot@main
         with:
           skyramp_license_file: ${{ secrets.SKYRAMP_LICENSE }}
           anthropic_api_key: ${{ secrets.SKYRAMP_TESTBOT_API_KEY }}
@@ -39,7 +39,7 @@ jobs:
           # Install @skyramp/mcp from the private GitHub repo
           skyramp_mcp_source: github
           skyramp_mcp_github_token: ${{ secrets.PAT_TOKEN }}
-          skyramp_mcp_github_ref: develop
+          skyramp_mcp_github_ref: main
 
       - name: Check execution status
         run: |
