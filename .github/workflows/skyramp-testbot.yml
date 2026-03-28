@@ -108,7 +108,7 @@ jobs:
 
       - name: Run Skyramp Testbot
         id: testbot
-        uses: skyramp/testbot@v0.6.4
+        uses: skyramp/testbot@v0.6.6
         with:
           skyrampLicenseFile: ${{ secrets.SKYRAMP_LICENSE_FILE }}
           anthropicApiKey: ${{ secrets.SKYRAMP_TESTBOT_API_KEY }}
