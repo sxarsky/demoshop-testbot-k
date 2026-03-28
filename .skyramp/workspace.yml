@@ -1,7 +1,7 @@
 # Skyramp Workspace Configuration
 workspace:
-  repoName: letsramp/demoshop-fullstack
-  repoUrl: https://github.com/letsramp/demoshop-fullstack.git
+  repoName: sxarsky/demoshop-testbot
+  repoUrl: https://github.com/sxarsky/demoshop-testbot.git
 metadata:
   schemaVersion: v1
   mcpVersion: next
