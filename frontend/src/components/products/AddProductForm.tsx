@@ -32,6 +32,7 @@ const AddProductForm: React.FC = () => {
     in_stock: null,
     price: "",
   });
+  const [priceError, setPriceError] = useState<string | null>(null);
 
   const navigate = useNavigate();
 
@@ -40,6 +41,16 @@ const AddProductForm: React.FC = () => {
   ) => {
     const { name, value } = e.target;
     setProduct((prev) => ({ ...prev, [name]: value }));
+
+    // BUG 1 & 2: Only frontend validation (no backend), generic error message
+    if (name === "price") {
+      const priceValue = parseFloat(value);
+      if (priceValue < 1.0) {
+        setPriceError("Invalid price"); // BUG: Should say "Price must be at least $1.00"
+      } else {
+        setPriceError(null);
+      }
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -338,6 +349,7 @@ const AddProductForm: React.FC = () => {
               name="price"
               placeholder="e.g. 2499.99"
               type="number"
+              step="0.01"
               value={product.price}
               onChange={handleChange}
               className="w-full min-w-[280px] max-w-full px-4 py-2"
@@ -346,19 +358,24 @@ const AddProductForm: React.FC = () => {
                 fontFamily: 'inherit',
                 fontSize: '1rem',
                 fontWeight: 400,
-                border: '1.5px solid #d1d5db',
+                border: priceError ? '1.5px solid #dc2626' : '1.5px solid #d1d5db',
                 outline: 'none',
                 transition: 'border-color 0.2s, box-shadow 0.2s',
               }}
               onFocus={e => {
-                e.currentTarget.style.border = '1.5px solid #6b7280';
-                e.currentTarget.style.boxShadow = '0 0 0 1.5px #6b7280';
+                e.currentTarget.style.border = priceError ? '1.5px solid #dc2626' : '1.5px solid #6b7280';
+                e.currentTarget.style.boxShadow = priceError ? '0 0 0 1.5px #dc2626' : '0 0 0 1.5px #6b7280';
               }}
               onBlur={e => {
-                e.currentTarget.style.border = '1.5px solid #d1d5db';
+                e.currentTarget.style.border = priceError ? '1.5px solid #dc2626' : '1.5px solid #d1d5db';
                 e.currentTarget.style.boxShadow = 'none';
               }}
             />
+            {priceError && (
+              <p className="text-red-500 text-sm mt-1" data-testId="price-error-message">
+                {priceError}
+              </p>
+            )}
           </div>
 
           <Button
