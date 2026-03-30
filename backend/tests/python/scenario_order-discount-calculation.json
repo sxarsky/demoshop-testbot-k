@@ -1,0 +1,106 @@
+[
+  {
+    "Source": "192.168.65.1:39998",
+    "Destination": "localhost",
+    "RequestBody": "{\"name\": \"Test Product\", \"price\": 100.0, \"category\": \"Test\", \"description\": \"A test product\", \"in_stock\": true, \"image_url\": \"https://example.com/img.jpg\"}",
+    "ResponseBody": "{\"product_id\": 1, \"name\": \"Test Product\", \"price\": 100.0, \"category\": \"Test\", \"description\": \"A test product\", \"in_stock\": true, \"image_url\": \"https://example.com/img.jpg\", \"created_at\": \"2024-01-01T00:00:00\", \"updated_at\": \"2024-01-01T00:00:00\"}",
+    "RequestHeaders": {
+      "Content-Type": [
+        "application/json"
+      ],
+      "Authorization": [
+        "Bearer SKYRAMP_PLACEHOLDER_TOKEN"
+      ]
+    },
+    "ResponseHeaders": {
+      "Content-Type": [
+        "application/json"
+      ]
+    },
+    "Method": "POST",
+    "Path": "/api/v1/products",
+    "QueryParams": {},
+    "StatusCode": 201,
+    "Port": 8000,
+    "Timestamp": "2026-03-30T17:37:44.055Z",
+    "Scheme": "http"
+  },
+  {
+    "Source": "192.168.65.1:39998",
+    "Destination": "localhost",
+    "RequestBody": "{\"customer_email\": \"test@example.com\", \"items\": [{\"product_id\": 1, \"quantity\": 2}]}",
+    "ResponseBody": "{\"order_id\": 1, \"customer_email\": \"test@example.com\", \"status\": \"pending\", \"total_amount\": 200.0, \"discount_type\": null, \"discount_value\": null, \"discount_amount\": null, \"items\": [{\"order_item_id\": 1, \"order_id\": 1, \"product_id\": 1, \"quantity\": 2}], \"created_at\": \"2024-01-01T00:00:00\", \"updated_at\": \"2024-01-01T00:00:00\"}",
+    "RequestHeaders": {
+      "Content-Type": [
+        "application/json"
+      ],
+      "Authorization": [
+        "Bearer SKYRAMP_PLACEHOLDER_TOKEN"
+      ]
+    },
+    "ResponseHeaders": {
+      "Content-Type": [
+        "application/json"
+      ]
+    },
+    "Method": "POST",
+    "Path": "/api/v1/orders",
+    "QueryParams": {},
+    "StatusCode": 201,
+    "Port": 8000,
+    "Timestamp": "2026-03-30T17:37:51.194Z",
+    "Scheme": "http"
+  },
+  {
+    "Source": "192.168.65.1:39998",
+    "Destination": "localhost",
+    "RequestBody": "{\"discount_type\": \"percentage\", \"discount_value\": 10.0}",
+    "ResponseBody": "{\"order_id\": 1, \"customer_email\": \"test@example.com\", \"status\": \"pending\", \"total_amount\": 200.0, \"discount_type\": \"percentage\", \"discount_value\": 10.0, \"discount_amount\": 20.0, \"items\": [{\"order_item_id\": 1, \"order_id\": 1, \"product_id\": 1, \"quantity\": 2}], \"created_at\": \"2024-01-01T00:00:00\", \"updated_at\": \"2024-01-01T00:00:00\"}",
+    "RequestHeaders": {
+      "Content-Type": [
+        "application/json"
+      ],
+      "Authorization": [
+        "Bearer SKYRAMP_PLACEHOLDER_TOKEN"
+      ]
+    },
+    "ResponseHeaders": {
+      "Content-Type": [
+        "application/json"
+      ]
+    },
+    "Method": "PATCH",
+    "Path": "/api/v1/orders/1",
+    "QueryParams": {},
+    "StatusCode": 200,
+    "Port": 8000,
+    "Timestamp": "2026-03-30T17:37:57.944Z",
+    "Scheme": "http"
+  },
+  {
+    "Source": "192.168.65.1:39998",
+    "Destination": "localhost",
+    "RequestBody": "",
+    "ResponseBody": "{\"order_id\": 1, \"customer_email\": \"test@example.com\", \"status\": \"pending\", \"total_amount\": 200.0, \"discount_type\": \"percentage\", \"discount_value\": 10.0, \"discount_amount\": 20.0, \"items\": [{\"order_item_id\": 1, \"order_id\": 1, \"product_id\": 1, \"quantity\": 2}], \"created_at\": \"2024-01-01T00:00:00\", \"updated_at\": \"2024-01-01T00:00:00\"}",
+    "RequestHeaders": {
+      "Content-Type": [
+        "application/json"
+      ],
+      "Authorization": [
+        "Bearer SKYRAMP_PLACEHOLDER_TOKEN"
+      ]
+    },
+    "ResponseHeaders": {
+      "Content-Type": [
+        "application/json"
+      ]
+    },
+    "Method": "GET",
+    "Path": "/api/v1/orders/1",
+    "QueryParams": {},
+    "StatusCode": 200,
+    "Port": 8000,
+    "Timestamp": "2026-03-30T17:38:06.088Z",
+    "Scheme": "http"
+  }
+]
