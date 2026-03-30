@@ -130,28 +130,52 @@ export default function OrderDetail() {
         <div style={{ height: '1.5rem' }} />
         <div className="flex flex-col items-center" style={{ marginTop: '0.5rem', gap: '1rem', alignItems: 'center', justifyContent: 'center', display: 'flex' }} data-testId="order-detail-buttons">
           {order.status !== 'cancelled' && (
-            <Button
-              variant="destructive"
-              className="w-fit"
-              onClick={handleCancelOrder}
-              disabled={cancelling}
-              style={{
-                color: '#fff',
-                background: '#dc2626',
-                border: '1.5px solid transparent',
-                transition: 'background 0.2s, border-color 0.2s',
-              }}
-              onMouseOver={e => {
-                e.currentTarget.style.background = '#f87171';
-                e.currentTarget.style.borderColor = '#991b1b';
-              }}
-              onMouseOut={e => {
-                e.currentTarget.style.background = '#dc2626';
-                e.currentTarget.style.borderColor = 'transparent';
-              }}
-            >
-              {cancelling ? 'Cancelling...' : 'Cancel Order'}
-            </Button>
+            <>
+              <Button
+                variant="default"
+                className="w-fit"
+                onClick={() => navigate(`/orders/${order_id}/edit`)}
+                style={{
+                  color: '#fff',
+                  background: '#2563eb',
+                  border: '1.5px solid transparent',
+                  transition: 'background 0.2s, border-color 0.2s',
+                }}
+                onMouseOver={e => {
+                  e.currentTarget.style.background = '#3b82f6';
+                  e.currentTarget.style.borderColor = '#1e40af';
+                }}
+                onMouseOut={e => {
+                  e.currentTarget.style.background = '#2563eb';
+                  e.currentTarget.style.borderColor = 'transparent';
+                }}
+                data-testId="order-detail-edit-button"
+              >
+                Edit Order
+              </Button>
+              <Button
+                variant="destructive"
+                className="w-fit"
+                onClick={handleCancelOrder}
+                disabled={cancelling}
+                style={{
+                  color: '#fff',
+                  background: '#dc2626',
+                  border: '1.5px solid transparent',
+                  transition: 'background 0.2s, border-color 0.2s',
+                }}
+                onMouseOver={e => {
+                  e.currentTarget.style.background = '#f87171';
+                  e.currentTarget.style.borderColor = '#991b1b';
+                }}
+                onMouseOut={e => {
+                  e.currentTarget.style.background = '#dc2626';
+                  e.currentTarget.style.borderColor = 'transparent';
+                }}
+              >
+                {cancelling ? 'Cancelling...' : 'Cancel Order'}
+              </Button>
+            </>
           )}
           <Button
             variant="link"
