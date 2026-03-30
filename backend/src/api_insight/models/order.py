@@ -3,7 +3,7 @@ Order models for the API.
 """
 from datetime import datetime
 from enum import Enum
-from typing import List
+from typing import List, Optional
 from pydantic import BaseModel, Field, EmailStr
 
 class OrderStatus(str, Enum):
@@ -48,6 +48,9 @@ class Order(OrderBase):
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
     items: List[OrderItem]
+    discount_type: Optional[str] = Field(default=None)
+    discount_value: Optional[float] = Field(default=None)
+    discount_amount: Optional[float] = Field(default=None)
 
 class OrderCreate(BaseModel):
     """Model for creating new orders in DB."""
@@ -73,6 +76,9 @@ class OrderRead(OrderBase):
     items: List[OrderItemRead]
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
+    discount_type: Optional[str] = Field(default=None)
+    discount_value: Optional[float] = Field(default=None)
+    discount_amount: Optional[float] = Field(default=None)
     model_config = {
         "json_schema_extra": {
             "example": {
@@ -96,3 +102,27 @@ class OrderRead(OrderBase):
 class OrderCancel(BaseModel):
     """Model for cancelling an order."""
     message: str = Field(default="Order cancelled successfully")
+
+class OrderItemUpdate(BaseModel):
+    """Model for updating an order item."""
+    product_id: int = Field(ge=1)
+    quantity: int = Field(ge=0)
+
+class OrderUpdate(BaseModel):
+    """Model for updating an existing order."""
+    customer_email: Optional[EmailStr] = Field(default=None, max_length=255)
+    status: Optional[OrderStatus] = Field(default=None)
+    items: Optional[List[OrderItemUpdate]] = Field(default=None)
+    discount_type: Optional[str] = Field(default=None)
+    discount_value: Optional[float] = Field(default=None)
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "customer_email": "updated@mail.com",
+                "status": "confirmed",
+                "items": [{"product_id": 1, "quantity": 3}],
+                "discount_type": "percentage",
+                "discount_value": 10.0
+            }
+        }
+    }
