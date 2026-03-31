@@ -1,7 +1,6 @@
 """
 CRUD operations for orders.
 """
-from datetime import datetime
 from json import loads
 from fastapi.encoders import jsonable_encoder
 from redis import Redis
