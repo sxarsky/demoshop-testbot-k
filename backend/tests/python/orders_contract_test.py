@@ -15,6 +15,7 @@
 import skyramp
 import os
 import time
+import pytest
 
 
 # URL for test requests
@@ -218,8 +219,83 @@ def test_orders_order_id_delete():
     assert skyramp.get_response_value(orders_order_id_DELETE_response, "message") is not None
 
 
+# contract test for /api/v1/orders/{order_id} PATCH
+def test_orders_order_id_patch():
+    # Invocation of Skyramp Client
+    client = skyramp.Client(
+        runtime="docker",
+        docker_network="demoshop-fullstack_demoshop-network",
+        docker_skyramp_port=35142
+    )
+    # Definition of authentication header
+    headers = get_header()
+
+    # Declaration of variables
+    order_id = 1
+
+    # Request Body
+    orders_order_id_PATCH_request_body = r'''{
+        "customer_email": "patched@example.com",
+        "discount_type": "percentage",
+        "discount_value": 10,
+        "items": [
+            {
+                "product_id": 1,
+                "quantity": 2
+            }
+        ],
+        "status": "confirmed"
+    }'''
+
+    # Expected Response Body
+    expected_orders_order_id_PATCH_response_body = r'''{
+        "created_at": "2022-01-01T00:00:00",
+        "customer_email": "patched@example.com",
+        "discount_amount": 3.996,
+        "discount_type": "percentage",
+        "discount_value": 10,
+        "items": [
+            {
+                "order_item_id": 1,
+                "product_id": 1,
+                "quantity": 2
+            }
+        ],
+        "order_id": 1,
+        "status": "confirmed",
+        "total_amount": 19.98,
+        "updated_at": "2022-01-01T00:00:00"
+    }'''
+
+    # Execute Request
+    orders_order_id_PATCH_response = client.send_request(
+        url=URL,
+        path="/api/v1/orders/{order_id}",
+        method="PATCH",
+        body=orders_order_id_PATCH_request_body,
+        headers=headers,
+        path_params={"order_id": order_id}
+    )
+
+    # Generated Assertions
+    assert orders_order_id_PATCH_response.status_code == 200
+    assert skyramp.check_schema(orders_order_id_PATCH_response, expected_orders_order_id_PATCH_response_body)
+    assert skyramp.get_response_value(orders_order_id_PATCH_response, "order_id") is not None
+    assert skyramp.get_response_value(orders_order_id_PATCH_response, "customer_email") == "patched@example.com"
+    assert skyramp.get_response_value(orders_order_id_PATCH_response, "status") == "confirmed"
+    assert skyramp.get_response_value(orders_order_id_PATCH_response, "discount_type") == "percentage"
+    assert skyramp.get_response_value(orders_order_id_PATCH_response, "discount_value") == 10
+    assert skyramp.get_response_value(orders_order_id_PATCH_response, "discount_amount") is not None
+    assert skyramp.get_response_value(orders_order_id_PATCH_response, "discount_amount") == pytest.approx(skyramp.get_response_value(orders_order_id_PATCH_response, "total_amount") * skyramp.get_response_value(orders_order_id_PATCH_response, "discount_value") / 100, rel=1e-5)
+    assert skyramp.get_response_value(orders_order_id_PATCH_response, "items.0.product_id") == 1
+    assert skyramp.get_response_value(orders_order_id_PATCH_response, "items.0.quantity") == 2
+    assert skyramp.get_response_value(orders_order_id_PATCH_response, "items.1.product_id") is None
+    assert skyramp.get_response_value(orders_order_id_PATCH_response, "updated_at") is not None
+
+
 if __name__ == "__main__":
     test_orders_post()
     test_orders_get()
     test_orders_order_id_get()
     test_orders_order_id_delete()
+    test_orders_order_id_patch()
