@@ -82,6 +82,10 @@ def test_orders_post():
     assert skyramp.get_response_value(orders_POST_response, "created_at") is not None
     assert skyramp.get_response_value(orders_POST_response, "customer_email") is not None
     assert skyramp.get_response_value(orders_POST_response, "items.0.order_item_id") is not None
+    assert skyramp.get_response_value(orders_POST_response, "total_amount") is not None
+    assert skyramp.get_response_value(orders_POST_response, "discount_type") is None
+    assert skyramp.get_response_value(orders_POST_response, "discount_value") is None
+    assert skyramp.get_response_value(orders_POST_response, "discount_amount") is None
 
 
 # contract test for /api/v1/orders GET
@@ -182,6 +186,10 @@ def test_orders_order_id_get():
     assert skyramp.get_response_value(orders_order_id_GET_response, "created_at") is not None
     assert skyramp.get_response_value(orders_order_id_GET_response, "customer_email") is not None
     assert skyramp.get_response_value(orders_order_id_GET_response, "items.0.order_item_id") is not None
+    assert skyramp.get_response_value(orders_order_id_GET_response, "total_amount") is not None
+    assert skyramp.get_response_value(orders_order_id_GET_response, "discount_type") is None
+    assert skyramp.get_response_value(orders_order_id_GET_response, "discount_value") is None
+    assert skyramp.get_response_value(orders_order_id_GET_response, "discount_amount") is None
 
 
 # contract test for /api/v1/orders/{order_id} DELETE
@@ -218,8 +226,80 @@ def test_orders_order_id_delete():
     assert skyramp.get_response_value(orders_order_id_DELETE_response, "message") is not None
 
 
+# contract test for /api/v1/orders/{order_id} PATCH
+def test_orders_order_id_patch():
+    # Invocation of Skyramp Client
+    client = skyramp.Client(
+        runtime="docker",
+        docker_network="demoshop-fullstack_demoshop-network",
+        docker_skyramp_port=35142
+    )
+    # Definition of authentication header
+    headers = get_header()
+
+    # Declaration of variables
+    order_id = 1
+
+    # Request Body
+    orders_order_id_PATCH_request_body = r'''{
+        "customer_email": "updated@mail.com",
+        "status": "confirmed",
+        "items": [
+            {
+                "product_id": 1,
+                "quantity": 2
+            }
+        ],
+        "discount_type": "percentage",
+        "discount_value": 10.0
+    }'''
+
+    # Expected Response Body
+    expected_orders_order_id_PATCH_response_body = r'''{
+        "order_id": 1,
+        "customer_email": "updated@mail.com",
+        "status": "confirmed",
+        "total_amount": 19.98,
+        "discount_type": "percentage",
+        "discount_value": 10.0,
+        "discount_amount": 1.998,
+        "items": [
+            {
+                "order_item_id": 1,
+                "product_id": 1,
+                "quantity": 2
+            }
+        ],
+        "created_at": "2022-01-01T00:00:00",
+        "updated_at": "2022-01-01T00:00:00"
+    }'''
+
+    # Execute Request
+    orders_order_id_PATCH_response = client.send_request(
+        url=URL,
+        path="/api/v1/orders/{order_id}",
+        method="PATCH",
+        body=orders_order_id_PATCH_request_body,
+        headers=headers,
+        path_params={"order_id": order_id}
+    )
+
+    # Generated Assertions
+    assert orders_order_id_PATCH_response.status_code == 200
+    assert skyramp.check_schema(orders_order_id_PATCH_response, expected_orders_order_id_PATCH_response_body)
+    assert skyramp.get_response_value(orders_order_id_PATCH_response, "order_id") is not None
+    assert skyramp.get_response_value(orders_order_id_PATCH_response, "customer_email") == "updated@mail.com"
+    assert skyramp.get_response_value(orders_order_id_PATCH_response, "status") == "confirmed"
+    assert skyramp.get_response_value(orders_order_id_PATCH_response, "total_amount") is not None
+    assert skyramp.get_response_value(orders_order_id_PATCH_response, "discount_type") == "percentage"
+    assert skyramp.get_response_value(orders_order_id_PATCH_response, "discount_value") == 10.0
+    assert skyramp.get_response_value(orders_order_id_PATCH_response, "discount_amount") is not None
+    assert skyramp.get_response_value(orders_order_id_PATCH_response, "discount_amount") == skyramp.get_response_value(orders_order_id_PATCH_response, "total_amount") * 10.0 / 100
+
+
 if __name__ == "__main__":
     test_orders_post()
     test_orders_get()
     test_orders_order_id_get()
+    test_orders_order_id_patch()
     test_orders_order_id_delete()
