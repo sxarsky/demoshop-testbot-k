@@ -6,7 +6,7 @@ from fastapi.encoders import jsonable_encoder
 from redis import Redis
 from redis.commands.json.path import Path
 from redis.commands.search.query import Query, NumericFilter
-from api_insight.models.order import Order, OrderStatus, OrderItem, OrderCreate
+from api_insight.models.order import Order, OrderStatus, OrderItem, OrderCreate, OrderUpdate, OrderItemUpdate
 from api_insight.crud import products
 from api_insight.core.cache import get_or_create_orders_index, get_or_create_order_items_index
 from api_insight.core.config import get_settings
@@ -111,6 +111,75 @@ def cancel_order(cache: Redis, session_id: str, order_id: int) -> None:
         order.status = OrderStatus.CANCELLED
         order_encoded = jsonable_encoder(order.model_dump())
         cache.json().set(f'{key}:orders:{order_id}', Path.root_path(), order_encoded)
+
+def update_order(cache: Redis, session_id: str, order_id: int, order_update: OrderUpdate) -> Order:
+    """Update an existing order."""
+    key = session_id if session_id else DEFAULT_KEY
+    order = get_order(cache, key, order_id)
+    if not order:
+        raise ValueError("order not found")
+    
+    # Update customer email if provided
+    if order_update.customer_email is not None:
+        order.customer_email = order_update.customer_email
+    
+    # Update status if provided
+    if order_update.status is not None:
+        order.status = order_update.status
+    
+    # Update items if provided
+    if order_update.items is not None:
+        # Write new items with fresh IDs
+        for item_update in order_update.items:
+            # Get product to verify existence and price
+            product = products.get_product(cache, key, item_update.product_id)
+            if not product:
+                raise ValueError(f"Product with id {item_update.product_id} not found")
+            
+            # Use existing order_item_id if provided, otherwise create new
+            if item_update.order_item_id is not None:
+                order_item_id = item_update.order_item_id
+            else:
+                order_item_id = set_order_item_id(cache, key)
+            
+            # Create/update order item
+            order_item = OrderItem(
+                order_item_id=order_item_id,
+                order_id=order_id,
+                product_id=product["product_id"],
+                quantity=item_update.quantity,
+                unit_price=product["price"]
+            )
+            order_item_encoded = jsonable_encoder(order_item.model_dump())
+            cache.json().set(f'{key}:orderitems:{order_item_id}', Path.root_path(), order_item_encoded)
+            cache.expire(f'{key}:orderitems:{order_item_id}', settings.KEY_TTL_SECONDS)
+    
+    # Handle discount if provided
+    if order_update.discount_type is not None and order_update.discount_value is not None:
+        order.discount_type = order_update.discount_type
+        order.discount_value = order_update.discount_value
+        
+        # Calculate discount_amount based on type
+        if order_update.discount_type == "percentage":
+            order.discount_amount = order.total_amount * order_update.discount_value / 100
+        elif order_update.discount_type == "fixed":
+            order.discount_amount = order_update.discount_value
+        else:
+            order.discount_amount = 0.0
+    elif order_update.discount_type is None and order_update.discount_value is None:
+        # If both are None, clear discount
+        order.discount_type = None
+        order.discount_value = None
+        order.discount_amount = None
+    
+    # Update order in cache
+    order_encoded = jsonable_encoder(order.model_dump())
+    cache.json().set(f'{key}:orders:{order_id}', Path.root_path(), order_encoded)
+    cache.expire(f'{key}:orders:{order_id}', settings.KEY_TTL_SECONDS)
+    
+    # Refresh order items
+    order.items = get_order_items(cache, session_id, order_id)
+    return order
 
 def set_order_id(cache: Redis, session_id: str) -> int:
     """Set ID for an order"""
