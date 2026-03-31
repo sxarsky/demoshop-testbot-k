@@ -3,7 +3,7 @@ Order models for the API.
 """
 from datetime import datetime
 from enum import Enum
-from typing import List
+from typing import List, Optional
 from pydantic import BaseModel, Field, EmailStr
 
 class OrderStatus(str, Enum):
@@ -40,6 +40,9 @@ class OrderBase(BaseModel):
     customer_email: EmailStr = Field(max_length=255)
     status: OrderStatus = Field(default=OrderStatus.PENDING)
     total_amount: float = Field(default=0.0)
+    discount_type: Optional[str] = Field(default=None)
+    discount_value: Optional[float] = Field(default=None)
+    discount_amount: Optional[float] = Field(default=None)
 
 class Order(OrderBase):
     """Model for orders."""
@@ -48,6 +51,14 @@ class Order(OrderBase):
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
     items: List[OrderItem]
+
+class OrderUpdate(BaseModel):
+    """Model for updating an existing order."""
+    customer_email: Optional[EmailStr] = None
+    status: Optional[OrderStatus] = None
+    items: Optional[List[OrderItemCreate]] = None
+    discount_type: Optional[str] = None
+    discount_value: Optional[float] = None
 
 class OrderCreate(BaseModel):
     """Model for creating new orders in DB."""
