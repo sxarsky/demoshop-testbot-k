@@ -105,7 +105,7 @@ async def get_products(
             status_code=status.HTTP_200_OK
 )
 async def get_product(
-    product_id: Annotated[int, Path(json_schema_extra={'example': 0})],
+    product_id: Annotated[int, Path(json_schema_extra={'example': 1})],
     cache: CacheDep,
     session_id: GetSessionIdDep
 ):
@@ -116,7 +116,7 @@ async def get_product(
     return product
 
 @router.put("/{product_id}", response_model=ProductUpdateResponse, summary="Update a product by ID")
-async def update_product(product_id: Annotated[int, Path(json_schema_extra={'example': 0})],
+async def update_product(product_id: Annotated[int, Path(json_schema_extra={'example': 1})],
                    product_update: ProductUpdate,
                    cache: CacheDep,
                    session_id: GetSessionIdDep):
@@ -129,7 +129,7 @@ async def update_product(product_id: Annotated[int, Path(json_schema_extra={'exa
 @router.delete("/{product_id}",
                status_code=status.HTTP_204_NO_CONTENT,
                summary="Delete a product by ID")
-async def delete_product(product_id: Annotated[int, Path(json_schema_extra={'example': 0})],
+async def delete_product(product_id: Annotated[int, Path(json_schema_extra={'example': 1})],
                          cache: CacheDep,
                          session_id: GetSessionIdDep):
     """Delete a product by its ID."""

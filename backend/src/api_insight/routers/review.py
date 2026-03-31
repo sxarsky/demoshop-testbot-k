@@ -18,7 +18,7 @@ router = APIRouter(
             summary="Get all reviews for selected product",
             description="Get all reviews for selected product",)
 async def get_reviews(
-    product_id: Annotated[int, Path(json_schema_extra={'example': 0})],
+    product_id: Annotated[int, Path(json_schema_extra={'example': 1})],
     cache: CacheDep,
     session_id: GetSessionIdDep, query_params: Annotated[QueryParams, Query()]
     ):
@@ -43,7 +43,7 @@ async def get_reviews(
                 summary="Create a review",
                 description="Create a review for a product")
 async def create_review(review: ReviewCreate, cache: CacheDep, session_id: GetSessionIdDep,
-                        product_id: Annotated[int, Path(json_schema_extra={'example': 0})]):
+                        product_id: Annotated[int, Path(json_schema_extra={'example': 1})]):
     """
     Create a review
     """

@@ -60,7 +60,7 @@ async def get_orders(
            summary="Get order by ID",
            description="Retrieve a specific order by its ID")
 async def get_order(
-    order_id: Annotated[int, Path(json_schema_extra={'example': 0})],
+    order_id: Annotated[int, Path(json_schema_extra={'example': 1})],
     cache: CacheDep,
     session_id: GetSessionIdDep
 ):
@@ -78,7 +78,7 @@ async def get_order(
               description="Cancel an existing order",
               response_model=OrderCancel)
 async def cancel_order(
-    order_id: Annotated[int, Path(json_schema_extra={'example': 0})],
+    order_id: Annotated[int, Path(json_schema_extra={'example': 1})],
     cache: CacheDep,
     session_id: GetSessionIdDep
 ):
