@@ -1,12 +1,13 @@
 """
 CRUD operations for orders.
 """
+from datetime import datetime
 from json import loads
 from fastapi.encoders import jsonable_encoder
 from redis import Redis
 from redis.commands.json.path import Path
 from redis.commands.search.query import Query, NumericFilter
-from api_insight.models.order import Order, OrderStatus, OrderItem, OrderCreate
+from api_insight.models.order import Order, OrderStatus, OrderItem, OrderCreate, OrderUpdate
 from api_insight.crud import products
 from api_insight.core.cache import get_or_create_orders_index, get_or_create_order_items_index
 from api_insight.core.config import get_settings
@@ -111,6 +112,59 @@ def cancel_order(cache: Redis, session_id: str, order_id: int) -> None:
         order.status = OrderStatus.CANCELLED
         order_encoded = jsonable_encoder(order.model_dump())
         cache.json().set(f'{key}:orders:{order_id}', Path.root_path(), order_encoded)
+
+def update_order(cache: Redis, session_id: str, order_id: int, update: OrderUpdate) -> Order:
+    """Update an existing order (PATCH)."""
+    key = session_id if session_id and session_id != "" else DEFAULT_KEY
+    order = get_order(cache, key, order_id)
+    if not order:
+        raise ValueError("order not found")
+
+    # Apply scalar field updates
+    if update.customer_email is not None:
+        order.customer_email = update.customer_email
+    if update.status is not None:
+        order.status = update.status
+
+    # Apply discount updates
+    if update.discount_type is not None or update.discount_value is not None:
+        order.discount_type = update.discount_type
+        order.discount_value = update.discount_value
+        if update.discount_type == "percentage" and update.discount_value is not None:
+            order.discount_amount = order.total_amount * update.discount_value / 100
+        elif update.discount_type == "fixed" and update.discount_value is not None:
+            order.discount_amount = update.discount_value
+        else:
+            order.discount_amount = None
+    elif update.discount_type is None and update.discount_value is None:
+        # If both are explicitly None (caller cleared discount), reset
+        pass  # leave existing discount fields untouched unless payload omits them entirely
+
+    # Apply item updates: write fresh items for this order
+    if update.items is not None:
+        for item in update.items:
+            product = products.get_product(cache, key, item.product_id)
+            if not product:
+                raise ValueError(f"Product with id {item.product_id} not found")
+            order_item_id = set_order_item_id(cache, key)
+            order_item = OrderItem(
+                order_item_id=order_item_id,
+                order_id=order_id,
+                product_id=product["product_id"],
+                quantity=item.quantity,
+                unit_price=product["price"]
+            )
+            order_item_encoded = jsonable_encoder(order_item.model_dump())
+            cache.json().set(f'{key}:orderitems:{order_item_id}', Path.root_path(), order_item_encoded)
+            cache.expire(f'{key}:orderitems:{order_item_id}', settings.KEY_TTL_SECONDS)
+
+    # Refresh items from index
+    order.items = get_order_items(cache, session_id, order_id)
+    order.updated_at = datetime.utcnow()
+    order_encoded = jsonable_encoder(order.model_dump())
+    cache.json().set(f'{key}:orders:{order_id}', Path.root_path(), order_encoded)
+    cache.expire(f'{key}:orders:{order_id}', settings.KEY_TTL_SECONDS)
+    return order
 
 def set_order_id(cache: Redis, session_id: str) -> int:
     """Set ID for an order"""
