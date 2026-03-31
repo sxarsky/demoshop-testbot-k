@@ -1,0 +1,106 @@
+[
+  {
+    "Source": "192.168.65.1:39998",
+    "Destination": "localhost",
+    "RequestBody": "{\"name\": \"Test Product\", \"description\": \"A test product for order patch\", \"price\": 25.00, \"image_url\": \"https://example.com/test-product.jpg\", \"category\": \"Electronics\", \"in_stock\": true, \"quantity\": 100}",
+    "ResponseBody": "{\"product_id\": 1, \"name\": \"Test Product\", \"description\": \"A test product for order patch\", \"price\": 25.00, \"image_url\": \"https://example.com/test-product.jpg\", \"category\": \"Electronics\", \"in_stock\": true}",
+    "RequestHeaders": {
+      "Content-Type": [
+        "application/json"
+      ],
+      "Authorization": [
+        "Bearer SKYRAMP_PLACEHOLDER_TOKEN"
+      ]
+    },
+    "ResponseHeaders": {
+      "Content-Type": [
+        "application/json"
+      ]
+    },
+    "Method": "POST",
+    "Path": "/api/v1/products",
+    "QueryParams": {},
+    "StatusCode": 201,
+    "Port": 8000,
+    "Timestamp": "2026-03-31T06:04:01.744Z",
+    "Scheme": "http"
+  },
+  {
+    "Source": "192.168.65.1:39998",
+    "Destination": "localhost",
+    "RequestBody": "{\"customer_email\": \"test@mail.com\", \"items\": [{\"product_id\": 1, \"quantity\": 2}]}",
+    "ResponseBody": "{\"order_id\": 1, \"customer_email\": \"test@mail.com\", \"status\": \"pending\", \"total_amount\": 50.00, \"discount_type\": null, \"discount_value\": null, \"discount_amount\": null, \"items\": [{\"order_item_id\": 1, \"order_id\": 1, \"product_id\": 1, \"quantity\": 2, \"unit_price\": 25.00}], \"created_at\": \"2022-01-01T00:00:00\", \"updated_at\": \"2022-01-01T00:00:00\"}",
+    "RequestHeaders": {
+      "Content-Type": [
+        "application/json"
+      ],
+      "Authorization": [
+        "Bearer SKYRAMP_PLACEHOLDER_TOKEN"
+      ]
+    },
+    "ResponseHeaders": {
+      "Content-Type": [
+        "application/json"
+      ]
+    },
+    "Method": "POST",
+    "Path": "/api/v1/orders",
+    "QueryParams": {},
+    "StatusCode": 201,
+    "Port": 8000,
+    "Timestamp": "2026-03-31T06:04:01.744Z",
+    "Scheme": "http"
+  },
+  {
+    "Source": "192.168.65.1:39998",
+    "Destination": "localhost",
+    "RequestBody": "{\"customer_email\": \"updated@mail.com\", \"status\": \"confirmed\", \"items\": [{\"product_id\": 1, \"quantity\": 4}], \"discount_type\": \"percentage\", \"discount_value\": 10}",
+    "ResponseBody": "{\"order_id\": 1, \"customer_email\": \"updated@mail.com\", \"status\": \"confirmed\", \"total_amount\": 50.00, \"discount_type\": \"percentage\", \"discount_value\": 10, \"discount_amount\": 5.00, \"items\": [{\"order_item_id\": 2, \"order_id\": 1, \"product_id\": 1, \"quantity\": 4, \"unit_price\": 25.00}], \"created_at\": \"2022-01-01T00:00:00\", \"updated_at\": \"2022-01-01T00:00:00\"}",
+    "RequestHeaders": {
+      "Content-Type": [
+        "application/json"
+      ],
+      "Authorization": [
+        "Bearer SKYRAMP_PLACEHOLDER_TOKEN"
+      ]
+    },
+    "ResponseHeaders": {
+      "Content-Type": [
+        "application/json"
+      ]
+    },
+    "Method": "PATCH",
+    "Path": "/api/v1/orders/1",
+    "QueryParams": {},
+    "StatusCode": 200,
+    "Port": 8000,
+    "Timestamp": "2026-03-31T06:04:01.744Z",
+    "Scheme": "http"
+  },
+  {
+    "Source": "192.168.65.1:39998",
+    "Destination": "localhost",
+    "RequestBody": "",
+    "ResponseBody": "{\"order_id\": 1, \"customer_email\": \"updated@mail.com\", \"status\": \"confirmed\", \"total_amount\": 50.00, \"discount_type\": \"percentage\", \"discount_value\": 10, \"discount_amount\": 5.00, \"items\": [{\"order_item_id\": 2, \"order_id\": 1, \"product_id\": 1, \"quantity\": 4, \"unit_price\": 25.00}], \"created_at\": \"2022-01-01T00:00:00\", \"updated_at\": \"2022-01-01T00:00:00\"}",
+    "RequestHeaders": {
+      "Content-Type": [
+        "application/json"
+      ],
+      "Authorization": [
+        "Bearer SKYRAMP_PLACEHOLDER_TOKEN"
+      ]
+    },
+    "ResponseHeaders": {
+      "Content-Type": [
+        "application/json"
+      ]
+    },
+    "Method": "GET",
+    "Path": "/api/v1/orders/1",
+    "QueryParams": {},
+    "StatusCode": 200,
+    "Port": 8000,
+    "Timestamp": "2026-03-31T06:04:01.744Z",
+    "Scheme": "http"
+  }
+]

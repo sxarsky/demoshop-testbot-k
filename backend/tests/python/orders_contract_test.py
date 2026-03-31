@@ -82,6 +82,9 @@ def test_orders_post():
     assert skyramp.get_response_value(orders_POST_response, "created_at") is not None
     assert skyramp.get_response_value(orders_POST_response, "customer_email") is not None
     assert skyramp.get_response_value(orders_POST_response, "items.0.order_item_id") is not None
+    assert skyramp.get_response_value(orders_POST_response, "discount_type") is None
+    assert skyramp.get_response_value(orders_POST_response, "discount_value") is None
+    assert skyramp.get_response_value(orders_POST_response, "discount_amount") is None
 
 
 # contract test for /api/v1/orders GET
@@ -134,6 +137,9 @@ def test_orders_get():
     assert skyramp.get_response_value(orders_GET_response, "0.created_at") is not None
     assert skyramp.get_response_value(orders_GET_response, "0.customer_email") is not None
     assert skyramp.get_response_value(orders_GET_response, "0.items.0.order_item_id") is not None
+    assert skyramp.get_response_value(orders_GET_response, "0.discount_type") is None
+    assert skyramp.get_response_value(orders_GET_response, "0.discount_value") is None
+    assert skyramp.get_response_value(orders_GET_response, "0.discount_amount") is None
 
 
 # contract test for /api/v1/orders/{order_id} GET
@@ -182,6 +188,9 @@ def test_orders_order_id_get():
     assert skyramp.get_response_value(orders_order_id_GET_response, "created_at") is not None
     assert skyramp.get_response_value(orders_order_id_GET_response, "customer_email") is not None
     assert skyramp.get_response_value(orders_order_id_GET_response, "items.0.order_item_id") is not None
+    assert skyramp.get_response_value(orders_order_id_GET_response, "discount_type") is None
+    assert skyramp.get_response_value(orders_order_id_GET_response, "discount_value") is None
+    assert skyramp.get_response_value(orders_order_id_GET_response, "discount_amount") is None
 
 
 # contract test for /api/v1/orders/{order_id} DELETE
