@@ -124,8 +124,8 @@ export default function OrderDetail() {
         product_id: item.product_id,
         quantity: item.quantity,
       })),
-      discount_type: editDiscountType || null,
-      discount_value: editDiscountType && editDiscountValue ? parseFloat(editDiscountValue) : null,
+      discount_type: editDiscountType && editDiscountType !== 'none' ? editDiscountType : null,
+      discount_value: editDiscountType && editDiscountType !== 'none' && editDiscountValue ? parseFloat(editDiscountValue) : null,
     };
     try {
       const res = await fetch(apiUrl(`/api/v1/orders/${order_id}`), {
@@ -360,13 +360,13 @@ export default function OrderDetail() {
                       <SelectValue placeholder="No discount" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="" data-testId="order-edit-discount-none">No discount</SelectItem>
+                      <SelectItem value="none" data-testId="order-edit-discount-none">No discount</SelectItem>
                       <SelectItem value="percentage" data-testId="order-edit-discount-percentage">Percentage (%)</SelectItem>
                       <SelectItem value="fixed" data-testId="order-edit-discount-fixed">Fixed ($)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
-                {editDiscountType && (
+                {editDiscountType && editDiscountType !== 'none' && (
                   <Input
                     type="number"
                     min={0}
@@ -380,7 +380,7 @@ export default function OrderDetail() {
                     data-testId="order-edit-input-discount-value"
                   />
                 )}
-                {editDiscountType && editDiscountValue && (
+                {editDiscountType && editDiscountType !== 'none' && editDiscountValue && (
                   <span style={{ color: '#16a34a', fontWeight: 500, fontSize: '0.95rem' }}>
                     -{editDiscountType === 'percentage' ? `${editDiscountValue}%` : `$${parseFloat(editDiscountValue).toFixed(2)}`}
                     {' '}(Net: ${(order.total_amount - editComputedDiscount).toFixed(2)})
