@@ -13,6 +13,7 @@
 import skyramp
 import os
 import time
+import json
 
 
 # URL for test requests
@@ -66,6 +67,31 @@ def test_integration():
         time.sleep(sleep_time)
 
 
+    # PATCH order - happy path: update email and status
+    # Scenario: orders-patch-new-endpoint-happy-path
+    orders_PATCH_request_body = r'''{
+            "customer_email": "updated@mail.com",
+            "status": "confirmed"
+        }'''
+
+    orders_order_id_PATCH_response = client.send_request(
+        url=URL,
+        path="/api/v1/orders/{order_id}",
+        method="PATCH",
+        body=orders_PATCH_request_body,
+        headers=headers,
+        path_params={"order_id": skyramp.get_response_value(orders_POST_response, "order_id")}
+    )
+    # Generated Assertions
+    assert orders_order_id_PATCH_response.status_code == 200
+    assert skyramp.get_response_value(orders_order_id_PATCH_response, "order_id") is not None
+    assert skyramp.get_response_value(orders_order_id_PATCH_response, "order_id") == skyramp.get_response_value(orders_POST_response, "order_id")
+    assert skyramp.get_response_value(orders_order_id_PATCH_response, "customer_email") == "updated@mail.com"
+    assert skyramp.get_response_value(orders_order_id_PATCH_response, "status") == "confirmed"
+    assert skyramp.get_response_value(orders_order_id_PATCH_response, "discount_type") is None
+    assert skyramp.get_response_value(orders_order_id_PATCH_response, "discount_value") is None
+    assert skyramp.get_response_value(orders_order_id_PATCH_response, "discount_amount") is None
+
     # Execute Request
     orders_order_id_DELETE_response = client.send_request(
         url=URL,
@@ -78,5 +104,98 @@ def test_integration():
     assert orders_order_id_DELETE_response.status_code == 200
 
 
+def test_patch_add_items_recalculate():
+    """Scenario: orders-patch-add-items-recalculate
+    Verifies that PATCH /orders/{order_id} with an updated items array replaces
+    (not accumulates) order items. Catches the item-accumulation bug where old
+    items are not removed on update, and verifies discount calculation fields.
+    """
+    # Invocation of Skyramp Client
+    client = skyramp.Client(
+        runtime="docker",
+        docker_network="demoshop-fullstack_demoshop-network",
+        docker_skyramp_port=35142
+    )
+    # Definition of authentication header
+    headers = {}
+    if os.getenv("SKYRAMP_TEST_TOKEN") is not None:
+        headers["Authorization"] = "Bearer " + os.getenv("SKYRAMP_TEST_TOKEN")
+
+    # Step 1: Create a prerequisite product to chain into the order
+    product_POST_request_body = r'''{
+            "category": "Toys",
+            "description": "Bear Soft Toy",
+            "image_url": "https://images.app.goo.gl/cgcHpeehRdu5osot8",
+            "in_stock": true,
+            "name": "bigbear",
+            "price": 10.00
+        }'''
+
+    product_POST_response = client.send_request(
+        url=URL,
+        path="/api/v1/products",
+        method="POST",
+        body=product_POST_request_body,
+        headers=headers
+    )
+    assert product_POST_response.status_code == 201
+    assert skyramp.get_response_value(product_POST_response, "product_id") is not None
+
+    # Step 2: Create an order with qty=2 of the product (initial state)
+    order_POST_body = json.dumps({
+        "customer_email": "patch-items-test@mail.com",
+        "items": [{"product_id": skyramp.get_response_value(product_POST_response, "product_id"), "quantity": 2}]
+    })
+
+    orders_POST_response = client.send_request(
+        url=URL,
+        path="/api/v1/orders",
+        method="POST",
+        body=order_POST_body,
+        headers=headers
+    )
+    assert orders_POST_response.status_code == 201
+    assert skyramp.get_response_value(orders_POST_response, "order_id") is not None
+    assert skyramp.get_response_value(orders_POST_response, "items.0.order_item_id") is not None
+
+    # Step 3: PATCH the order — replace items with qty=3 of the same product
+    patch_body = json.dumps({
+        "items": [{"product_id": skyramp.get_response_value(product_POST_response, "product_id"), "quantity": 3}]
+    })
+
+    orders_PATCH_response = client.send_request(
+        url=URL,
+        path="/api/v1/orders/{order_id}",
+        method="PATCH",
+        body=patch_body,
+        headers=headers,
+        path_params={"order_id": skyramp.get_response_value(orders_POST_response, "order_id")}
+    )
+    assert orders_PATCH_response.status_code == 200
+    assert skyramp.get_response_value(orders_PATCH_response, "order_id") == skyramp.get_response_value(orders_POST_response, "order_id")
+    # Verify items were replaced (not accumulated): exactly 1 item should exist.
+    # If the accumulation bug is present, items.1 will be non-None (old item still present).
+    assert skyramp.get_response_value(orders_PATCH_response, "items.0.order_item_id") is not None
+    assert skyramp.get_response_value(orders_PATCH_response, "items.1.order_item_id") is None, \
+        "Item accumulation bug: old items were not removed on PATCH — expected 1 item, found 2+"
+    assert skyramp.get_response_value(orders_PATCH_response, "discount_type") is None
+    assert skyramp.get_response_value(orders_PATCH_response, "discount_value") is None
+    assert skyramp.get_response_value(orders_PATCH_response, "discount_amount") is None
+
+    # Step 4: GET order to verify persisted state reflects replacement, not accumulation
+    orders_GET_response = client.send_request(
+        url=URL,
+        path="/api/v1/orders/{order_id}",
+        method="GET",
+        headers=headers,
+        path_params={"order_id": skyramp.get_response_value(orders_POST_response, "order_id")}
+    )
+    assert orders_GET_response.status_code == 200
+    assert skyramp.get_response_value(orders_GET_response, "items.0.order_item_id") is not None
+    assert skyramp.get_response_value(orders_GET_response, "items.1.order_item_id") is None, \
+        "Item accumulation bug in GET: old items were not removed on PATCH — expected 1 item, found 2+"
+
+
 if __name__ == "__main__":
     test_integration()
+    test_patch_add_items_recalculate()
