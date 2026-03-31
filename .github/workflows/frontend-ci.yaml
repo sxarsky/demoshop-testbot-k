@@ -55,13 +55,42 @@ jobs:
             echo "has_tests=false" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Set up Docker Buildx
+        if: steps.check-tests.outputs.has_tests == 'true'
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build backend containers
+        if: steps.check-tests.outputs.has_tests == 'true'
+        working-directory: backend
+        run: docker compose build
+
+      - name: Start backend services
+        if: steps.check-tests.outputs.has_tests == 'true'
+        working-directory: backend
+        run: |
+          docker compose up -d
+          echo "Waiting for backend to become ready..."
+          curl --fail --silent --show-error \
+            --retry 15 \
+            --retry-all-errors \
+            --retry-max-time 60 \
+            http://localhost:8000/openapi.json > /dev/null \
+            || { echo "Backend failed to become ready"; docker compose ps; docker compose logs; exit 1; }
+
       - name: Install Playwright
         if: steps.check-tests.outputs.has_tests == 'true'
         run: npx playwright install --with-deps
 
       - name: Run Playwright tests
         if: steps.check-tests.outputs.has_tests == 'true'
+        env:
+          VITE_API_URL: http://localhost:8000
         run: npx playwright test
+
+      - name: Stop backend services
+        if: steps.check-tests.outputs.has_tests == 'true' && always()
+        working-directory: backend
+        run: docker compose down
 
       - name: Upload Playwright report
         if: steps.check-tests.outputs.has_tests == 'true' && always()
