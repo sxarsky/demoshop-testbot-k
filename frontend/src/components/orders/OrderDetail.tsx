@@ -104,7 +104,15 @@ export default function OrderDetail() {
           </div>
           <div style={{ marginBottom: '1rem' }} className="mb-1" data-testId="order-detail-total">
             <span style={{ color: '#9ca3af' }} data-testId="order-detail-label-total">Total:</span>
-            <div style={{ fontSize: '1.125rem', fontWeight: 500 }} className="text-gray-900 mt-1" data-testId="order-detail-value-total">${order.total_amount.toFixed(2)}</div>
+            <div style={{ fontSize: '1.125rem', fontWeight: 500 }} className="text-gray-900 mt-1" data-testId="order-detail-value-total">
+              ${order.total_amount.toFixed(2)}
+              {order.discount_amount && order.discount_amount > 0 && (
+                <span style={{ marginLeft: '0.5rem', color: '#10b981', fontSize: '0.875rem' }}>
+                  ({order.discount_type === 'percentage' ? `${order.discount_value}%` : `$${order.discount_value}`} off - 
+                  Net: ${(order.total_amount - order.discount_amount).toFixed(2)})
+                </span>
+              )}
+            </div>
           </div>
         </div>
         <h2 style={{ fontWeight: 700, fontSize: '1.5rem', lineHeight: '2rem', textAlign: 'left', margin: 0, marginBottom: '1.5rem', paddingLeft: 0 }} data-testId="order-detail-items-heading">
@@ -130,28 +138,51 @@ export default function OrderDetail() {
         <div style={{ height: '1.5rem' }} />
         <div className="flex flex-col items-center" style={{ marginTop: '0.5rem', gap: '1rem', alignItems: 'center', justifyContent: 'center', display: 'flex' }} data-testId="order-detail-buttons">
           {order.status !== 'cancelled' && (
-            <Button
-              variant="destructive"
-              className="w-fit"
-              onClick={handleCancelOrder}
-              disabled={cancelling}
-              style={{
-                color: '#fff',
-                background: '#dc2626',
-                border: '1.5px solid transparent',
-                transition: 'background 0.2s, border-color 0.2s',
-              }}
-              onMouseOver={e => {
-                e.currentTarget.style.background = '#f87171';
-                e.currentTarget.style.borderColor = '#991b1b';
-              }}
-              onMouseOut={e => {
-                e.currentTarget.style.background = '#dc2626';
-                e.currentTarget.style.borderColor = 'transparent';
-              }}
-            >
-              {cancelling ? 'Cancelling...' : 'Cancel Order'}
-            </Button>
+            <>
+              <Button
+                variant="default"
+                className="w-fit"
+                onClick={() => navigate(`/orders/${order_id}/edit`)}
+                style={{
+                  color: '#fff',
+                  background: '#2563eb',
+                  border: '1.5px solid transparent',
+                  transition: 'background 0.2s, border-color 0.2s',
+                }}
+                onMouseOver={e => {
+                  e.currentTarget.style.background = '#3b82f6';
+                  e.currentTarget.style.borderColor = '#1e40af';
+                }}
+                onMouseOut={e => {
+                  e.currentTarget.style.background = '#2563eb';
+                  e.currentTarget.style.borderColor = 'transparent';
+                }}
+              >
+                Edit Order
+              </Button>
+              <Button
+                variant="destructive"
+                className="w-fit"
+                onClick={handleCancelOrder}
+                disabled={cancelling}
+                style={{
+                  color: '#fff',
+                  background: '#dc2626',
+                  border: '1.5px solid transparent',
+                  transition: 'background 0.2s, border-color 0.2s',
+                }}
+                onMouseOver={e => {
+                  e.currentTarget.style.background = '#f87171';
+                  e.currentTarget.style.borderColor = '#991b1b';
+                }}
+                onMouseOut={e => {
+                  e.currentTarget.style.background = '#dc2626';
+                  e.currentTarget.style.borderColor = 'transparent';
+                }}
+              >
+                {cancelling ? 'Cancelling...' : 'Cancel Order'}
+              </Button>
+            </>
           )}
           <Button
             variant="link"
