@@ -114,6 +114,7 @@ jobs:
           anthropicApiKey: ${{ secrets.SKYRAMP_TESTBOT_API_KEY }}
           githubToken: ${{ steps.app-token.outputs.token }}
           skyrampMcpVersion: 'next'
+          maxGenerate: '4'
 
       - name: Check execution status
         run: |
