@@ -5,6 +5,7 @@ import ProductItem from "../products/ProductItem";
 import { NavBar } from "@/components/ui/navbar";
 import { getSessionIdFromCookie } from '../../lib/utils';
 import { apiUrl } from '../../config';
+import EditOrderForm from "./EditOrderForm";
 
 export default function OrderDetail() {
   const { order_id } = useParams<{ order_id: string }>();
@@ -14,6 +15,7 @@ export default function OrderDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [cancelling, setCancelling] = useState(false);
+  const [editing, setEditing] = useState(false);
 
   useEffect(() => {
     if (!order_id) return;
@@ -68,12 +70,34 @@ export default function OrderDetail() {
     }
   };
 
+  const handleEditSave = (updatedFields: any, allProducts: any[]) => {
+    setOrder((prev: any) => ({ ...prev, ...updatedFields }));
+    if (updatedFields.items) {
+      const newProds = updatedFields.items
+        .map((item: any) =>
+          allProducts.find((p: any) => String(p.product_id) === String(item.product_id))
+        )
+        .filter(Boolean);
+      setProducts(newProds);
+    }
+    setEditing(false);
+  };
+
   if (loading) return <div className="text-center py-8" data-testId="order-detail-loading">Loading order details...</div>;
   if (error) return <div className="text-center text-red-500 py-8" data-testId="order-detail-error">{error}</div>;
   if (!order) return <div className="text-center py-8" data-testId="order-detail-notfound">Order not found.</div>;
 
+  const netTotal = (order.total_amount - (order.discount_amount ?? 0)).toFixed(2);
+
   return (
     <div className="min-h-screen bg-white px-6 py-10" style={{ width: '100%', maxWidth: '64rem', margin: '0 auto', boxSizing: 'border-box' }} data-testId="order-detail-root">
+      {editing && (
+        <EditOrderForm
+          order={order}
+          onClose={() => setEditing(false)}
+          onSave={handleEditSave}
+        />
+      )}
       {/* Top Navigation */}
       <NavBar active="orders" />
       {/* Move heading and details to align with nav bar (same left padding) */}
@@ -106,6 +130,27 @@ export default function OrderDetail() {
             <span style={{ color: '#9ca3af' }} data-testId="order-detail-label-total">Total:</span>
             <div style={{ fontSize: '1.125rem', fontWeight: 500 }} className="text-gray-900 mt-1" data-testId="order-detail-value-total">${order.total_amount.toFixed(2)}</div>
           </div>
+          {order.discount_type && (
+            <div style={{ marginBottom: '1rem' }} className="mb-1" data-testId="order-detail-discount">
+              <span style={{ color: '#9ca3af' }} data-testId="order-detail-label-discount">Discount:</span>
+              <div style={{ fontSize: '1.125rem', fontWeight: 500 }} className="text-gray-900 mt-1" data-testId="order-detail-value-discount">
+                {order.discount_type === 'percentage'
+                  ? `${order.discount_value}% off`
+                  : `$${(order.discount_value ?? 0).toFixed(2)} off`}
+                {order.discount_amount != null && (
+                  <span style={{ color: '#dc2626', marginLeft: '0.5rem' }}>
+                    (−${(order.discount_amount).toFixed(2)})
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
+          {order.discount_amount != null && order.discount_amount > 0 && (
+            <div style={{ marginBottom: '1rem' }} className="mb-1" data-testId="order-detail-net-total">
+              <span style={{ color: '#9ca3af' }} data-testId="order-detail-label-net-total">Net Total:</span>
+              <div style={{ fontSize: '1.125rem', fontWeight: 700, color: '#15803d' }} className="mt-1" data-testId="order-detail-value-net-total">${netTotal}</div>
+            </div>
+          )}
         </div>
         <h2 style={{ fontWeight: 700, fontSize: '1.5rem', lineHeight: '2rem', textAlign: 'left', margin: 0, marginBottom: '1.5rem', paddingLeft: 0 }} data-testId="order-detail-items-heading">
           Order Items
@@ -129,6 +174,30 @@ export default function OrderDetail() {
         {/* Add extra space below order items */}
         <div style={{ height: '1.5rem' }} />
         <div className="flex flex-col items-center" style={{ marginTop: '0.5rem', gap: '1rem', alignItems: 'center', justifyContent: 'center', display: 'flex' }} data-testId="order-detail-buttons">
+          {order.status !== 'cancelled' && (
+            <Button
+              variant="outline"
+              className="w-fit"
+              onClick={() => setEditing(true)}
+              style={{
+                color: '#111',
+                background: '#fff',
+                border: '1.5px solid #6b7280',
+                transition: 'background 0.2s, border-color 0.2s',
+              }}
+              onMouseOver={e => {
+                e.currentTarget.style.background = '#f3f4f6';
+                e.currentTarget.style.borderColor = '#111';
+              }}
+              onMouseOut={e => {
+                e.currentTarget.style.background = '#fff';
+                e.currentTarget.style.borderColor = '#6b7280';
+              }}
+              data-testId="order-detail-edit-btn"
+            >
+              Edit Order
+            </Button>
+          )}
           {order.status !== 'cancelled' && (
             <Button
               variant="destructive"
