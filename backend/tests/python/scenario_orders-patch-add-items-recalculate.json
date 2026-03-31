@@ -1,0 +1,106 @@
+[
+  {
+    "Source": "192.168.65.1:39998",
+    "Destination": "localhost",
+    "RequestBody": "{\"name\": \"Recalc Test Product\", \"description\": \"Product for recalculation test\", \"price\": 9.99, \"image_url\": \"https://example.com/recalc-product.jpg\", \"category\": \"Test\", \"in_stock\": true}",
+    "ResponseBody": "{\"product_id\": 1, \"name\": \"Recalc Test Product\", \"price\": 9.99}",
+    "RequestHeaders": {
+      "Content-Type": [
+        "application/json"
+      ],
+      "Authorization": [
+        "Bearer SKYRAMP_PLACEHOLDER_TOKEN"
+      ]
+    },
+    "ResponseHeaders": {
+      "Content-Type": [
+        "application/json"
+      ]
+    },
+    "Method": "POST",
+    "Path": "/api/v1/products",
+    "QueryParams": {},
+    "StatusCode": 201,
+    "Port": 8000,
+    "Timestamp": "2026-03-31T10:30:42.173Z",
+    "Scheme": "http"
+  },
+  {
+    "Source": "192.168.65.1:39998",
+    "Destination": "localhost",
+    "RequestBody": "{\"customer_email\": \"recalc@mail.com\", \"items\": [{\"product_id\": 1, \"quantity\": 2}]}",
+    "ResponseBody": "{\"order_id\": 1, \"customer_email\": \"recalc@mail.com\", \"status\": \"pending\", \"total_amount\": 19.98, \"discount_type\": null, \"discount_value\": null, \"discount_amount\": null, \"items\": [{\"order_item_id\": 1, \"product_id\": 1, \"quantity\": 2, \"unit_price\": 9.99}]}",
+    "RequestHeaders": {
+      "Content-Type": [
+        "application/json"
+      ],
+      "Authorization": [
+        "Bearer SKYRAMP_PLACEHOLDER_TOKEN"
+      ]
+    },
+    "ResponseHeaders": {
+      "Content-Type": [
+        "application/json"
+      ]
+    },
+    "Method": "POST",
+    "Path": "/api/v1/orders",
+    "QueryParams": {},
+    "StatusCode": 201,
+    "Port": 8000,
+    "Timestamp": "2026-03-31T10:30:42.173Z",
+    "Scheme": "http"
+  },
+  {
+    "Source": "192.168.65.1:39998",
+    "Destination": "localhost",
+    "RequestBody": "{\"items\": [{\"product_id\": 1, \"quantity\": 5}], \"discount_type\": \"percentage\", \"discount_value\": 10.0}",
+    "ResponseBody": "{\"order_id\": 1, \"customer_email\": \"recalc@mail.com\", \"status\": \"pending\", \"total_amount\": 19.98, \"discount_type\": \"percentage\", \"discount_value\": 10.0, \"discount_amount\": 1.998, \"items\": [{\"order_item_id\": 2, \"product_id\": 1, \"quantity\": 5, \"unit_price\": 9.99}]}",
+    "RequestHeaders": {
+      "Content-Type": [
+        "application/json"
+      ],
+      "Authorization": [
+        "Bearer SKYRAMP_PLACEHOLDER_TOKEN"
+      ]
+    },
+    "ResponseHeaders": {
+      "Content-Type": [
+        "application/json"
+      ]
+    },
+    "Method": "PATCH",
+    "Path": "/api/v1/orders/1",
+    "QueryParams": {},
+    "StatusCode": 200,
+    "Port": 8000,
+    "Timestamp": "2026-03-31T10:30:42.173Z",
+    "Scheme": "http"
+  },
+  {
+    "Source": "192.168.65.1:39998",
+    "Destination": "localhost",
+    "RequestBody": "",
+    "ResponseBody": "{\"order_id\": 1, \"customer_email\": \"recalc@mail.com\", \"status\": \"pending\", \"total_amount\": 19.98, \"discount_type\": \"percentage\", \"discount_value\": 10.0, \"discount_amount\": 1.998, \"items\": [{\"order_item_id\": 2, \"product_id\": 1, \"quantity\": 5, \"unit_price\": 9.99}]}",
+    "RequestHeaders": {
+      "Content-Type": [
+        "application/json"
+      ],
+      "Authorization": [
+        "Bearer SKYRAMP_PLACEHOLDER_TOKEN"
+      ]
+    },
+    "ResponseHeaders": {
+      "Content-Type": [
+        "application/json"
+      ]
+    },
+    "Method": "GET",
+    "Path": "/api/v1/orders/1",
+    "QueryParams": {},
+    "StatusCode": 200,
+    "Port": 8000,
+    "Timestamp": "2026-03-31T10:30:42.173Z",
+    "Scheme": "http"
+  }
+]
