@@ -113,7 +113,7 @@ jobs:
           skyrampLicenseFile: ${{ secrets.SKYRAMP_LICENSE_FILE }}
           anthropicApiKey: ${{ secrets.SKYRAMP_TESTBOT_API_KEY }}
           githubToken: ${{ steps.app-token.outputs.token }}
-          skyrampMcpVersion: 'next'
+          skyrampMcpVersion: 'v0.0.64-rc.12'
           maxGenerate: '4'
 
       - name: Check execution status
