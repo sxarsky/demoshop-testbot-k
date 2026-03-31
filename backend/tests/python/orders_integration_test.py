@@ -66,6 +66,41 @@ def test_integration():
         time.sleep(sleep_time)
 
 
+    # Request Body for PATCH (update items, status, and discount)
+    orders_order_id_PATCH_request_body = r'''{
+            "customer_email": "updated@mail.com",
+            "status": "confirmed",
+            "items": [{
+                "product_id": 1,
+                "quantity": 3
+            }],
+            "discount_type": "percentage",
+            "discount_value": 10.0
+        }'''
+
+    # Execute PATCH Request (must run before DELETE)
+    orders_order_id_PATCH_response = client.send_request(
+        url=URL,
+        path="/api/v1/orders/{order_id}",
+        method="PATCH",
+        body=orders_order_id_PATCH_request_body,
+        headers=headers,
+        path_params={"order_id": skyramp.get_response_value(orders_POST_response, "order_id")}
+    )
+    # Generated Assertions
+    assert orders_order_id_PATCH_response.status_code == 200
+    assert skyramp.get_response_value(orders_order_id_PATCH_response, "order_id") is not None
+    assert skyramp.get_response_value(orders_order_id_PATCH_response, "customer_email") == "updated@mail.com"
+    assert skyramp.get_response_value(orders_order_id_PATCH_response, "status") == "confirmed"
+    assert skyramp.get_response_value(orders_order_id_PATCH_response, "discount_type") == "percentage"
+    assert skyramp.get_response_value(orders_order_id_PATCH_response, "discount_value") == 10.0
+    assert skyramp.get_response_value(orders_order_id_PATCH_response, "discount_amount") is not None
+    assert skyramp.get_response_value(orders_order_id_PATCH_response, "items.0.order_item_id") is not None
+    assert skyramp.get_response_value(orders_order_id_PATCH_response, "items.0.product_id") == 1
+    assert skyramp.get_response_value(orders_order_id_PATCH_response, "items.0.quantity") == 3
+    # Verify total_amount is recalculated when item quantity changes (qty 2 -> 3)
+    assert skyramp.get_response_value(orders_order_id_PATCH_response, "total_amount") != skyramp.get_response_value(orders_POST_response, "total_amount")
+
     # Execute Request
     orders_order_id_DELETE_response = client.send_request(
         url=URL,

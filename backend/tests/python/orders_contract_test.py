@@ -184,6 +184,130 @@ def test_orders_order_id_get():
     assert skyramp.get_response_value(orders_order_id_GET_response, "items.0.order_item_id") is not None
 
 
+# contract test for /api/v1/orders/{order_id} PATCH (happy path)
+def test_orders_order_id_patch():
+    # Invocation of Skyramp Client
+    client = skyramp.Client(
+        runtime="docker",
+        docker_network="demoshop-fullstack_demoshop-network",
+        docker_skyramp_port=35142
+    )
+    # Definition of authentication header
+    headers = get_header()
+
+    # Create an order first to get a valid order_id
+    orders_POST_request_body = r'''{
+        "customer_email": "abc@mail.com",
+        "items": [
+            {
+                "product_id": 1,
+                "quantity": 2
+            }
+        ]
+    }'''
+    orders_POST_response = client.send_request(
+        url=URL,
+        path="/api/v1/orders",
+        method="POST",
+        body=orders_POST_request_body,
+        headers=headers
+    )
+    assert orders_POST_response.status_code == 201
+    order_id = skyramp.get_response_value(orders_POST_response, "order_id")
+
+    # Request Body for PATCH
+    orders_order_id_PATCH_request_body = r'''{
+        "customer_email": "patched@mail.com",
+        "status": "confirmed",
+        "items": [
+            {
+                "product_id": 1,
+                "quantity": 3
+            }
+        ],
+        "discount_type": "percentage",
+        "discount_value": 10.0
+    }'''
+
+    # Expected Response Body
+    expected_orders_order_id_PATCH_response_body = r'''{
+        "created_at": "2022-01-01T00:00:00",
+        "customer_email": "patched@mail.com",
+        "discount_amount": 1.998,
+        "discount_type": "percentage",
+        "discount_value": 10.0,
+        "items": [
+            {
+                "order_item_id": 1,
+                "product_id": 1,
+                "quantity": 3
+            }
+        ],
+        "order_id": 1,
+        "status": "confirmed",
+        "total_amount": 19.98,
+        "updated_at": "2022-01-01T00:00:00"
+    }'''
+
+    # Execute Request
+    orders_order_id_PATCH_response = client.send_request(
+        url=URL,
+        path="/api/v1/orders/{order_id}",
+        method="PATCH",
+        body=orders_order_id_PATCH_request_body,
+        headers=headers,
+        path_params={"order_id": order_id}
+    )
+
+    # Generated Assertions
+    assert orders_order_id_PATCH_response.status_code == 200
+    assert skyramp.check_schema(orders_order_id_PATCH_response, expected_orders_order_id_PATCH_response_body)
+    assert skyramp.get_response_value(orders_order_id_PATCH_response, "order_id") is not None
+    assert skyramp.get_response_value(orders_order_id_PATCH_response, "customer_email") == "patched@mail.com"
+    assert skyramp.get_response_value(orders_order_id_PATCH_response, "status") == "confirmed"
+    assert skyramp.get_response_value(orders_order_id_PATCH_response, "discount_type") == "percentage"
+    assert skyramp.get_response_value(orders_order_id_PATCH_response, "discount_value") == 10.0
+    assert skyramp.get_response_value(orders_order_id_PATCH_response, "discount_amount") is not None
+    assert skyramp.get_response_value(orders_order_id_PATCH_response, "items.0.order_item_id") is not None
+    assert skyramp.get_response_value(orders_order_id_PATCH_response, "items.0.product_id") == 1
+    assert skyramp.get_response_value(orders_order_id_PATCH_response, "items.0.quantity") == 3
+    assert skyramp.get_response_value(orders_order_id_PATCH_response, "updated_at") is not None
+
+
+# contract test for /api/v1/orders/{order_id} PATCH → 404 (not found)
+def test_orders_order_id_patch_not_found():
+    # Invocation of Skyramp Client
+    client = skyramp.Client(
+        runtime="docker",
+        docker_network="demoshop-fullstack_demoshop-network",
+        docker_skyramp_port=35142
+    )
+    # Definition of authentication header
+    headers = get_header()
+
+    # Declaration of variables — use a non-existent order_id
+    order_id = 99999
+
+    # Request Body
+    orders_order_id_PATCH_request_body = r'''{
+        "customer_email": "test@mail.com",
+        "status": "confirmed"
+    }'''
+
+    # Execute Request
+    orders_order_id_PATCH_response = client.send_request(
+        url=URL,
+        path="/api/v1/orders/{order_id}",
+        method="PATCH",
+        body=orders_order_id_PATCH_request_body,
+        headers=headers,
+        path_params={"order_id": order_id}
+    )
+
+    # Generated Assertions
+    assert orders_order_id_PATCH_response.status_code == 404
+
+
 # contract test for /api/v1/orders/{order_id} DELETE
 def test_orders_order_id_delete():
     # Invocation of Skyramp Client
@@ -222,4 +346,6 @@ if __name__ == "__main__":
     test_orders_post()
     test_orders_get()
     test_orders_order_id_get()
+    test_orders_order_id_patch()
+    test_orders_order_id_patch_not_found()
     test_orders_order_id_delete()
