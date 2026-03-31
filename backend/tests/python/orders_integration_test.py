@@ -49,6 +49,10 @@ def test_integration():
     )
     # Generated Assertions
     assert orders_POST_response.status_code == 201
+    # Updated assertions: new optional discount fields added to Order response
+    assert skyramp.get_response_value(orders_POST_response, "discount_type") is None
+    assert skyramp.get_response_value(orders_POST_response, "discount_value") is None
+    assert skyramp.get_response_value(orders_POST_response, "discount_amount") is None
 
     max_retries = 10
     sleep_time = 5

@@ -1,0 +1,80 @@
+[
+  {
+    "Source": "192.168.65.1:39998",
+    "Destination": "localhost",
+    "RequestBody": "{\"category\": \"Electronics\", \"description\": \"Happy path test product\", \"image_url\": \"https://example.com/img2.jpg\", \"in_stock\": true, \"name\": \"happypath-product-1734567890\", \"price\": 15.00}",
+    "ResponseBody": "{\"product_id\": 1, \"name\": \"happypath-product-1734567890\", \"price\": 15.00, \"category\": \"Electronics\", \"description\": \"Happy path test product\", \"in_stock\": true}",
+    "RequestHeaders": {
+      "Content-Type": [
+        "application/json"
+      ],
+      "Authorization": [
+        "Bearer SKYRAMP_PLACEHOLDER_TOKEN"
+      ]
+    },
+    "ResponseHeaders": {
+      "Content-Type": [
+        "application/json"
+      ]
+    },
+    "Method": "POST",
+    "Path": "/api/v1/products",
+    "QueryParams": {},
+    "StatusCode": 201,
+    "Port": 8000,
+    "Timestamp": "2026-03-31T05:56:57.227Z",
+    "Scheme": "http"
+  },
+  {
+    "Source": "192.168.65.1:39998",
+    "Destination": "localhost",
+    "RequestBody": "{\"customer_email\": \"happypath@example.com\", \"items\": [{\"product_id\": 1, \"quantity\": 1}]}",
+    "ResponseBody": "{\"order_id\": 1, \"customer_email\": \"happypath@example.com\", \"status\": \"pending\", \"total_amount\": 15.00, \"items\": [{\"order_item_id\": 1, \"product_id\": 1, \"quantity\": 1}], \"discount_type\": null, \"discount_value\": null, \"discount_amount\": null, \"created_at\": \"2026-01-01T00:00:00\", \"updated_at\": \"2026-01-01T00:00:00\"}",
+    "RequestHeaders": {
+      "Content-Type": [
+        "application/json"
+      ],
+      "Authorization": [
+        "Bearer SKYRAMP_PLACEHOLDER_TOKEN"
+      ]
+    },
+    "ResponseHeaders": {
+      "Content-Type": [
+        "application/json"
+      ]
+    },
+    "Method": "POST",
+    "Path": "/api/v1/orders",
+    "QueryParams": {},
+    "StatusCode": 201,
+    "Port": 8000,
+    "Timestamp": "2026-03-31T05:56:57.227Z",
+    "Scheme": "http"
+  },
+  {
+    "Source": "192.168.65.1:39998",
+    "Destination": "localhost",
+    "RequestBody": "{\"customer_email\": \"updated-happypath@example.com\", \"status\": \"confirmed\", \"items\": [{\"product_id\": 1, \"quantity\": 2}]}",
+    "ResponseBody": "{\"order_id\": 1, \"customer_email\": \"updated-happypath@example.com\", \"status\": \"confirmed\", \"total_amount\": 15.00, \"items\": [{\"order_item_id\": 2, \"product_id\": 1, \"quantity\": 2}], \"discount_type\": null, \"discount_value\": null, \"discount_amount\": null, \"created_at\": \"2026-01-01T00:00:00\", \"updated_at\": \"2026-01-01T00:00:00\"}",
+    "RequestHeaders": {
+      "Content-Type": [
+        "application/json"
+      ],
+      "Authorization": [
+        "Bearer SKYRAMP_PLACEHOLDER_TOKEN"
+      ]
+    },
+    "ResponseHeaders": {
+      "Content-Type": [
+        "application/json"
+      ]
+    },
+    "Method": "PATCH",
+    "Path": "/api/v1/orders/1",
+    "QueryParams": {},
+    "StatusCode": 200,
+    "Port": 8000,
+    "Timestamp": "2026-03-31T05:56:57.227Z",
+    "Scheme": "http"
+  }
+]
