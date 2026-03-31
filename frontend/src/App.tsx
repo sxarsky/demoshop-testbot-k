@@ -3,6 +3,7 @@ import ProductCatalog from './components/products/ProductCatalog'
 import ProductDetail from './components/products/ProductDetail'
 import OrderCatalog from './components/orders/OrderCatalog'
 import OrderDetail from './components/orders/OrderDetail'
+import EditOrderForm from './components/orders/EditOrderForm'
 import { useState, useEffect } from 'react'
 import { ensureSessionId, getSessionIdFromCookie } from './lib/utils'
 import './App.css'
@@ -30,6 +31,7 @@ function App() {
         <Route path="/products/:id" element={<ProductDetail />} />
         <Route path="/orders" element={<OrderCatalog />} />
         <Route path="/orders/:order_id" element={<OrderDetail />} />
+        <Route path="/orders/:order_id/edit" element={<EditOrderForm />} />
         <Route path="/" element={<Navigate to="/products" replace />} />
       </Routes>
     </BrowserRouter>

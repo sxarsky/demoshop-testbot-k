@@ -3,7 +3,7 @@ Order models for the API.
 """
 from datetime import datetime
 from enum import Enum
-from typing import List
+from typing import List, Optional
 from pydantic import BaseModel, Field, EmailStr
 
 class OrderStatus(str, Enum):
@@ -40,6 +40,9 @@ class OrderBase(BaseModel):
     customer_email: EmailStr = Field(max_length=255)
     status: OrderStatus = Field(default=OrderStatus.PENDING)
     total_amount: float = Field(default=0.0)
+    discount_type: Optional[str] = Field(default=None)
+    discount_value: Optional[float] = Field(default=None)
+    discount_amount: Optional[float] = Field(default=None)
 
 class Order(OrderBase):
     """Model for orders."""
@@ -96,3 +99,27 @@ class OrderRead(OrderBase):
 class OrderCancel(BaseModel):
     """Model for cancelling an order."""
     message: str = Field(default="Order cancelled successfully")
+
+class OrderUpdate(BaseModel):
+    """Model for updating an existing order."""
+    customer_email: Optional[EmailStr] = Field(default=None, max_length=255)
+    status: Optional[OrderStatus] = Field(default=None)
+    items: Optional[List[OrderItemCreate]] = Field(default=None)
+    discount_type: Optional[str] = Field(default=None)
+    discount_value: Optional[float] = Field(default=None)
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "customer_email": "updated@mail.com",
+                "status": "confirmed",
+                "items": [
+                    {
+                        "quantity": 3,
+                        "product_id": 1
+                    }
+                ],
+                "discount_type": "percentage",
+                "discount_value": 10.0
+            }
+        }
+    }
