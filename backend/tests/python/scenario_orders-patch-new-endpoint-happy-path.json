@@ -1,0 +1,80 @@
+[
+  {
+    "Source": "192.168.65.1:39998",
+    "Destination": "localhost",
+    "RequestBody": "{\"name\": \"Test Widget\", \"description\": \"A test widget\", \"price\": 19.99, \"image_url\": \"https://example.com/widget.jpg\", \"category\": \"Gadgets\", \"in_stock\": true}",
+    "ResponseBody": "{\"product_id\": 1, \"name\": \"Test Widget\", \"description\": \"A test widget\", \"price\": 19.99, \"image_url\": \"https://example.com/widget.jpg\", \"category\": \"Gadgets\", \"in_stock\": true}",
+    "RequestHeaders": {
+      "Content-Type": [
+        "application/json"
+      ],
+      "Authorization": [
+        "Bearer SKYRAMP_PLACEHOLDER_TOKEN"
+      ]
+    },
+    "ResponseHeaders": {
+      "Content-Type": [
+        "application/json"
+      ]
+    },
+    "Method": "POST",
+    "Path": "/api/v1/products",
+    "QueryParams": {},
+    "StatusCode": 201,
+    "Port": 8000,
+    "Timestamp": "2026-03-31T05:55:17.203Z",
+    "Scheme": "http"
+  },
+  {
+    "Source": "192.168.65.1:39998",
+    "Destination": "localhost",
+    "RequestBody": "{\"customer_email\": \"original@example.com\", \"items\": [{\"product_id\": 1, \"quantity\": 1}]}",
+    "ResponseBody": "{\"order_id\": 1, \"customer_email\": \"original@example.com\", \"status\": \"pending\", \"total_amount\": 19.99, \"discount_type\": null, \"discount_value\": null, \"discount_amount\": null, \"items\": [{\"order_item_id\": 1, \"order_id\": 1, \"product_id\": 1, \"quantity\": 1}]}",
+    "RequestHeaders": {
+      "Content-Type": [
+        "application/json"
+      ],
+      "Authorization": [
+        "Bearer SKYRAMP_PLACEHOLDER_TOKEN"
+      ]
+    },
+    "ResponseHeaders": {
+      "Content-Type": [
+        "application/json"
+      ]
+    },
+    "Method": "POST",
+    "Path": "/api/v1/orders",
+    "QueryParams": {},
+    "StatusCode": 201,
+    "Port": 8000,
+    "Timestamp": "2026-03-31T05:55:17.203Z",
+    "Scheme": "http"
+  },
+  {
+    "Source": "192.168.65.1:39998",
+    "Destination": "localhost",
+    "RequestBody": "{\"customer_email\": \"updated@example.com\", \"status\": \"confirmed\", \"items\": [{\"product_id\": 1, \"quantity\": 2}]}",
+    "ResponseBody": "{\"order_id\": 1, \"customer_email\": \"updated@example.com\", \"status\": \"confirmed\", \"total_amount\": 19.99, \"discount_type\": null, \"discount_value\": null, \"discount_amount\": null, \"items\": [{\"order_item_id\": 2, \"order_id\": 1, \"product_id\": 1, \"quantity\": 2}]}",
+    "RequestHeaders": {
+      "Content-Type": [
+        "application/json"
+      ],
+      "Authorization": [
+        "Bearer SKYRAMP_PLACEHOLDER_TOKEN"
+      ]
+    },
+    "ResponseHeaders": {
+      "Content-Type": [
+        "application/json"
+      ]
+    },
+    "Method": "PATCH",
+    "Path": "/api/v1/orders/1",
+    "QueryParams": {},
+    "StatusCode": 200,
+    "Port": 8000,
+    "Timestamp": "2026-03-31T05:55:17.203Z",
+    "Scheme": "http"
+  }
+]
