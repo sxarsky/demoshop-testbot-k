@@ -1,12 +1,13 @@
 """
 CRUD operations for orders.
 """
+from datetime import datetime
 from json import loads
 from fastapi.encoders import jsonable_encoder
 from redis import Redis
 from redis.commands.json.path import Path
 from redis.commands.search.query import Query, NumericFilter
-from api_insight.models.order import Order, OrderStatus, OrderItem, OrderCreate
+from api_insight.models.order import Order, OrderStatus, OrderItem, OrderCreate, OrderUpdate
 from api_insight.crud import products
 from api_insight.core.cache import get_or_create_orders_index, get_or_create_order_items_index
 from api_insight.core.config import get_settings
@@ -123,3 +124,71 @@ def set_order_item_id(cache: Redis, session_id: str) -> int:
     keys = cache.keys(f'{session_id}:orderitems:*')
     max_id = max(int(k.split(":")[-1]) for k in keys)
     return max_id + 1
+
+def update_order(cache: Redis, session_id: str, order_id: int, order_update: OrderUpdate) -> Order:
+    """Update an existing order."""
+    key = session_id if session_id and session_id != "" else DEFAULT_KEY
+    order = get_order(cache, key, order_id)
+    if not order:
+        raise ValueError("Order not found")
+
+    # Update customer email if provided
+    if order_update.customer_email is not None:
+        order.customer_email = order_update.customer_email
+
+    # Update status if provided
+    if order_update.status is not None:
+        order.status = order_update.status
+
+    # Update items if provided - write new records with fresh IDs, remove old ones
+    if order_update.items is not None:
+        existing_items = get_order_items(cache, session_id, order_id)
+        existing_ids = [
+            item["order_item_id"] if isinstance(item, dict) else item.order_item_id
+            for item in existing_items
+        ]
+
+        new_items = []
+        for item in order_update.items:
+            product = products.get_product(cache, key, item.product_id)
+            if not product:
+                raise ValueError(f"Product with id {item.product_id} not found")
+            order_item_id = set_order_item_id(cache, key)
+            order_item = OrderItem(
+                order_item_id=order_item_id,
+                order_id=order_id,
+                product_id=product["product_id"],
+                quantity=item.quantity,
+                unit_price=product["price"]
+            )
+            order_item_encoded = jsonable_encoder(order_item.model_dump())
+            cache.json().set(f'{key}:orderitems:{order_item_id}', Path.root_path(), order_item_encoded)
+            cache.expire(f'{key}:orderitems:{order_item_id}', settings.KEY_TTL_SECONDS)
+            new_items.append(order_item)
+
+        # Remove old item keys after new ones are written
+        for old_id in existing_ids:
+            cache.delete(f'{key}:orderitems:{old_id}')
+
+        order.items = new_items
+
+    # Update discount fields
+    if order_update.discount_type is not None and order_update.discount_value is not None:
+        order.discount_type = order_update.discount_type
+        order.discount_value = order_update.discount_value
+        if order_update.discount_type == "percentage":
+            order.discount_amount = order.total_amount * order_update.discount_value / 100
+        elif order_update.discount_type == "fixed":
+            order.discount_amount = order_update.discount_value
+        else:
+            order.discount_amount = None
+
+    # Update timestamp
+    order.updated_at = datetime.utcnow()
+
+    # Save updated order
+    order_encoded = jsonable_encoder(order.model_dump())
+    cache.json().set(f'{key}:orders:{order_id}', Path.root_path(), order_encoded)
+    cache.expire(f'{key}:orders:{order_id}', settings.KEY_TTL_SECONDS)
+
+    return order

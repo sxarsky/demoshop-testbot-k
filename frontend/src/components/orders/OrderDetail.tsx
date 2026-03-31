@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Suspense } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import ProductItem from "../products/ProductItem";
 import { NavBar } from "@/components/ui/navbar";
 import { getSessionIdFromCookie } from '../../lib/utils';
 import { apiUrl } from '../../config';
+
+const EditOrderForm = React.lazy(() => import("./EditOrderForm"));
 
 export default function OrderDetail() {
   const { order_id } = useParams<{ order_id: string }>();
@@ -14,6 +16,7 @@ export default function OrderDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [cancelling, setCancelling] = useState(false);
+  const [showEditForm, setShowEditForm] = useState(false);
 
   useEffect(() => {
     if (!order_id) return;
@@ -47,6 +50,35 @@ export default function OrderDetail() {
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, [order_id]);
+
+  const handleOrderUpdate = async (updatedFields: any) => {
+    setOrder((prev: any) => {
+      const next = { ...prev, ...updatedFields };
+      // Recompute discount_amount client-side when discount fields change
+      if (updatedFields.discount_type && updatedFields.discount_value != null) {
+        if (updatedFields.discount_type === 'percentage') {
+          next.discount_amount = prev.total_amount * updatedFields.discount_value / 100;
+        } else if (updatedFields.discount_type === 'fixed') {
+          next.discount_amount = updatedFields.discount_value;
+        }
+      }
+      return next;
+    });
+    // Re-fetch product details if items changed
+    if (updatedFields.items) {
+      const sessionId = getSessionIdFromCookie();
+      const newProducts = await Promise.all(
+        updatedFields.items.map((item: any) =>
+          fetch(apiUrl(`/api/v1/products/${item.product_id}`), {
+            headers: { 'Authorization': `Bearer ${sessionId}` },
+          })
+            .then((res) => (res.ok ? res.json() : null))
+            .catch(() => null)
+        )
+      );
+      setProducts(newProducts.filter(Boolean));
+    }
+  };
 
   const handleCancelOrder = async () => {
     if (!order_id) return;
@@ -103,9 +135,31 @@ export default function OrderDetail() {
             <div style={{ fontSize: '1.125rem', fontWeight: 500, textTransform: 'capitalize' }} className="text-gray-900 mt-1" data-testId="order-detail-value-status">{order.status === 'confirmed' ? 'Confirmed' : order.status}</div>
           </div>
           <div style={{ marginBottom: '1rem' }} className="mb-1" data-testId="order-detail-total">
-            <span style={{ color: '#9ca3af' }} data-testId="order-detail-label-total">Total:</span>
+            <span style={{ color: '#9ca3af' }} data-testId="order-detail-label-total">Subtotal:</span>
             <div style={{ fontSize: '1.125rem', fontWeight: 500 }} className="text-gray-900 mt-1" data-testId="order-detail-value-total">${order.total_amount.toFixed(2)}</div>
           </div>
+          {order.discount_type && (
+            <div style={{ marginBottom: '1rem' }} className="mb-1" data-testId="order-detail-discount">
+              <span style={{ color: '#9ca3af' }} data-testId="order-detail-label-discount">Discount:</span>
+              <div style={{ fontSize: '1.125rem', fontWeight: 500 }} className="text-gray-900 mt-1" data-testId="order-detail-value-discount">
+                {order.discount_type === 'percentage'
+                  ? `${order.discount_value}% off`
+                  : `$${(order.discount_value ?? 0).toFixed(2)} off`}
+                {' '}
+                <span style={{ color: '#6b7280', fontSize: '1rem' }}>
+                  (−${(order.discount_amount ?? 0).toFixed(2)})
+                </span>
+              </div>
+            </div>
+          )}
+          {order.discount_type && (
+            <div style={{ marginBottom: '1rem' }} className="mb-1" data-testId="order-detail-net-total">
+              <span style={{ color: '#9ca3af' }} data-testId="order-detail-label-net-total">Net Total:</span>
+              <div style={{ fontSize: '1.125rem', fontWeight: 600, color: '#0f766e' }} className="mt-1" data-testId="order-detail-value-net-total">
+                ${(order.total_amount - (order.discount_amount ?? 0)).toFixed(2)}
+              </div>
+            </div>
+          )}
         </div>
         <h2 style={{ fontWeight: 700, fontSize: '1.5rem', lineHeight: '2rem', textAlign: 'left', margin: 0, marginBottom: '1.5rem', paddingLeft: 0 }} data-testId="order-detail-items-heading">
           Order Items
@@ -129,6 +183,28 @@ export default function OrderDetail() {
         {/* Add extra space below order items */}
         <div style={{ height: '1.5rem' }} />
         <div className="flex flex-col items-center" style={{ marginTop: '0.5rem', gap: '1rem', alignItems: 'center', justifyContent: 'center', display: 'flex' }} data-testId="order-detail-buttons">
+          {order.status !== 'cancelled' && (
+            <Button
+              variant="link"
+              className="w-fit"
+              onClick={() => setShowEditForm(true)}
+              style={{
+                color: '#fff',
+                background: '#111827',
+                border: '1.5px solid transparent',
+                transition: 'background 0.2s, border-color 0.2s',
+              }}
+              onMouseOver={e => {
+                e.currentTarget.style.background = '#374151';
+              }}
+              onMouseOut={e => {
+                e.currentTarget.style.background = '#111827';
+              }}
+              data-testId="order-detail-edit-btn"
+            >
+              Edit Order
+            </Button>
+          )}
           {order.status !== 'cancelled' && (
             <Button
               variant="destructive"
@@ -178,6 +254,15 @@ export default function OrderDetail() {
           </Button>
         </div>
       </div>
+      {showEditForm && (
+        <Suspense fallback={null}>
+          <EditOrderForm
+            order={order}
+            onClose={() => setShowEditForm(false)}
+            onUpdate={handleOrderUpdate}
+          />
+        </Suspense>
+      )}
     </div>
   );
 }
