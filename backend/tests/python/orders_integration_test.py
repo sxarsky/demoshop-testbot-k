@@ -65,6 +65,12 @@ def test_integration():
             break
         time.sleep(sleep_time)
 
+    assert orders_order_id_GET_response.status_code == 200
+    assert skyramp.get_response_value(orders_order_id_GET_response, "order_id") == skyramp.get_response_value(orders_POST_response, "order_id")
+    assert skyramp.get_response_value(orders_order_id_GET_response, "discount_type") is None or isinstance(skyramp.get_response_value(orders_order_id_GET_response, "discount_type"), str)
+    assert skyramp.get_response_value(orders_order_id_GET_response, "discount_value") is None or skyramp.get_response_value(orders_order_id_GET_response, "discount_value") >= 0
+    assert skyramp.get_response_value(orders_order_id_GET_response, "discount_amount") is None or skyramp.get_response_value(orders_order_id_GET_response, "discount_amount") >= 0
+
 
     # Execute Request
     orders_order_id_DELETE_response = client.send_request(

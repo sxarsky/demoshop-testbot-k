@@ -1,0 +1,80 @@
+[
+  {
+    "Source": "192.168.65.1:39998",
+    "Destination": "localhost",
+    "RequestBody": "{\"name\": \"Happy Path Product\", \"description\": \"Product for happy path test\", \"price\": 19.99, \"image_url\": \"https://example.com/happy-product.jpg\", \"category\": \"Test\", \"in_stock\": true}",
+    "ResponseBody": "{\"product_id\": 1, \"name\": \"Happy Path Product\", \"price\": 19.99}",
+    "RequestHeaders": {
+      "Content-Type": [
+        "application/json"
+      ],
+      "Authorization": [
+        "Bearer SKYRAMP_PLACEHOLDER_TOKEN"
+      ]
+    },
+    "ResponseHeaders": {
+      "Content-Type": [
+        "application/json"
+      ]
+    },
+    "Method": "POST",
+    "Path": "/api/v1/products",
+    "QueryParams": {},
+    "StatusCode": 201,
+    "Port": 8000,
+    "Timestamp": "2026-03-31T10:30:48.343Z",
+    "Scheme": "http"
+  },
+  {
+    "Source": "192.168.65.1:39998",
+    "Destination": "localhost",
+    "RequestBody": "{\"customer_email\": \"original@mail.com\", \"items\": [{\"product_id\": 1, \"quantity\": 1}]}",
+    "ResponseBody": "{\"order_id\": 1, \"customer_email\": \"original@mail.com\", \"status\": \"pending\", \"total_amount\": 19.99, \"discount_type\": null, \"discount_value\": null, \"discount_amount\": null, \"items\": [{\"order_item_id\": 1, \"product_id\": 1, \"quantity\": 1, \"unit_price\": 19.99}]}",
+    "RequestHeaders": {
+      "Content-Type": [
+        "application/json"
+      ],
+      "Authorization": [
+        "Bearer SKYRAMP_PLACEHOLDER_TOKEN"
+      ]
+    },
+    "ResponseHeaders": {
+      "Content-Type": [
+        "application/json"
+      ]
+    },
+    "Method": "POST",
+    "Path": "/api/v1/orders",
+    "QueryParams": {},
+    "StatusCode": 201,
+    "Port": 8000,
+    "Timestamp": "2026-03-31T10:30:48.343Z",
+    "Scheme": "http"
+  },
+  {
+    "Source": "192.168.65.1:39998",
+    "Destination": "localhost",
+    "RequestBody": "{\"customer_email\": \"updated@mail.com\", \"status\": \"confirmed\", \"items\": [{\"product_id\": 1, \"quantity\": 2}], \"discount_type\": \"fixed\", \"discount_value\": 5.0}",
+    "ResponseBody": "{\"order_id\": 1, \"customer_email\": \"updated@mail.com\", \"status\": \"confirmed\", \"total_amount\": 19.99, \"discount_type\": \"fixed\", \"discount_value\": 5.0, \"discount_amount\": 5.0, \"items\": [{\"order_item_id\": 2, \"product_id\": 1, \"quantity\": 2, \"unit_price\": 19.99}]}",
+    "RequestHeaders": {
+      "Content-Type": [
+        "application/json"
+      ],
+      "Authorization": [
+        "Bearer SKYRAMP_PLACEHOLDER_TOKEN"
+      ]
+    },
+    "ResponseHeaders": {
+      "Content-Type": [
+        "application/json"
+      ]
+    },
+    "Method": "PATCH",
+    "Path": "/api/v1/orders/1",
+    "QueryParams": {},
+    "StatusCode": 200,
+    "Port": 8000,
+    "Timestamp": "2026-03-31T10:30:48.343Z",
+    "Scheme": "http"
+  }
+]
